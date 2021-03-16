@@ -5,7 +5,6 @@ import { retryAsync } from 'ts-retry';
 import { SomneoConstants } from './somneoConstants';
 import { Light, LightSettings, NightLight, SensorReadings, SunsetProgram, UserSettings } from './types';
 
-
 export class SomneoService {
 
   private readonly http: AxiosInstance;
@@ -56,9 +55,9 @@ export class SomneoService {
 
     const body: SunsetProgram = { onoff: isOn };
 
-    this.http
+    await retryAsync(() => this.http
       .put(this.sunsetProgramUri, body)
-      .then(res => res.data);
+      .then(res => res.data));
   }
 
   async getLightSettings(): Promise<LightSettings> {
@@ -76,27 +75,27 @@ export class SomneoService {
 
     const body: NightLight = { ngtlt: isOn };
 
-    this.http
+    await retryAsync(() => this.http
       .put(this.lightsUri, body)
-      .then(res => res.data);
+      .then(res => res.data));
   }
 
   async modifyLightState(isOn: boolean): Promise<void> {
 
     const body: Light = isOn ? { onoff: true, tempy: false } : { onoff: false };
 
-    this.http
+    await retryAsync(() => this.http
       .put(this.lightsUri, body)
-      .then(res => res.data);
+      .then(res => res.data));
   }
 
   async modifyLightBrightness(brightness: number): Promise<void> {
 
-    // Scale to Somneo range 0..25
+    // Scale to Somneo range 0 to 25
     const body: Light = { ltlvl: Math.floor((brightness / 4) + 0.5) };
 
-    this.http
+    await retryAsync(() =>this.http
       .put(this.lightsUri, body)
-      .then(res => res.data);
+      .then(res => res.data));
   }
 }
