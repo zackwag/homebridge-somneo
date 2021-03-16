@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "HomebridgeSomneo",
   "pluginType": "platform",
   "singular": true,
   "schema": {
@@ -9,8 +9,39 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "Homebridge Somneo",
+        "description": "Name for plugin that will appear in Homebridge Logs."
+      },
+      "host": {
+        "title": "Host",
+        "type": "string",
+        "required": true,
+        "description": "IP Address of Somneo clock."
+      },
+      "pollingSeconds": {
+        "title": "Polling Interval",
+        "type": "number",
+        "default": 30,
+        "description": "Interval (in seconds) to check status and update accessories."
       }
     }
-  }
+  },
+  "layout": [
+    {
+      "type": "section",
+      "title": "Plugin Settings",
+      "items": [
+        "name"
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Advanced Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "pollingSeconds"
+      ]
+    }
+  ]
 }
