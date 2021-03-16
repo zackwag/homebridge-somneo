@@ -46,6 +46,11 @@ export class SomneoLightAccessory implements SomneoAccessory {
       const lightSettings = await this.somneoService.getLightSettings();
       this.isLightOn = lightSettings.onoff;
       this.lightBrightness = lightSettings.ltlvl * 4; // Philips stores up to 100 so multiply to get percentage
+
+      // Setters make HTTP calls
+      // To avoid that during polling refresh, call getters to refresh UI
+      this.lightService.getCharacteristic(this.platform.Characteristic.On);
+      this.lightService.getCharacteristic(this.platform.Characteristic.Brightness);
     } catch(err) {
       this.platform.log.error(`Error updating Lights: err=${err}`);
     }
