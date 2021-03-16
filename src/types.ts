@@ -40,9 +40,9 @@ export class UserSettings {
 
   constructor(private config: PlatformConfig) {
 
-    this.Host = this.config.host;
+    this.Host = this.config.host as string;
 
     // If the user has not specified a polling interval, default to 30s (in milliseconds)
-    this.PollingMilliSeconds = (this.config.pollingSeconds || UserSettings.DEFAULT_POLLING_SECONDS) * 1000;
+    this.PollingMilliSeconds = (this.config.pollingSeconds as number|| UserSettings.DEFAULT_POLLING_SECONDS) * 1000;
   }
 }
