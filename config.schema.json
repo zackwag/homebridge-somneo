@@ -1,47 +1,54 @@
 {
-  "pluginAlias": "HomebridgeSomneo",
-  "pluginType": "platform",
-  "singular": true,
-  "schema": {
-    "type": "object",
-    "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string",
-        "required": true,
-        "default": "Homebridge Somneo",
-        "description": "Name for plugin that will appear in Homebridge Logs."
-      },
-      "host": {
-        "title": "Host",
-        "type": "string",
-        "required": true,
-        "description": "IP Address of Somneo clock."
-      },
-      "pollingSeconds": {
-        "title": "Polling Interval",
-        "type": "number",
-        "default": 30,
-        "description": "Interval (in seconds) to check status and update accessories."
+    "pluginAlias": "HomebridgeSomneo",
+    "pluginType": "platform",
+    "singular": true,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string",
+          "required": true,
+          "default": "Homebridge Somneo",
+          "description": "Name for plugin that will appear in Homebridge Logs."
+        },
+        "host": {
+          "title": "Host",
+          "type": "string",
+          "required": true,
+          "description": "IP Address of Somneo clock."
+        },
+        "pollingSeconds": {
+          "title": "Polling Interval",
+          "type": "number",
+          "default": 30,
+          "description": "Interval (in seconds) to check status and update accessories."
+        }
       }
-    }
-  },
-  "layout": [
-    {
-      "type": "section",
-      "title": "Plugin Settings",
-      "items": [
-        "name"
-      ]
     },
-    {
-      "type": "section",
-      "title": "Advanced Settings",
-      "expandable": true,
-      "expanded": false,
-      "items": [
-        "pollingSeconds"
-      ]
-    }
-  ]
-}
+    "layout": [
+      {
+        "type": "section",
+        "title": "Plugin Settings",
+        "items": [
+          "name"
+        ]
+      },
+      {
+        "type": "section",
+        "title": "Somneo Settings",
+        "items": [
+          "host"
+        ]
+      },
+      {
+        "type": "section",
+        "title": "Advanced Settings",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "pollingSeconds"
+        ]
+      }
+    ]
+  }
