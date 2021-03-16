@@ -39,11 +39,9 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
 
     try {
       const sunsetProgram = await this.somneoService.getSunsetProgram();
-      this.isProgramOn = sunsetProgram.onoff;
 
-      // Setters make HTTP calls
-      // To avoid that during polling refresh, call getters to refresh UI
-      this.switchService.getCharacteristic(this.platform.Characteristic.On);
+      this.isProgramOn = sunsetProgram.onoff;
+      this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(this.isProgramOn);
     } catch(err) {
       this.platform.log.error(`Error updating Sunset Program Switch: err=${err}`);
     }

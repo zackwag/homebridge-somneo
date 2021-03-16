@@ -52,14 +52,13 @@ export class SomneoSensorAccessory implements SomneoAccessory {
     try {
       const sensorReadings = await this.somneoService.getSensorReadings();
       this.temperature = sensorReadings.mstmp;
-      this.humidity = sensorReadings.msrhu;
-      this.lightLevel = sensorReadings.mslux;
+      this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature).updateValue(this.temperature);
 
-      // Setters make HTTP calls
-      // To avoid that during polling refresh, call getters to refresh UI
-      this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature);
-      this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity);
-      this.lightService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel);
+      this.humidity = sensorReadings.msrhu;
+      this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity).updateValue(this.humidity);
+
+      this.lightLevel = sensorReadings.mslux;
+      this.lightService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel).updateValue(this.lightLevel);
     } catch (err) {
       this.platform.log.error(`Error updating Sensors: err=${err}`);
     }
