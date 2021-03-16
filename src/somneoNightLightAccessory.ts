@@ -39,11 +39,9 @@ export class SomneoNightLightAccessory implements SomneoAccessory {
 
     try {
       const lightSettings = await this.somneoService.getLightSettings();
-      this.isNightLightOn = lightSettings.ngtlt;
 
-      // Setters make HTTP calls
-      // To avoid that during polling refresh, call getters to refresh UI
-      this.nightLightService.getCharacteristic(this.platform.Characteristic.On);
+      this.isNightLightOn = lightSettings.ngtlt;
+      this.nightLightService.getCharacteristic(this.platform.Characteristic.On).updateValue(this.isNightLightOn);
     } catch(err) {
       this.platform.log.error(`Error updating Night Light: err=${err}`);
     }
