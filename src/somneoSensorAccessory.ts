@@ -6,11 +6,16 @@ import { SomneoAccessory } from './types';
 
 export class SomneoSensorAccessory implements SomneoAccessory {
 
+  private static readonly HUMIDITY_SENSOR_NAME = `${SomneoConstants.SOMNEO} Humidity Sensor`;
+  private static readonly LUX_SENSOR_NAME = `${SomneoConstants.SOMNEO} Lux Sensor`;
+  private static readonly NAME = `${SomneoConstants.SOMNEO} Sensors`;
+  private static readonly TEMPERATURE_SENSOR_NAME = `${SomneoConstants.SOMNEO} Temperature Sensor`;
+
   private informationService: Service;
   private humidity = 0;
   private humidityService: Service;
-  private lightLevel = 0;
-  private lightService: Service;
+  private luxLevel = SomneoConstants.HOMEBRIDGE_MIN_LUX_LEVEL;
+  private luxService: Service;
   private somneoService: SomneoService;
   private temperatureService: Service;
   private temperature = 0;
@@ -21,18 +26,18 @@ export class SomneoSensorAccessory implements SomneoAccessory {
     private platform: SomneoPlatform,
   ) {
     this.somneoService = this.platform.SomneoService;
-    this.name = 'Somneo Sensors';
+    this.name = SomneoSensorAccessory.NAME;
 
     // set accessory information
     this.informationService = new this.platform.Service.AccessoryInformation()
       .setCharacteristic(this.platform.Characteristic.Manufacturer, SomneoConstants.SOMNEO_MANUFACTURER)
       .setCharacteristic(this.platform.Characteristic.Model, SomneoConstants.SOMNEO_MODEL)
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, String(this.platform.config.host));
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.platform.UserSettings.Host);
 
     // set the service names, this is what is displayed as the default name on the Home app
-    this.temperatureService = new platform.Service.TemperatureSensor('Somneo Temperature Sensor');
-    this.humidityService = new platform.Service.HumiditySensor('Somneo Humidity Sensor');
-    this.lightService = new platform.Service.LightSensor('Somneo Light Snesor');
+    this.temperatureService = new platform.Service.TemperatureSensor(SomneoSensorAccessory.TEMPERATURE_SENSOR_NAME);
+    this.humidityService = new platform.Service.HumiditySensor(SomneoSensorAccessory.HUMIDITY_SENSOR_NAME);
+    this.luxService = new platform.Service.LightSensor(SomneoSensorAccessory.LUX_SENSOR_NAME);
 
     // register handlers for the characteristics
     this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
@@ -41,7 +46,7 @@ export class SomneoSensorAccessory implements SomneoAccessory {
     this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
       .on('get', this.getRelativeHumidity.bind(this));
 
-    this.lightService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+    this.luxService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
       .on('get', this.getCurrentAmbientLightLevel.bind(this));
 
     this.updateValues();
@@ -57,10 +62,13 @@ export class SomneoSensorAccessory implements SomneoAccessory {
       this.humidity = sensorReadings.msrhu;
       this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity).updateValue(this.humidity);
 
-      this.lightLevel = sensorReadings.mslux;
-      this.lightService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel).updateValue(this.lightLevel);
+      // There is a minimum lux value allowedin Homebridge.
+      // Philips uses 0 as the min which will cause errors;
+      this.luxLevel = sensorReadings.mslux > SomneoConstants.HOMEBRIDGE_MIN_LUX_LEVEL ?
+        sensorReadings.mslux : SomneoConstants.HOMEBRIDGE_MIN_LUX_LEVEL;
+      this.luxService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel).updateValue(this.luxLevel);
     } catch (err) {
-      this.platform.log.error(`Error updating Sensors: err=${err}`);
+      this.platform.log.error(`Error updating ${this.name}, err=${err}`);
     }
   }
 
@@ -70,7 +78,7 @@ export class SomneoSensorAccessory implements SomneoAccessory {
       return;
     }
 
-    this.platform.log.info('Set CurrentTemperature ->', value);
+    this.platform.log.info(`Set ${SomneoSensorAccessory.TEMPERATURE_SENSOR_NAME} ->`, value);
 
     this.temperature = value;
     callback(null);
@@ -78,7 +86,7 @@ export class SomneoSensorAccessory implements SomneoAccessory {
 
   getTemperature(callback: CharacteristicGetCallback) {
 
-    this.platform.log.debug('Get CurrentTemperature ->', this.temperature);
+    this.platform.log.debug(`Get ${SomneoSensorAccessory.TEMPERATURE_SENSOR_NAME} ->`, this.temperature);
     callback(null, this.temperature);
   }
 
@@ -88,7 +96,7 @@ export class SomneoSensorAccessory implements SomneoAccessory {
       return;
     }
 
-    this.platform.log.info('Set CurrentRelativeHumidity ->', value);
+    this.platform.log.info(`Set ${SomneoSensorAccessory.HUMIDITY_SENSOR_NAME} ->`, value);
 
     this.humidity = value;
     callback(null);
@@ -96,26 +104,26 @@ export class SomneoSensorAccessory implements SomneoAccessory {
 
   getRelativeHumidity(callback: CharacteristicGetCallback) {
 
-    this.platform.log.debug('Get CurrentRelativeHumidity ->', this.humidity);
+    this.platform.log.debug(`Get ${SomneoSensorAccessory.HUMIDITY_SENSOR_NAME} ->`, this.humidity);
     callback(null, this.humidity);
   }
 
   setCurrentAmbientLightLevel(value: number, callback: CharacteristicSetCallback) {
 
-    if (value === this.lightLevel) {
+    if (value === this.luxLevel) {
       return;
     }
 
-    this.platform.log.info('Set CurrentAmbientLightLevel ->', value);
+    this.platform.log.info(`Set ${SomneoSensorAccessory.LUX_SENSOR_NAME} ->`, value);
 
-    this.lightLevel = value;
+    this.luxLevel = value;
     callback(null);
   }
 
   getCurrentAmbientLightLevel(callback: CharacteristicGetCallback) {
 
-    this.platform.log.debug('Get CurrentAmbientLightLevel ->', this.lightLevel);
-    callback(null, this.lightLevel);
+    this.platform.log.debug(`Get ${SomneoSensorAccessory.LUX_SENSOR_NAME} ->`, this.luxLevel);
+    callback(null, this.luxLevel);
   }
 
   /*
@@ -127,7 +135,7 @@ export class SomneoSensorAccessory implements SomneoAccessory {
       this.informationService,
       this.temperatureService,
       this.humidityService,
-      this.lightService,
+      this.luxService,
     ];
   }
 }

@@ -6,6 +6,8 @@ import { SomneoAccessory } from './types';
 
 export class SomneoLightAccessory implements SomneoAccessory {
 
+  private static readonly NAME = 'Somneo Lights';
+
   private informationService: Service;
   private isLightOn = false;
   private lightBrightness = 0;
@@ -18,13 +20,13 @@ export class SomneoLightAccessory implements SomneoAccessory {
     private platform: SomneoPlatform,
   ) {
     this.somneoService = platform.SomneoService;
-    this.name = 'Somneo Lights';
+    this.name = SomneoLightAccessory.NAME;
 
     // set accessory information
     this.informationService = new this.platform.Service.AccessoryInformation()
       .setCharacteristic(this.platform.Characteristic.Manufacturer, SomneoConstants.SOMNEO_MANUFACTURER)
       .setCharacteristic(this.platform.Characteristic.Model, SomneoConstants.SOMNEO_MODEL)
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, String(this.platform.config.host));
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.platform.UserSettings.Host);
 
     this.lightService = new platform.Service.Lightbulb(this.name);
 
@@ -52,7 +54,7 @@ export class SomneoLightAccessory implements SomneoAccessory {
       this.lightBrightness = (lightSettings.ltlvl * 4);
       this.lightService.getCharacteristic(this.platform.Characteristic.Brightness).updateValue(this.lightBrightness);
     } catch(err) {
-      this.platform.log.error(`Error updating Lights: err=${err}`);
+      this.platform.log.error(`Error updating ${this.name}, err=${err}`);
     }
   }
 
@@ -69,7 +71,7 @@ export class SomneoLightAccessory implements SomneoAccessory {
 
     this.somneoService.modifyLightState(value as boolean);
 
-    this.platform.log.info('Set Light ->', value);
+    this.platform.log.info(`Set ${this.name} state ->`, value);
 
     this.isLightOn = value as boolean;
     callback(null);
@@ -77,7 +79,7 @@ export class SomneoLightAccessory implements SomneoAccessory {
 
   getLightOn(callback: CharacteristicGetCallback) {
 
-    this.platform.log.debug('Get Light ->', this.isLightOn);
+    this.platform.log.debug(`Get ${this.name} state ->`, this.isLightOn);
     callback(null, this.isLightOn);
   }
 
@@ -89,7 +91,7 @@ export class SomneoLightAccessory implements SomneoAccessory {
 
     this.somneoService.modifyLightBrightness(value as number);
 
-    this.platform.log.info('Set Light Brightness -> ', value);
+    this.platform.log.info(`Set ${this.name} brightness ->`, value);
 
     this.lightBrightness = value as number;
     callback(null);
@@ -97,7 +99,7 @@ export class SomneoLightAccessory implements SomneoAccessory {
 
   getLightBrightness(callback: CharacteristicGetCallback) {
 
-    this.platform.log.debug('Get Light Brightness -> ', this.lightBrightness);
+    this.platform.log.debug(`Get ${this.name} brightness ->`, this.lightBrightness);
     callback(null, this.lightBrightness);
   }
 

@@ -6,6 +6,8 @@ import { SomneoAccessory } from './types';
 
 export class SomneoNightLightAccessory implements SomneoAccessory {
 
+  private static readonly NAME = `${SomneoConstants.SOMNEO} Night Light`;
+
   private informationService: Service;
   private isNightLightOn = false;
   private nightLightService : Service;
@@ -17,13 +19,13 @@ export class SomneoNightLightAccessory implements SomneoAccessory {
     private platform: SomneoPlatform,
   ) {
     this.somneoService = platform.SomneoService;
-    this.name = 'Somneo Night Light';
+    this.name = SomneoNightLightAccessory.NAME;
 
     // set accessory information
     this.informationService = new this.platform.Service.AccessoryInformation()
       .setCharacteristic(this.platform.Characteristic.Manufacturer, SomneoConstants.SOMNEO_MANUFACTURER)
       .setCharacteristic(this.platform.Characteristic.Model, SomneoConstants.SOMNEO_MODEL)
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, String(this.platform.config.host));
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.platform.UserSettings.Host);
 
     this.nightLightService = new platform.Service.Lightbulb(this.name);
 
@@ -43,7 +45,7 @@ export class SomneoNightLightAccessory implements SomneoAccessory {
       this.isNightLightOn = lightSettings.ngtlt;
       this.nightLightService.getCharacteristic(this.platform.Characteristic.On).updateValue(this.isNightLightOn);
     } catch(err) {
-      this.platform.log.error(`Error updating Night Light: err=${err}`);
+      this.platform.log.error(`Error updating ${this.name}, err=${err}`);
     }
   }
 
@@ -60,7 +62,7 @@ export class SomneoNightLightAccessory implements SomneoAccessory {
 
     this.somneoService.modifyNightLight(value as boolean);
 
-    this.platform.log.info('Set Night Light ->', value);
+    this.platform.log.info(`Set ${this.name} state ->`, value);
 
     this.isNightLightOn = value as boolean;
     callback(null);
@@ -68,7 +70,7 @@ export class SomneoNightLightAccessory implements SomneoAccessory {
 
   getNightLightOn(callback: CharacteristicGetCallback) {
 
-    this.platform.log.debug('Get Night Light ->', this.isNightLightOn);
+    this.platform.log.debug(`Get ${this.name} state ->`, this.isNightLightOn);
     callback(null, this.isNightLightOn);
   }
 

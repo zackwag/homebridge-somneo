@@ -1,6 +1,7 @@
 export class SomneoConstants {
 
-  static DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
+  static readonly SOMNEO = 'Somneo';
   static readonly SOMNEO_MANUFACTURER = 'Philips';
   static readonly SOMNEO_MODEL = 'Somneo HF3670/60';
+  static readonly HOMEBRIDGE_MIN_LUX_LEVEL = 0.0001;
 }
