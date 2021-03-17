@@ -51,11 +51,11 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
     this.log.debug(`Will poll every ${this.UserSettings.PollingMilliSeconds}ms`);
 
-    this.SomneoAccessories.forEach(somneoAccessory => {
-      setInterval(() => {
+    setInterval(() => {
+      this.SomneoAccessories.forEach(somneoAccessory => {
         this.log.debug(`Updating accessory=${somneoAccessory.name} values.`);
         somneoAccessory.updateValues();
-      }, this.UserSettings.PollingMilliSeconds);
-    });
+      });
+    }, this.UserSettings.PollingMilliSeconds);
   }
 }

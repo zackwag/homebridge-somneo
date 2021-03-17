@@ -2,7 +2,7 @@ import { CharacteristicGetCallback, CharacteristicSetCallback, CharacteristicVal
 import { SomneoPlatform } from './platform';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoService } from './somneoService';
-import { SomneoAccessory } from './types';
+import { SomneoAccessory, SomneoBinaryAccessory } from './types';
 
 export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
 
@@ -56,8 +56,7 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
     }
 
     if (value as boolean) {
-      this.platform.Lights?.turnOff();
-      this.platform.NightLight?.turnOff();
+      this.getAffectedAccessories().forEach(affectedAccessory => affectedAccessory.turnOff());
     }
 
     this.somneoService.modifySunsetProgram(value as boolean);
@@ -74,8 +73,32 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
     callback(null, this.isProgramOn);
   }
 
+  getAffectedAccessories() {
+
+    const affectedAccessories: SomneoBinaryAccessory[] = [];
+
+    if (this.platform.Lights !== undefined) {
+      affectedAccessories.push(this.platform.Lights);
+    } else {
+      this.platform.log.debug('Lights undefined');
+    }
+
+    if (this.platform.NightLight !== undefined) {
+      affectedAccessories.push(this.platform.NightLight);
+    } else {
+      this.platform.log.debug('Night Light undefined');
+    }
+
+    return affectedAccessories;
+  }
+
   turnOff() {
-    this.switchService.setCharacteristic(this.platform.Characteristic.On, false);
+
+    if (this.isProgramOn) {
+      this.somneoService.modifySunsetProgram(false);
+      this.isProgramOn = false;
+      this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(false);
+    }
   }
 
   /*

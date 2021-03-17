@@ -5,6 +5,11 @@ export interface SomneoAccessory extends AccessoryPlugin {
   updateValues(): Promise<void>;
 }
 
+export interface SomneoBinaryAccessory extends SomneoAccessory {
+  getAffectedAccessories(): SomneoBinaryAccessory[];
+  turnOff(): void;
+}
+
 export interface SensorReadings {
   mslux: number;
   mstmp: number;
