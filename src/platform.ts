@@ -4,7 +4,8 @@ import { SomneoNightLightAccessory } from './somneoNightLightAccessory';
 import { SomneoSensorAccessory } from './somneoSensorAccessory';
 import { SomneoService } from './somneoService';
 import { SomneoSunsetProgramSwitchAccessory } from './somneoSunsetProgramSwitchAccessory';
-import { SomneoAccessory, UserSettings } from './types';
+import { SomneoAccessory } from './types';
+import { RequestedAccessory, UserSettings } from './userSettings';
 
 /**
  * HomebridgePlatform
@@ -29,8 +30,8 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.UserSettings = new UserSettings(this.config);
-    this.SomneoService = new SomneoService(this.log, this.UserSettings);
+    this.UserSettings = new UserSettings(this);
+    this.SomneoService = new SomneoService(this);
 
     this.buildAccessories();
 
@@ -42,14 +43,34 @@ export class SomneoPlatform implements StaticPlatformPlugin {
   }
 
   private buildAccessories() {
-    this.Sensors = new SomneoSensorAccessory(this);
-    this.Lights = new SomneoLightAccessory(this);
-    this.NightLight = new SomneoNightLightAccessory(this);
-    this.SunsetProgramSwitch = new SomneoSunsetProgramSwitchAccessory(this);
 
-    this.SomneoAccessories = [this.Sensors, this.Lights, this.NightLight, this.SunsetProgramSwitch] as SomneoAccessory[];
+    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_HUMIDITY) ||
+        this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_LUX) ||
+        this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_TEMPERATURE)) {
+      this.Sensors = new SomneoSensorAccessory(this);
+      this.log.debug(`Including accessory=${this.Sensors.name}`);
+      this.SomneoAccessories.push(this.Sensors);
+    }
 
-    this.log.debug(`Will poll every ${this.UserSettings.PollingMilliSeconds}ms`);
+    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.LIGHT_MAIN)) {
+      this.Lights = new SomneoLightAccessory(this);
+      this.log.debug(`Including accessory=${this.Lights.name}`);
+      this.SomneoAccessories.push(this.Lights);
+    }
+
+    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.LIGHT_NIGHT_LIGHT)) {
+      this.NightLight = new SomneoNightLightAccessory(this);
+      this.log.debug(`Including accessory=${this.NightLight.name}`);
+      this.SomneoAccessories.push(this.NightLight);
+    }
+
+    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET_PROGRAM)) {
+      this.SunsetProgramSwitch = new SomneoSunsetProgramSwitchAccessory(this);
+      this.log.debug(`Including accessory=${this.SunsetProgramSwitch.name}`);
+      this.SomneoAccessories.push(this.SunsetProgramSwitch);
+    }
+
+    this.log.debug(`Starting poll, pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
 
     setInterval(() => {
       this.SomneoAccessories.forEach(somneoAccessory => {

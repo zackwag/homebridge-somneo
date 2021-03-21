@@ -1,4 +1,4 @@
-import { CharacteristicGetCallback, CharacteristicSetCallback, CharacteristicValue, Service } from 'homebridge';
+import { CharacteristicValue, Service } from 'homebridge';
 import { SomneoPlatform } from './platform';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoService } from './somneoService';
@@ -9,7 +9,7 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
   private static readonly NAME = `${SomneoConstants.SOMNEO} Sunset Program`;
 
   private informationService: Service;
-  private isProgramOn = false;
+  private isProgramOn: boolean | undefined;
   private somneoService: SomneoService;
   private switchService: Service;
 
@@ -31,8 +31,8 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
 
     // register handlers for the characteristics
     this.switchService.getCharacteristic(this.platform.Characteristic.On)
-      .on('set', this.setProgramOn.bind(this))
-      .on('get', this.getProgramOn.bind(this));
+      .onSet(this.setProgramOn.bind(this))
+      .onGet(this.getProgramOn.bind(this));
 
     this.updateValues();
   }
@@ -43,15 +43,16 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
       const sunsetProgram = await this.somneoService.getSunsetProgram();
 
       this.isProgramOn = sunsetProgram.onoff;
-      this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(this.isProgramOn);
+      this.switchService.getCharacteristic(this.platform.Characteristic.On)
+        .updateValue(this.isProgramOn);
     } catch(err) {
       this.platform.log.error(`Error updating ${this.name}, err=${err}`);
     }
   }
 
-  setProgramOn(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+  async setProgramOn(value: CharacteristicValue) {
 
-    if (value as boolean === this.isProgramOn) {
+    if (value as boolean === (this.isProgramOn || SomneoConstants.DEFAULT_BINARY_STATE)) {
       return;
     }
 
@@ -60,17 +61,17 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
     }
 
     this.somneoService.modifySunsetProgram(value as boolean);
-
     this.platform.log.info(`Set ${this.name} ->`, value);
-
     this.isProgramOn = value as boolean;
-    callback(null);
   }
 
-  getProgramOn(callback: CharacteristicGetCallback) {
+  async getProgramOn(): Promise<CharacteristicValue> {
 
-    this.platform.log.debug(`Get ${this.name} ->`, this.isProgramOn);
-    callback(null, this.isProgramOn);
+    if (this.isProgramOn !== undefined) {
+      this.platform.log.debug(`Get ${this.name} ->`, this.isProgramOn);
+    }
+
+    return (this.isProgramOn || SomneoConstants.DEFAULT_BINARY_STATE);
   }
 
   getAffectedAccessories() {
@@ -97,7 +98,9 @@ export class SomneoSunsetProgramSwitchAccessory implements SomneoAccessory {
     if (this.isProgramOn) {
       this.somneoService.modifySunsetProgram(false);
       this.isProgramOn = false;
-      this.switchService.getCharacteristic(this.platform.Characteristic.On).updateValue(false);
+      this.platform.log.info(`Set ${this.name} ->`, this.isProgramOn);
+      this.switchService.getCharacteristic(this.platform.Characteristic.On)
+        .updateValue(this.isProgramOn);
     }
   }
 

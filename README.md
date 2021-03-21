@@ -21,9 +21,28 @@ Before installing this plugin, you should install Homebridge using the [official
 
 ### Most Important Parameters
 
-- `platform`: _(Required)_ Must always be set to `HomebridgeSomneo`.
-- `name`: _(Required)_ Set the plugin name for display in the Homebridge logs (Default: `Homebridge Somneo`).
-- `host`: _(Required)_ IP address or hostname of the Somneo clock.
+| Field | Required | Description                              | Default Value |
+| ------| :------: | ---------------------------------------- | :-----------: |
+| **platform** | *Yes* | Must always be set to `HomebridgeSomneo`.| N/A |
+| **name** | *Yes* | Set the plugin name for display in the Homebridge logs | `Homebridge Somneo` |
+| **host** | *Yes* | IP address or hostname of the Somneo clock. | N/A |
+
+
+### Optional Parameters
+
+| Field | Required | Description                              | Default Value |
+| ------| :-------: | ---------------------------------------- | :------------: |
+| **pollingSeconds**| No | Time in seconds for how often to ping the clock. | `30` or 30000 milliseconds |
+| **enableHumitidySensor**| No | Boolean value for whether or not to include the Humidity Sensor. | `true` |
+| **enableLuxSensor**| No | Boolean value for whether or not to include the Light (or Lux) Sensor. | `true` |
+| **enableTemperatureSensor** | No | Boolean value for whether or not to include the Temperature Sensor. | `true` |
+| **enableMainLights** | No | Boolean value for whether or not to include the Main Light (The dimmable light). | `true` |
+| **enableNightLight** | No | Boolean value for whether or not to include the Night Light. |`true`|
+| **enableSunsetProgram** | No | Boolean value for whether or not to include the Sunset Program switch. | `true` |
+
+#####Configuration Parameters Note
+Due to the way that the Config UI X visual editor works, in order to not force users to write to their config file when they actually want to use an accessory, the boolean values can either be a literal boolean of `true` or a string boolean of `"true"`.
+
 
 #### Config Example
 
@@ -39,13 +58,9 @@ Before installing this plugin, you should install Homebridge using the [official
 }
 ```
 
-### Optional Parameters
-
-- `pollingSeconds`: Time in seconds for how often to ping the clock. (Default: `30` or 30000 milliseconds)
 
 ## Future Plans
 - Currently the plugin only supports one Somneo clock. Not sure how many people have multiple clocks.
-- Allow users to select which accessories they want.
 - Support for more accessories. I would love to add a switch to turn on the FM radio or AUX, but can't find that. Any help would be appreciated.
 - No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an occupancy sensor, but would need to know what sound level occupied/not should be considered.
 - Better error handling. I am a Java developer by trade and am still learning Typescript :).

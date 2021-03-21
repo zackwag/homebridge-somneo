@@ -1,4 +1,4 @@
-import { CharacteristicGetCallback, CharacteristicSetCallback, CharacteristicValue, Service } from 'homebridge';
+import { CharacteristicValue, Service } from 'homebridge';
 import { SomneoPlatform } from './platform';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoService } from './somneoService';
@@ -9,8 +9,8 @@ export class SomneoNightLightAccessory implements SomneoBinaryAccessory {
   private static readonly NAME = `${SomneoConstants.SOMNEO} Night Light`;
 
   private informationService: Service;
-  private isNightLightOn = false;
-  private nightLightService : Service;
+  private isNightLightOn: boolean | undefined;
+  private nightLightService: Service;
   private somneoService: SomneoService;
 
   public name : string;
@@ -31,8 +31,8 @@ export class SomneoNightLightAccessory implements SomneoBinaryAccessory {
 
     // register handlers for the characteristics
     this.nightLightService.getCharacteristic(this.platform.Characteristic.On)
-      .on('set', this.setNightLightOn.bind(this))
-      .on('get', this.getNightLightOn.bind(this));
+      .onSet(this.setNightLightOn.bind(this))
+      .onGet(this.getNightLightOn.bind(this));
 
     this.updateValues();
   }
@@ -43,34 +43,36 @@ export class SomneoNightLightAccessory implements SomneoBinaryAccessory {
       const lightSettings = await this.somneoService.getLightSettings();
 
       this.isNightLightOn = lightSettings.ngtlt;
-      this.nightLightService.getCharacteristic(this.platform.Characteristic.On).updateValue(this.isNightLightOn);
+      this.nightLightService.getCharacteristic(this.platform.Characteristic.On)
+        .updateValue(this.isNightLightOn);
     } catch(err) {
       this.platform.log.error(`Error updating ${this.name}, err=${err}`);
     }
   }
 
-  setNightLightOn(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+  async setNightLightOn(value: CharacteristicValue) {
 
-    if (value as boolean === this.isNightLightOn) {
+    if (value as boolean === (this.isNightLightOn || SomneoConstants.DEFAULT_BINARY_STATE)) {
       return;
     }
 
+    // If turning this accessory on, turn off the conflicting accessories
     if (value as boolean) {
       this.getAffectedAccessories().forEach(affectedAccessory => affectedAccessory.turnOff());
     }
 
     this.somneoService.modifyNightLight(value as boolean);
-
     this.platform.log.info(`Set ${this.name} state ->`, value);
-
     this.isNightLightOn = value as boolean;
-    callback(null);
   }
 
-  getNightLightOn(callback: CharacteristicGetCallback) {
+  async getNightLightOn(): Promise<CharacteristicValue> {
 
-    this.platform.log.debug(`Get ${this.name} state ->`, this.isNightLightOn);
-    callback(null, this.isNightLightOn);
+    if (this.isNightLightOn !== undefined) {
+      this.platform.log.debug(`Get ${this.name} state ->`, this.isNightLightOn);
+    }
+
+    return (this.isNightLightOn || SomneoConstants.DEFAULT_BINARY_STATE);
   }
 
   getAffectedAccessories() {
@@ -97,7 +99,9 @@ export class SomneoNightLightAccessory implements SomneoBinaryAccessory {
     if (this.isNightLightOn) {
       this.somneoService.modifyNightLight(false);
       this.isNightLightOn = false;
-      this.nightLightService.getCharacteristic(this.platform.Characteristic.On).updateValue(false);
+      this.platform.log.info(`Set ${this.name} state ->`, this.isNightLightOn);
+      this.nightLightService.getCharacteristic(this.platform.Characteristic.On)
+        .updateValue(this.isNightLightOn);
     }
   }
 

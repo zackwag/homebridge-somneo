@@ -1,28 +1,22 @@
 import axios, { AxiosInstance } from 'axios';
-import { Logger } from 'homebridge';
 import https from 'https';
 import { retryAsync } from 'ts-retry';
-import { Light, LightSettings, NightLight, SensorReadings, SunsetProgram, UserSettings } from './types';
+import { SomneoPlatform } from './platform';
+import { Light, LightSettings, NightLight, SensorReadings, SunsetProgram } from './types';
 
 export class SomneoService {
 
   private static readonly DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
 
+  private readonly baseUri = `https://${this.platform.UserSettings.Host}/di/v1/products/1`;
   private readonly http: AxiosInstance;
-  private readonly host: string;
-  private readonly lightsUri: string;
-  private readonly sensorsUri: string;
-  private readonly sunsetProgramUri: string;
+  private readonly lightsUri = `${this.baseUri}/wulgt`;
+  private readonly sensorsUri = `${this.baseUri}/wusrd`;
+  private readonly sunsetProgramUri = `${this.baseUri}/wudsk`;
 
   constructor(
-    private readonly log: Logger,
-    private readonly userSettings: UserSettings,
+    private platform: SomneoPlatform,
   ) {
-    this.host = this.userSettings.Host;
-    this.lightsUri = `https://${this.host}/di/v1/products/1/wulgt`;
-    this.sensorsUri = `https://${this.host}/di/v1/products/1/wusrd`;
-    this.sunsetProgramUri = `https://${this.host}/di/v1/products/1/wudsk`;
-
     this.http = axios.create({
       httpsAgent: new https.Agent({
         rejectUnauthorized: false,
@@ -36,7 +30,8 @@ export class SomneoService {
       .get(this.sensorsUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(`Sensor Readings: temperature=${sensorReadings.mstmp} humidity=${sensorReadings.msrhu} light=${sensorReadings.mslux}`);
+    this.platform.log.debug(
+      `Sensor Readings: temperature=${sensorReadings.mstmp} humidity=${sensorReadings.msrhu} light=${sensorReadings.mslux}`);
 
     return sensorReadings;
   }
@@ -47,7 +42,7 @@ export class SomneoService {
       .get(this.sunsetProgramUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(`Sunset Program: on=${sunsetProgram.onoff}`);
+    this.platform.log.debug(`Sunset Program: on=${sunsetProgram.onoff}`);
 
     return sunsetProgram;
   }
@@ -67,7 +62,8 @@ export class SomneoService {
       .get(this.lightsUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(`Light Settings: lightLevel=${lightSettings.ltlvl} lightOn=${lightSettings.onoff} nightLightOn=${lightSettings.ngtlt}`);
+    this.platform.log.debug(
+      `Light Settings: lightLevel=${lightSettings.ltlvl} lightOn=${lightSettings.onoff} nightLightOn=${lightSettings.ngtlt}`);
 
     return lightSettings;
   }
