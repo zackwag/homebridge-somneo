@@ -1,54 +1,206 @@
 {
-    "pluginAlias": "HomebridgeSomneo",
-    "pluginType": "platform",
-    "singular": true,
-    "schema": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string",
-          "required": true,
-          "default": "Homebridge Somneo",
-          "description": "Name for plugin that will appear in Homebridge Logs."
-        },
-        "host": {
-          "title": "Host",
-          "type": "string",
-          "required": true,
-          "description": "IP Address of Somneo clock."
-        },
-        "pollingSeconds": {
-          "title": "Polling Interval",
-          "type": "number",
-          "default": 30,
-          "description": "Interval (in seconds) to check status and update accessories."
-        }
+  "pluginAlias": "HomebridgeSomneo",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true,
+        "default": "Homebridge Somneo",
+        "description": "Name for plugin that will appear in Homebridge Logs."
+      },
+      "host": {
+        "title": "Host",
+        "type": "string",
+        "required": true,
+        "description": "IP Address of Somneo clock."
+      },
+      "pollingSeconds": {
+        "title": "Polling Interval",
+        "type": "number",
+        "default": 30,
+        "description": "Interval (in seconds) to check status and update accessories."
+      },
+      "enableHumidty": {
+        "title": "Enable Humidity Sensor",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
+      },
+      "enableLuxSensor": {
+        "title": "Enable Lux Sensor",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
+      },
+      "enableTemperatureSensor": {
+        "title": "Enable Temperature Sensor",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
+      },
+      "enableMainLight": {
+        "title": "Enable Main Dimmable Light",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
+      },
+      "enableNightLight": {
+        "title": "Enable Night Light",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
+      },
+      "enableSunsetProgram": {
+        "title": "Enable Sunset Program",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
       }
+    }
+  },
+  "layout": [
+    {
+      "type": "section",
+      "title": "Plugin Settings",
+      "items": [
+        "name"
+      ]
     },
-    "layout": [
-      {
-        "type": "section",
-        "title": "Plugin Settings",
-        "items": [
-          "name"
-        ]
-      },
-      {
-        "type": "section",
-        "title": "Somneo Settings",
-        "items": [
-          "host"
-        ]
-      },
-      {
-        "type": "section",
-        "title": "Advanced Settings",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "pollingSeconds"
-        ]
-      }
-    ]
-  }
+    {
+      "type": "section",
+      "title": "Somneo Settings",
+      "items": [
+        "host"
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Advanced Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "pollingSeconds",
+        {
+          "type": "section",
+          "title": "Accessory Settings",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            {
+              "type": "section",
+              "title": "Sensors",
+              "items": [
+                {
+                  "key": "enableHumiditySensor"
+                },
+                {
+                  "key": "enableLuxSensor"
+                },
+                {
+                  "key": "enableTemperatureSensor"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "title": "Lights",
+              "items": [
+                {
+                  "key": "enableMainLight"
+                },
+                {
+                  "key": "enableNightLight"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "title": "Switches",
+              "items": [
+                {
+                  "key": "enableSunsetProgram"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
