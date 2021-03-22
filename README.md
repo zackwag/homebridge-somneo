@@ -40,7 +40,7 @@ Before installing this plugin, you should install Homebridge using the [official
 | **enableNightLight** | No | Boolean value for whether or not to include the Night Light. |`true`|
 | **enableSunsetProgram** | No | Boolean value for whether or not to include the Sunset Program switch. | `true` |
 
-#####Configuration Parameters Note
+##### Configuration Parameters Note
 Due to the way that the Config UI X visual editor works, in order to not force users to write to their config file when they actually want to use an accessory, the boolean values can either be a literal boolean of `true` or a string boolean of `"true"`.
 
 
