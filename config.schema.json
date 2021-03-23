@@ -114,8 +114,44 @@
           }
         ]
       },
+      "enableRelaxBreatheProgram": {
+        "title": "Enable RelaxBreathe Program",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
+      },
       "enableSunsetProgram": {
         "title": "Enable Sunset Program",
+        "type": "string",
+        "oneOf": [
+          {
+            "title": "Enabled",
+            "enum": [
+              true
+            ]
+          },
+          {
+            "title": "Disabled",
+            "enum": [
+              false
+            ]
+          }
+        ]
+      },
+      "enableAudio": {
+        "title": "Enable Audio",
         "type": "string",
         "oneOf": [
           {
@@ -194,7 +230,19 @@
               "title": "Switches",
               "items": [
                 {
+                  "key": "enableRelaxBreatheProgram"
+                },
+                {
                   "key": "enableSunsetProgram"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "title": "Audio",
+              "items": [
+                {
+                  "key": "enableAudio"
                 }
               ]
             }

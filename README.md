@@ -3,6 +3,11 @@
 ## What This Plugin Is
 This is a plugin for [homebridge](https://github.com/homebridge/homebridge). It allows for management of the [Philips Somneo HF3670/60](https://www.usa.philips.com/c-p/HF3670_60/smartsleep-connected-sleep-and-wake-up-light). Additionally, it provides sensor data from the clock.
 
+## How the Plugin Works
+The Somneo Clock has a small HTTP server running inside with a limited API. Through Googling and trial-and-error, I've found commands that work to replicate the SleepMapper app.
+
+This server is very low powered though and if you see error messages in your logs it's most likely that two connections were trying to be processed at once.
+
 ## Installation
 
 Before installing this plugin, you should install Homebridge using the [official instructions](https://github.com/homebridge/homebridge/wiki).
@@ -38,11 +43,27 @@ Before installing this plugin, you should install Homebridge using the [official
 | **enableTemperatureSensor** | No | Boolean value for whether or not to include the Temperature Sensor. | `true` |
 | **enableMainLights** | No | Boolean value for whether or not to include the Main Light (The dimmable light). | `true` |
 | **enableNightLight** | No | Boolean value for whether or not to include the Night Light. |`true`|
+| **enableRelaxBreatheProgram** | No | Boolean value for whether or not to include the RelaxBreathe Program switch. | `true` |
 | **enableSunsetProgram** | No | Boolean value for whether or not to include the Sunset Program switch. | `true` |
+| **enableAudio** | No | Boolean value for whether or not to include the Audio receiver to use the FM Radio and/or Auxiliary Input. | `true` |
 
 ##### Configuration Parameters Note
-Due to the way that the Config UI X visual editor works, in order to not force users to write to their config file when they actually want to use an accessory, the boolean values can either be a literal boolean of `true` or a string boolean of `"true"`.
+Due to the way that the Config UI X visual editor works, in order to not force users to write to their config file when they want to use accessory but have not selected anything, the boolean values can either be a literal boolean of `true` or a string boolean of `"true"`.
 
+##### Somneo Audio Accessory Note
+
+The Somneo clock has 5 FM radio presets and an auxiliary input. To help accomodate this, an audio receiver called `Somneo Audio` is available. You can turn in on and it will default to `FM Preset 1`. Additionally, you can raise and lower the volume with the Remote widget in iOS/iPadOS's Control Center.
+
+However, due the way that audio receivers are implemented in Homebridge, they must be exposed as an *External Plugin*. This means that the `Somneo Audio` will need to be onboarded separately from the other accessories.
+
+###### Onboarding Instructions for Somneo Audio
+
+1. Select `Add Accessory` in the Home app.
+2. Then select `I Don't Have a Code or Cannot Scan`.
+3. Then the `Somneo Audio` receiver should show as an option. It should look like:
+<img src="https://user-images.githubusercontent.com/5261774/112217388-f5632d80-8bf8-11eb-83e1-2ce41e83fd20.jpg" width="320" />
+4. Click it.
+5. Enter your Homebridge PIN and the device will connect to your home.
 
 #### Config Example
 
@@ -58,10 +79,8 @@ Due to the way that the Config UI X visual editor works, in order to not force u
 }
 ```
 
-
 ## Future Plans
 - Currently the plugin only supports one Somneo clock. Not sure how many people have multiple clocks.
-- Support for more accessories. I would love to add a switch to turn on the FM radio or AUX, but can't find that. Any help would be appreciated.
 - No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an occupancy sensor, but would need to know what sound level occupied/not should be considered.
 - Better error handling. I am a Java developer by trade and am still learning Typescript :).
 
