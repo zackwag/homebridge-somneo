@@ -1,22 +1,14 @@
-import { AccessoryPlugin } from 'homebridge';
-
-export interface SomneoAccessory extends AccessoryPlugin {
-  name: string;
-  updateValues(): Promise<void>;
-}
-
-export interface SomneoBinaryAccessory extends SomneoAccessory {
-  getAffectedAccessories(): SomneoBinaryAccessory[];
-  turnOff(): void;
-}
-
 export interface SensorReadings {
   mslux: number;
   mstmp: number;
   msrhu: number;
 }
 
-export interface SunsetProgram {
+export interface Sunset {
+  onoff: boolean;
+}
+
+export interface RelaxBreathe {
   onoff: boolean;
 }
 
@@ -34,4 +26,13 @@ export interface Light {
 
 export interface NightLight {
   ngtlt: boolean;
+}
+
+export interface PlaySettings {
+
+  onoff?: boolean;
+  tempy?: boolean;
+  sdvol?: number;
+  snddv?: string;
+  sndch?: string;
 }

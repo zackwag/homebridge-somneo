@@ -1,39 +1,27 @@
 import { CharacteristicValue, Service } from 'homebridge';
-import { SomneoPlatform } from './platform';
+import { SomneoPlatform } from '../somneoPlatform';
+import { RequestedAccessory } from './requestedAccessory';
+import { SomneoAccessory } from './somneoAccessory';
 import { SomneoConstants } from './somneoConstants';
-import { SomneoService } from './somneoService';
-import { SomneoAccessory } from './types';
-import { RequestedAccessory } from './userSettings';
 
-export class SomneoSensorAccessory implements SomneoAccessory {
+export class SomneoSensorAccessory extends SomneoAccessory {
 
   private static readonly HUMIDITY_SENSOR_NAME = `${SomneoConstants.SOMNEO} Humidity Sensor`;
   private static readonly LUX_SENSOR_NAME = `${SomneoConstants.SOMNEO} Lux Sensor`;
   private static readonly NAME = `${SomneoConstants.SOMNEO} Sensors`;
   private static readonly TEMPERATURE_SENSOR_NAME = `${SomneoConstants.SOMNEO} Temperature Sensor`;
 
-  private informationService: Service;
   private humidity: number | undefined;
   private humidityService: Service;
   private luxLevel: number | undefined;
   private luxService: Service;
-  private somneoService: SomneoService;
   private temperatureService: Service;
   private temperature: number | undefined;
 
-  public name : string;
-
   constructor(
-    private platform: SomneoPlatform,
+    protected platform: SomneoPlatform,
   ) {
-    this.somneoService = this.platform.SomneoService;
-    this.name = SomneoSensorAccessory.NAME;
-
-    // set accessory information
-    this.informationService = new this.platform.Service.AccessoryInformation()
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, SomneoConstants.SOMNEO_MANUFACTURER)
-      .setCharacteristic(this.platform.Characteristic.Model, SomneoConstants.SOMNEO_MODEL)
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.platform.UserSettings.Host);
+    super(platform);
 
     // set the service names, this is what is displayed as the default name on the Home app
     this.temperatureService = new platform.Service.TemperatureSensor(SomneoSensorAccessory.TEMPERATURE_SENSOR_NAME);
@@ -56,44 +44,48 @@ export class SomneoSensorAccessory implements SomneoAccessory {
     this.updateValues();
   }
 
+  protected getName(): string {
+    return SomneoSensorAccessory.NAME;
+  }
+
   async updateValues() {
 
-    try {
-      const sensorReadings = await this.somneoService.getSensorReadings();
-
+    await this.somneoService.getSensorReadings().then(sensorReadings => {
       this.temperature = sensorReadings.mstmp;
-      this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+      this.temperatureService
+        .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
         .updateValue(this.temperature);
 
       this.humidity = sensorReadings.msrhu;
-      this.humidityService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+      this.humidityService
+        .getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
         .updateValue(this.humidity);
 
       // There is a minimum lux value allowedin Homebridge.
       // Philips uses 0 as the min which will cause errors;
       this.luxLevel = sensorReadings.mslux > SomneoConstants.DEFAULT_LUX_LEVEL ?
         sensorReadings.mslux : SomneoConstants.DEFAULT_LUX_LEVEL;
-      this.luxService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+      this.luxService
+        .getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
         .updateValue(this.luxLevel);
-    } catch (err) {
-      this.platform.log.error(`Error updating ${this.name}, err=${err}`);
-    }
+    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
   }
 
   async setTemperature(value: CharacteristicValue) {
 
-    if (value as number === this.temperature) {
+    const numValue = value as number;
+    if (numValue === (this.temperature || SomneoConstants.DEFAULT_TEMPERATURE)) {
       return;
     }
 
-    this.platform.log.info(`Set ${SomneoSensorAccessory.TEMPERATURE_SENSOR_NAME} ->`, value);
-    this.temperature = value as number;
+    this.temperature = numValue;
+    this.platform.log.info(`Set ${this.name} temperature ->`, this.temperature);
   }
 
   async getTemperature(): Promise<CharacteristicValue> {
 
     if (this.temperature !== undefined) {
-      this.platform.log.debug(`Get ${SomneoSensorAccessory.TEMPERATURE_SENSOR_NAME} ->`, this.temperature);
+      this.platform.log.debug(`Get ${this.name} temperature ->`, this.temperature);
     }
 
     return (this.temperature || SomneoConstants.DEFAULT_TEMPERATURE);
@@ -101,18 +93,19 @@ export class SomneoSensorAccessory implements SomneoAccessory {
 
   async setRelativeHumidity(value: CharacteristicValue) {
 
-    if (value as number === (this.humidity || SomneoConstants.DEFAULT_HUMIDITY)) {
+    const numValue = Number(value);
+    if (numValue === (this.humidity || SomneoConstants.DEFAULT_HUMIDITY)) {
       return;
     }
 
-    this.platform.log.info(`Set ${SomneoSensorAccessory.HUMIDITY_SENSOR_NAME} ->`, value);
-    this.humidity = value as number;
+    this.humidity = numValue;
+    this.platform.log.info(`Set ${this.name} humidity ->`, this.humidity);
   }
 
   async getRelativeHumidity(): Promise<CharacteristicValue> {
 
     if (this.humidity !== undefined) {
-      this.platform.log.debug(`Get ${SomneoSensorAccessory.HUMIDITY_SENSOR_NAME} ->`, this.humidity);
+      this.platform.log.debug(`Get ${this.name} humidity ->`, this.humidity);
     }
 
     return (this.humidity || SomneoConstants.DEFAULT_HUMIDITY);
@@ -120,18 +113,19 @@ export class SomneoSensorAccessory implements SomneoAccessory {
 
   async setCurrentAmbientLightLevel(value: CharacteristicValue) {
 
-    if (value as number === (this.luxLevel || SomneoConstants.DEFAULT_LUX_LEVEL)) {
+    const numValue = Number(value);
+    if (numValue === (this.luxLevel || SomneoConstants.DEFAULT_LUX_LEVEL)) {
       return;
     }
 
-    this.platform.log.info(`Set ${SomneoSensorAccessory.LUX_SENSOR_NAME} ->`, value);
-    this.luxLevel = value as number;
+    this.luxLevel = numValue;
+    this.platform.log.info(`Set ${this.name} lux ->`, this.luxLevel);
   }
 
   async getCurrentAmbientLightLevel(): Promise<CharacteristicValue> {
 
     if (this.luxLevel !== undefined) {
-      this.platform.log.debug(`Get ${SomneoSensorAccessory.LUX_SENSOR_NAME} ->`, this.luxLevel);
+      this.platform.log.debug(`Get ${this.name} lux ->`, this.luxLevel);
     }
 
     return (this.luxLevel || SomneoConstants.DEFAULT_LUX_LEVEL);
