@@ -62,8 +62,7 @@ However, due the way that audio receivers are implemented in Homebridge, they mu
 2. Then select `I Don't Have a Code or Cannot Scan`.
 3. Then the `Somneo Audio` receiver should show as an option. It should look like:
 <img src="https://user-images.githubusercontent.com/5261774/112217388-f5632d80-8bf8-11eb-83e1-2ce41e83fd20.jpg" width="320" />
-4. Click it.
-5. Enter your Homebridge PIN and the device will connect to your home.
+4. Enter your Homebridge PIN and the device will connect to your home.
 
 #### Config Example
 
