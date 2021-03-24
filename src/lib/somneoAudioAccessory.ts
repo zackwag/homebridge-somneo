@@ -126,9 +126,14 @@ export class SomneoAudioAccessory extends PlatformAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    this.platform.SomneoService.modifyPlaySettingsState(boolValue, this.source, this.volume).then(() => {
+    this.platform.SomneoService.modifyPlaySettingsState(boolValue).then(() => {
       this.isActive = boolValue;
       this.platform.log.info(`Set ${this.displayName} state ->`, this.isActive);
+
+      // TODO use UserSettings values
+      this.channel = String(SomneoConstants.DEFAULT_ACTIVE_INPUT);
+      this.source = SomneoConstants.SOURCE_FM_RADIO;
+      this.updateActiveInput();
     }).catch(err => this.platform.log.error(`Error setting ${this.displayName} state to ${boolValue}, err=${err}`));
   }
 
@@ -223,6 +228,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
   private updateChannelAndSource() {
 
     if (this.activeInput === undefined) {
+      // TODO Read defaults from UserSettings
       this.channel = String(SomneoConstants.DEFAULT_ACTIVE_INPUT);
       this.source = SomneoConstants.SOURCE_FM_RADIO;
       return;

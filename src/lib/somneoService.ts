@@ -133,10 +133,11 @@ export class SomneoService {
     return playSettings;
   }
 
-  async modifyPlaySettingsState(isOn: boolean, source?: string, volume?: number ) {
+  async modifyPlaySettingsState(isOn: boolean ) {
 
+    // TODO read favorite input from UserSettings
     const body: PlaySettings = isOn ?
-      { onoff: true, tempy: false, snddv: source || SomneoConstants.SOURCE_FM_RADIO, sdvol: volume || SomneoConstants.VOLUME_MIN }
+      { onoff: true, snddv: SomneoConstants.SOURCE_FM_RADIO, sndch: String(SomneoConstants.DEFAULT_ACTIVE_INPUT) }
       : { onoff: false };
 
     await retryAsync(() => this.http
