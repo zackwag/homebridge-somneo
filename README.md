@@ -8,6 +8,28 @@ The Somneo Clock has a small HTTP server running inside with a limited API. Thro
 
 This server is very low powered though and if you see error messages in your logs it's most likely that two connections were trying to be processed at once.
 
+### Conflicting Accessories
+
+In the physical world, the Somneo clock is a single device. But in the HomeBridge world, it is multiple. For this reason, I've created the concept of *Conflicting Accessories*.
+
+A *Conflicting Accessory* means an accessory that needs full control over a physical device. In the case of the Somneo clock, there are two physical devices:
+
+1. The LED light.
+2. The audio speaker.
+
+If a program requires light, it will turn off all other devices that require light. If it requires audio it will turn off all that require audio.
+
+Below, is a chart explaining what will be turned off (if on) when an accessory is turned on.
+
+| | Main Light | Night Light | Sunset Program | RelaxBreathe Program | Audio |
+| --- | :---: | :----------: | :------------: | :------------------: | :---: |
+| Main Light<br />Turns On | N/A | **Turns Off** | **Turns Off** | **Turns Off** | Unaffected |
+| Night Light<br />Turns On| **Turns Off** | N/A | **Turns Off** | **Turns Off** | Unaffected |
+| Sunset <br />Turns On | **Turns Off** | **Turns Off** | N/A | **Turns Off** | **Turns Off**
+| RelaxBreathe<br />Turns On | **Turns Off** | **Turns Off** | **Turns Off** | N/A | **Turns Off**|
+| Audio<br/>Turns On | Unaffected | Unaffected | **Turns Off** | **Turns Off** | N/A
+
+
 ## Installation
 
 Before installing this plugin, you should install Homebridge using the [official instructions](https://github.com/homebridge/homebridge/wiki).
@@ -80,10 +102,11 @@ However, due the way that audio receivers are implemented in Homebridge, they mu
 
 ## Future Plans
 - Currently the plugin only supports one Somneo clock. Not sure how many people have multiple clocks.
+- Ability to specify a "favorite" audio input that the audio accessory will jump to when turned on.
 - No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an occupancy sensor, but would need to know what sound level occupied/not should be considered.
 - Better error handling. I am a Java developer by trade and am still learning Typescript :).
 
-## Recogition
+## Recognition
 Thanks to:
 
 * [homebridge](https://github.com/homebridge/homebridge-plugin-template) - For creating a great template to get started with.

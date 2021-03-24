@@ -12,8 +12,8 @@ export class SomneoRelaxBreatheSwitchAccessory extends somneoSwitchAccessory {
 
   async updateValues(): Promise<void> {
 
-    await this.somneoService.getSunset().then((sunset) => {
-      this.isOn = sunset.onoff;
+    await this.somneoService.getRelaxBreathe().then((relaxeBreathe) => {
+      this.isOn = relaxeBreathe.onoff;
       this.getBinaryService()
         .getCharacteristic(this.getBinaryCharacteristic())
         .updateValue(this.isOn);
