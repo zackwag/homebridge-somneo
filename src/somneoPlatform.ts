@@ -36,8 +36,8 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.UserSettings = new UserSettings(this.config);
-    this.SomneoService = new SomneoService(this.log, this.UserSettings);
+    this.UserSettings = new UserSettings(this);
+    this.SomneoService = new SomneoService(this);
 
     this.buildAccessories();
 

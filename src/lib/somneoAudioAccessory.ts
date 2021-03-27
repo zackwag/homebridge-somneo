@@ -3,7 +3,6 @@ import { CharacteristicValue } from 'homebridge';
 import { PlatformAccessory } from 'homebridge/lib/platformAccessory';
 import { SomneoPlatform } from '../somneoPlatform';
 import { RequestedAccessory } from './requestedAccessory';
-import { SomneoAudioInput } from './somneoAudioInput';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoService } from './somneoService';
 
@@ -11,7 +10,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
 
   public static readonly NAME = 'Somneo Audio';
 
-  private activeInput = SomneoConstants.DEFAULT_ACTIVE_INPUT; // TODO Maybe read from UserSettings instead
+  private activeInput: number | undefined;
   private channel: string | undefined;
   private isActive: boolean | undefined;
   private televisionService: Service;
@@ -66,23 +65,20 @@ export class SomneoAudioAccessory extends PlatformAccessory {
 
 
     this.buildInputServices();
-    this.updateChannelAndSource();
     this.updateValues();
   }
 
   public async updateValues(): Promise<void> {
 
     await this.somneoService.getPlaySettings().then(playSettings => {
-      this.isActive = playSettings.onoff || SomneoConstants.DEFAULT_BINARY_STATE;
+      this.isActive = playSettings.onoff!;
       this.televisionService
         .getCharacteristic(this.platform.Characteristic.Active)
         .updateValue(this.isActive);
 
-      this.volume = playSettings.sdvol || SomneoConstants.VOLUME_MIN;
+      this.volume = playSettings.sdvol!;
 
-      this.source = playSettings.snddv;
-      this.channel = playSettings.sndch;
-      this.updateActiveInput();
+      this.updateActiveInput(playSettings.snddv, playSettings.sndch);
     }).catch(err => this.platform.log.error(`Error updating ${this.displayName}, err=${err}`));
   }
 
@@ -126,14 +122,15 @@ export class SomneoAudioAccessory extends PlatformAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    this.platform.SomneoService.modifyPlaySettingsState(boolValue).then(() => {
+    (boolValue ? this.platform.SomneoService.modifyPlaySettingsState(true, this.source, this.channel) :
+      this.somneoService.modifyPlaySettingsState(false)).then(() => {
       this.isActive = boolValue;
       this.platform.log.info(`Set ${this.displayName} state ->`, this.isActive);
 
-      // TODO use UserSettings values
-      this.channel = String(SomneoConstants.DEFAULT_ACTIVE_INPUT);
-      this.source = SomneoConstants.SOURCE_FM_RADIO;
-      this.updateActiveInput();
+      if (boolValue) {
+        this.updateActiveInput();
+        this.platform.log.info(`Set ${this.displayName} input ->`, this.activeInput);
+      }
     }).catch(err => this.platform.log.error(`Error setting ${this.displayName} state to ${boolValue}, err=${err}`));
   }
 
@@ -204,7 +201,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
     }
 
     const auxInputService = this.addService(this.platform.Service.InputSource, 'aux', SomneoConstants.AUXILARY)
-      .setCharacteristic(this.platform.Characteristic.Identifier, SomneoAudioInput[SomneoAudioInput[SomneoAudioInput.AUX]])
+      .setCharacteristic(this.platform.Characteristic.Identifier, SomneoConstants.INPUT_AUX_NUM)
       .setCharacteristic(this.platform.Characteristic.ConfiguredName, SomneoConstants.AUXILARY)
       .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
       .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER);
@@ -228,13 +225,12 @@ export class SomneoAudioAccessory extends PlatformAccessory {
   private updateChannelAndSource() {
 
     if (this.activeInput === undefined) {
-      // TODO Read defaults from UserSettings
-      this.channel = String(SomneoConstants.DEFAULT_ACTIVE_INPUT);
-      this.source = SomneoConstants.SOURCE_FM_RADIO;
+      this.channel = this.platform.UserSettings.FavoriteChannel;
+      this.source = this.platform.UserSettings.FavoriteSource;
       return;
     }
 
-    if (this.activeInput === SomneoAudioInput[SomneoConstants.SOURCE_AUX]) {
+    if (this.activeInput === SomneoConstants.INPUT_AUX_NUM) {
       this.source = SomneoConstants.SOURCE_AUX;
       return;
     }
@@ -243,21 +239,31 @@ export class SomneoAudioAccessory extends PlatformAccessory {
     this.channel = String(this.activeInput);
   }
 
-  private updateActiveInput() {
+  private updateActiveInput(newSource?: string, newChannel? : string) {
 
-    let newActiveInputVal: number;
-
-    if (this.source === undefined || this.channel === undefined || this.source === SomneoConstants.SOURCE_OFF) {
-      newActiveInputVal = SomneoConstants.DEFAULT_ACTIVE_INPUT;
-    } else if (this.source === SomneoConstants.SOURCE_FM_RADIO) {
-      newActiveInputVal = Number(this.channel);
-    } else {
-      newActiveInputVal = SomneoAudioInput[SomneoConstants.SOURCE_AUX];
+    // If turned off don't change any local vars because 'OFF' is also a source value
+    if (!this.isActive && (this.source !== undefined && this.channel !== undefined)) {
+      return;
     }
 
-    this.activeInput = newActiveInputVal;
+    // Source and channel should only be undefined the first time the plugin is run
+    // So that is when we'll use the favorite values
+    if (this.source === undefined || this.channel === undefined) {
+      this.source = this.platform.UserSettings.FavoriteSource;
+      this.channel = this.platform.UserSettings.FavoriteChannel;
+    } else if (newSource !== undefined && newChannel !== undefined) {
+      this.source = newSource;
+      this.channel = newChannel;
+    }
+
+    if (this.source === SomneoConstants.SOURCE_FM_RADIO) {
+      this.activeInput = Number(this.channel);
+    } else {
+      this.activeInput = SomneoConstants.INPUT_AUX_NUM;
+    }
+
     this.televisionService
       .getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
-      .updateValue(this.activeInput);
+      .updateValue(this.activeInput!);
   }
 }
