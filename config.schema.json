@@ -167,6 +167,49 @@
             ]
           }
         ]
+      },
+      "favoriteInput": {
+        "title": "Favorite Input",
+        "type": "number",
+        "oneOf": [
+          {
+            "title": "FM Preset 1",
+            "enum": [
+              1
+            ]
+          },
+          {
+            "title": "FM Preset 2",
+            "enum": [
+              2
+            ]
+          },
+          {
+            "title": "FM Preset 3",
+            "enum": [
+              3
+            ]
+          },
+          {
+            "title": "FM Preset 4",
+            "enum": [
+              4
+            ]
+          },
+          {
+            "title": "FM Preset 5",
+            "enum": [
+              5
+            ]
+          },
+          {
+            "title": "Auxiliary",
+            "enum": [
+              6
+            ]
+          }
+        ],
+        "description": "This is the input that will be used when the audio device is turned on."
       }
     }
   },
@@ -243,6 +286,9 @@
               "items": [
                 {
                   "key": "enableAudio"
+                },
+                {
+                  "key": "favoriteInput"
                 }
               ]
             }

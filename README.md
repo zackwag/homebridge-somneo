@@ -29,7 +29,6 @@ Below, is a chart explaining what will be turned off (if on) when an accessory i
 | RelaxBreathe<br />Turns On | **Turns Off** | **Turns Off** | **Turns Off** | N/A | **Turns Off**|
 | Audio<br/>Turns On | Unaffected | Unaffected | **Turns Off** | **Turns Off** | N/A
 
-
 ## Installation
 
 Before installing this plugin, you should install Homebridge using the [official instructions](https://github.com/homebridge/homebridge/wiki).
@@ -54,7 +53,6 @@ Before installing this plugin, you should install Homebridge using the [official
 | **name** | *Yes* | Set the plugin name for display in the Homebridge logs | `Homebridge Somneo` |
 | **host** | *Yes* | IP address or hostname of the Somneo clock. | N/A |
 
-
 ### Optional Parameters
 
 | Field | Required | Description                              | Default Value |
@@ -68,9 +66,19 @@ Before installing this plugin, you should install Homebridge using the [official
 | **enableRelaxBreatheProgram** | No | Boolean value for whether or not to include the RelaxBreathe Program switch. | `true` |
 | **enableSunsetProgram** | No | Boolean value for whether or not to include the Sunset Program switch. | `true` |
 | **enableAudio** | No | Boolean value for whether or not to include the Audio receiver to use the FM Radio and/or Auxiliary Input. | `true` |
+| **favoriteInput** | No | Numeric value specifying the input for the Somneo Audio to go to the first time its turned on in a session. After changing the input, the Somneo will go to the last used input. | `1` or FM Preset 1 |
 
-##### Configuration Parameters Note
+##### Configuration Parameters Notes
+
 Due to the way that the Config UI X visual editor works, in order to not force users to write to their config file when they want to use accessory but have not selected anything, the boolean values can either be a literal boolean of `true` or a string boolean of `"true"`.
+
+###### Input Enumeration
+1. FM Preset 1 is `1`
+2. FM Preset 2 is `2`
+3. FM Preset 3 is `3`
+4. FM Preset 4 is `4`
+5. FM Preset 5 is `5`
+6. Auxiliary is `6`
 
 ##### Somneo Audio Accessory Note
 
@@ -102,7 +110,6 @@ However, due the way that audio receivers are implemented in Homebridge, they mu
 
 ## Future Plans
 - Currently the plugin only supports one Somneo clock. Not sure how many people have multiple clocks.
-- Ability to specify a "favorite" audio input that the audio accessory will jump to when turned on.
 - No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an occupancy sensor, but would need to know what sound level occupied/not should be considered.
 - Better error handling. I am a Java developer by trade and am still learning Typescript :).
 

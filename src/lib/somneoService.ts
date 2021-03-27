@@ -1,17 +1,15 @@
 import axios, { AxiosInstance } from 'axios';
-import { Logger } from 'homebridge';
 import https from 'https';
 import { retryAsync } from 'ts-retry';
-import { SomneoAudioInput } from './somneoAudioInput';
+import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoConstants } from './somneoConstants';
 import { Light, LightSettings, NightLight, PlaySettings, RelaxBreathe, SensorReadings, Sunset } from './somneoServiceDataTypes';
-import { UserSettings } from './userSettings';
 
 export class SomneoService {
 
   private static readonly DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
 
-  private readonly baseUri = `https://${this.userSettings.Host}/di/v1/products/1`;
+  private readonly baseUri = `https://${this.platform.UserSettings.Host}/di/v1/products/1`;
   private readonly http: AxiosInstance;
   private readonly lightsUri = `${this.baseUri}/wulgt`;
   private readonly playingUri = `${this.baseUri}/wuply`;
@@ -20,8 +18,7 @@ export class SomneoService {
   private readonly sunsetUri = `${this.baseUri}/wudsk`;
 
   constructor(
-    private log: Logger,
-    private userSettings: UserSettings,
+    private platform: SomneoPlatform,
   ) {
     this.http = axios.create({
       httpsAgent: new https.Agent({
@@ -36,7 +33,7 @@ export class SomneoService {
       .get(this.sensorsUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(
+    this.platform.log.debug(
       `Sensor Readings: temperature=${sensorReadings.mstmp} humidity=${sensorReadings.msrhu} light=${sensorReadings.mslux}`);
 
     return sensorReadings;
@@ -48,7 +45,7 @@ export class SomneoService {
       .get(this.sunsetUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(`Sunset: on=${sunset.onoff}`);
+    this.platform.log.debug(`Sunset: on=${sunset.onoff}`);
 
     return sunset;
   }
@@ -68,7 +65,7 @@ export class SomneoService {
       .get(this.relaxBreatheUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(`RelaxBreathe: on=${relaxBreathe.onoff}`);
+    this.platform.log.debug(`RelaxBreathe: on=${relaxBreathe.onoff}`);
 
     return relaxBreathe;
   }
@@ -88,7 +85,7 @@ export class SomneoService {
       .get(this.lightsUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(
+    this.platform.log.debug(
       `Light Settings: lightLevel=${lightSettings.ltlvl} lightOn=${lightSettings.onoff} nightLightOn=${lightSettings.ngtlt}`);
 
     return lightSettings;
@@ -127,18 +124,25 @@ export class SomneoService {
       .get(this.playingUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.log.debug(
+    this.platform.log.debug(
       `Play Settings: on=${playSettings.onoff} volume=${playSettings.sdvol} source=${playSettings.snddv} channel=${playSettings.sndch}`);
 
     return playSettings;
   }
 
-  async modifyPlaySettingsState(isOn: boolean ) {
+  async modifyPlaySettingsState(isOn: boolean, source?: string, channel?: string) {
 
-    // TODO read favorite input from UserSettings
-    const body: PlaySettings = isOn ?
-      { onoff: true, snddv: SomneoConstants.SOURCE_FM_RADIO, sndch: String(SomneoConstants.DEFAULT_ACTIVE_INPUT) }
-      : { onoff: false };
+    let body: PlaySettings;
+
+    if (isOn) {
+      if (source === SomneoConstants.SOURCE_AUX) {
+        body = { onoff: true, snddv: SomneoConstants.SOURCE_AUX };
+      } else {
+        body = { onoff: true, snddv: SomneoConstants.SOURCE_FM_RADIO, sndch: channel };
+      }
+    } else {
+      body = { onoff: false };
+    }
 
     await retryAsync(() => this.http
       .put(this.playingUri, body)
@@ -149,7 +153,7 @@ export class SomneoService {
 
     let body: PlaySettings;
 
-    if (input === SomneoAudioInput[SomneoAudioInput[SomneoAudioInput.AUX]]) {
+    if (input === SomneoConstants.INPUT_AUX_NUM) {
       body = { snddv: SomneoConstants.SOURCE_AUX };
     } else {
       body = { snddv: SomneoConstants.SOURCE_FM_RADIO, sndch: String(input) };
