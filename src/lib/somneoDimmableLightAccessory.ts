@@ -1,5 +1,6 @@
 import { CharacteristicValue } from 'homebridge';
 import { SomneoPlatform } from '../somneoPlatform';
+import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoLightAccessory } from './somneoLightAccessory';
 
@@ -9,8 +10,9 @@ export abstract class SomneoDimmableLightAccessory extends SomneoLightAccessory 
 
   constructor(
     protected platform: SomneoPlatform,
+    protected somneoClock: SomneoClock,
   ) {
-    super(platform);
+    super(platform, somneoClock);
 
     this.getBinaryService()
       .getCharacteristic(this.platform.Characteristic.Brightness)

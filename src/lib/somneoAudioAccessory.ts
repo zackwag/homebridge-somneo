@@ -2,36 +2,32 @@ import { Categories, Service } from 'hap-nodejs';
 import { CharacteristicValue } from 'homebridge';
 import { PlatformAccessory } from 'homebridge/lib/platformAccessory';
 import { SomneoPlatform } from '../somneoPlatform';
-import { RequestedAccessory } from './requestedAccessory';
+import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
-import { SomneoService } from './somneoService';
 
 export class SomneoAudioAccessory extends PlatformAccessory {
-
-  public static readonly NAME = 'Somneo Audio';
 
   private activeInput: number | undefined;
   private channel: string | undefined;
   private isActive: boolean | undefined;
   private televisionService: Service;
   private source: string | undefined;
-  private somneoService: SomneoService;
   private speakerService: Service;
   private volume: number | undefined;
 
   constructor(
+    public name: string,
+    public uuid: string,
     private platform: SomneoPlatform,
-    public uuid:string,
+    private somneoClock: SomneoClock,
   ) {
-    super(SomneoAudioAccessory.NAME, uuid, Categories.AUDIO_RECEIVER);
-
-    this.somneoService = this.platform.SomneoService;
+    super(name, uuid, Categories.AUDIO_RECEIVER);
 
     // set accessory information
     this.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, SomneoConstants.MANUFACTURER)
       .setCharacteristic(this.platform.Characteristic.Model, SomneoConstants.MODEL)
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.platform.UserSettings.Host);
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.somneoClock.SomneoService.Host);
 
     this.televisionService = this.addService(this.platform.Service.Television);
 
@@ -70,7 +66,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
 
   public async updateValues(): Promise<void> {
 
-    await this.somneoService.getPlaySettings().then(playSettings => {
+    await this.somneoClock.SomneoService.getPlaySettings().then(playSettings => {
       this.isActive = playSettings.onoff!;
       this.televisionService
         .getCharacteristic(this.platform.Characteristic.Active)
@@ -92,7 +88,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
     // If value is 0 it's a raise, if it's 1 it's a lower
     const newVolume = this.getNewVolume(value === 0);
 
-    this.somneoService.modifyPlaySettingsVolume(newVolume).then(() => {
+    this.somneoClock.SomneoService.modifyPlaySettingsVolume(newVolume).then(() => {
       this.volume = newVolume;
       this.platform.log.info(`Set ${this.displayName} volume ->`, this.volume);
     }).catch(err => this.platform.log.error(`Error setting ${this.displayName} volume to ${newVolume} value=${value}, err=${err}`));
@@ -122,8 +118,8 @@ export class SomneoAudioAccessory extends PlatformAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    (boolValue ? this.platform.SomneoService.modifyPlaySettingsState(true, this.source, this.channel) :
-      this.somneoService.modifyPlaySettingsState(false)).then(() => {
+    (boolValue ? this.somneoClock.SomneoService.modifyPlaySettingsState(true, this.source, this.channel) :
+      this.somneoClock.SomneoService.modifyPlaySettingsState(false)).then(() => {
       this.isActive = boolValue;
       this.platform.log.info(`Set ${this.displayName} state ->`, this.isActive);
 
@@ -150,7 +146,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
       return;
     }
 
-    this.platform.SomneoService.modifyPlaySettingsInput(numValue).then(() => {
+    this.somneoClock.SomneoService.modifyPlaySettingsInput(numValue).then(() => {
       this.activeInput = numValue;
       this.platform.log.info(`Set ${this.displayName} input ->`, this.activeInput);
 
@@ -161,7 +157,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
   public turnOff() {
 
     if (this.isActive) {
-      this.somneoService.modifyPlaySettingsState(false).then(() => {
+      this.somneoClock.SomneoService.modifyPlaySettingsState(false).then(() => {
         this.isActive = false;
         this.source = SomneoConstants.SOURCE_OFF;
         this.platform.log.info(`Set ${this.displayName} state ->`, this.isActive);
@@ -173,14 +169,12 @@ export class SomneoAudioAccessory extends PlatformAccessory {
 
   private turnOffConflictingAccessories(): Promise<void> {
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.SWITCH_RELAXBREATHE)
-      && this.platform.RelaxBreathe !== undefined) {
-      this.platform.RelaxBreathe.turnOff();
+    if (this.platform.HostRelaxBreatheSwitchMap.has(this.somneoClock.SomneoService.Host)) {
+      this.platform.HostRelaxBreatheSwitchMap.get(this.somneoClock.SomneoService.Host).turnOff();
     }
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET)
-      && this.platform.SunsetSwitch !== undefined) {
-      this.platform.SunsetSwitch.turnOff();
+    if (this.platform.HostSunsetSwitchMap.has(this.somneoClock.SomneoService.Host)) {
+      this.platform.HostSunsetSwitchMap.get(this.somneoClock.SomneoService.Host).turnOff();
     }
 
     return Promise.resolve();
@@ -225,8 +219,8 @@ export class SomneoAudioAccessory extends PlatformAccessory {
   private updateChannelAndSource() {
 
     if (this.activeInput === undefined) {
-      this.channel = this.platform.UserSettings.FavoriteChannel;
-      this.source = this.platform.UserSettings.FavoriteSource;
+      this.channel = this.somneoClock.FavoriteChannel;
+      this.source = this.somneoClock.FavoriteSource;
       return;
     }
 
@@ -249,8 +243,8 @@ export class SomneoAudioAccessory extends PlatformAccessory {
     // Source and channel should only be undefined the first time the plugin is run
     // So that is when we'll use the favorite values
     if (this.source === undefined || this.channel === undefined) {
-      this.source = this.platform.UserSettings.FavoriteSource;
-      this.channel = this.platform.UserSettings.FavoriteChannel;
+      this.source = this.somneoClock.FavoriteSource;
+      this.channel = this.somneoClock.FavoriteChannel;
     } else if (newSource !== undefined && newChannel !== undefined) {
       this.source = newSource;
       this.channel = newChannel;
@@ -264,6 +258,6 @@ export class SomneoAudioAccessory extends PlatformAccessory {
 
     this.televisionService
       .getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
-      .updateValue(this.activeInput!);
+      .updateValue(this.activeInput);
   }
 }

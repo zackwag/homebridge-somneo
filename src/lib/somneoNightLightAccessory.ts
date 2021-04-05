@@ -1,26 +1,25 @@
 import { SomneoPlatform } from '../somneoPlatform';
-import { RequestedAccessory } from './requestedAccessory';
+import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoLightAccessory } from './somneoLightAccessory';
 
 export class SomneoNightLightAccessory extends SomneoLightAccessory {
 
-  private static readonly NAME = `${SomneoConstants.SOMNEO} Night Light`;
-
   constructor(
     protected platform: SomneoPlatform,
+    protected somneoClock: SomneoClock,
   ) {
-    super(platform);
+    super(platform, somneoClock);
     this.updateValues();
   }
 
   protected getName(): string {
-    return SomneoNightLightAccessory.NAME;
+    return `${this.somneoClock.Name} ${SomneoConstants.LIGHT_NIGHT_LIGHT}`;
   }
 
   async updateValues(): Promise<void> {
 
-    await this.somneoService.getLightSettings().then(lightSettings => {
+    await this.somneoClock.SomneoService.getLightSettings().then(lightSettings => {
       this.isOn = lightSettings.ngtlt;
       this.getBinaryService()
         .getCharacteristic(this.getBinaryCharacteristic())
@@ -29,24 +28,21 @@ export class SomneoNightLightAccessory extends SomneoLightAccessory {
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {
-    return this.somneoService.modifyNightLightState(isOn);
+    return this.somneoClock.SomneoService.modifyNightLightState(isOn);
   }
 
   protected turnOffConflictingAccessories(): Promise<void> {
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.LIGHT_MAIN)
-    && this.platform.MainLight !== undefined) {
-      this.platform.MainLight.turnOff();
+    if (this.platform.HostMainLightMap.has(this.somneoClock.SomneoService.Host)) {
+      this.platform.HostMainLightMap.get(this.somneoClock.SomneoService.Host).turnOff();
     }
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.SWITCH_RELAXBREATHE)
-    && this.platform.RelaxBreathe !== undefined) {
-      this.platform.RelaxBreathe.turnOff();
+    if (this.platform.HostRelaxBreatheSwitchMap.has(this.somneoClock.SomneoService.Host)) {
+      this.platform.HostRelaxBreatheSwitchMap.get(this.somneoClock.SomneoService.Host).turnOff();
     }
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET)
-    && this.platform.SunsetSwitch !== undefined) {
-      this.platform.SunsetSwitch.turnOff();
+    if (this.platform.HostSunsetSwitchMap.has(this.somneoClock.SomneoService.Host)) {
+      this.platform.HostSunsetSwitchMap.get(this.somneoClock.SomneoService.Host).turnOff();
     }
 
     return Promise.resolve();

@@ -2,6 +2,7 @@ import { Service } from 'hap-nodejs';
 import { CharacteristicValue } from 'homebridge';
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoBinaryAccessory } from './somneoBinaryAccessory';
+import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
 
 export abstract class SomneoLightAccessory extends SomneoBinaryAccessory {
@@ -10,8 +11,9 @@ export abstract class SomneoLightAccessory extends SomneoBinaryAccessory {
 
   constructor(
     protected platform: SomneoPlatform,
+    protected somneoClock: SomneoClock,
   ) {
-    super(platform);
+    super(platform, somneoClock);
 
     this.lightBulbService = new platform.Service.Lightbulb(this.name);
 

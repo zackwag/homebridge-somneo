@@ -30,7 +30,8 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
     this.modifySomneoServiceState(boolValue).then(() => {
       this.isOn = boolValue;
       this.platform.log.info(`Set ${this.name} state ->`, this.isOn);
-    }).catch(err => this.platform.log.error(`Error setting ${this.name} state to ${boolValue}, err=${err}`));
+    }).catch(err =>
+      this.platform.log.error(`Error setting ${this.name} state to ${boolValue}, err=${err}`));
   }
 
   public turnOff() {
