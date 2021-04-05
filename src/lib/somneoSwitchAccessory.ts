@@ -1,6 +1,7 @@
 import { Service } from 'homebridge';
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoBinaryAccessory } from './somneoBinaryAccessory';
+import { SomneoClock } from './somneoClock';
 
 export abstract class somneoSwitchAccessory extends SomneoBinaryAccessory {
 
@@ -8,8 +9,9 @@ export abstract class somneoSwitchAccessory extends SomneoBinaryAccessory {
 
   constructor(
     protected platform: SomneoPlatform,
+    protected somneoClock: SomneoClock,
   ) {
-    super(platform);
+    super(platform, somneoClock);
 
     this.switchService = new platform.Service.Switch(this.name);
 

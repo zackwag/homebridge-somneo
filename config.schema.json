@@ -6,210 +6,181 @@
     "type": "object",
     "properties": {
       "name": {
-        "title": "Name",
+        "title": "Plugin Name",
         "type": "string",
         "required": true,
         "default": "Homebridge Somneo",
         "description": "Name for plugin that will appear in Homebridge Logs."
       },
-      "host": {
-        "title": "Host",
-        "type": "string",
-        "required": true,
-        "description": "IP Address of Somneo clock."
+      "somneos": {
+        "type": "array",
+        "items": {
+          "title": "Somneo Clock",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "required": true,
+              "placeholder": "Somneo",
+              "description": "Name of the Somneo clock."
+            },
+            "host": {
+              "title": "Host",
+              "type": "string",
+              "required": true,
+              "format": "ipv4",
+              "description": "IP Address of the Somneo clock."
+            },
+            "sensors": {
+              "type": "object",
+              "properties": {
+                "humidity": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable Humidity Sensor",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                },
+                "lux": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable Lux Sensor",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                },
+                "temperature": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable Temperature Sensor",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "lights": {
+              "type": "object",
+              "properties": {
+                "mainLight": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable Main Light",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                },
+                "nightLight": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable Night Light",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "switches": {
+              "type": "object",
+              "properties": {
+                "relaxBreathe": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable RelaxBreathe Program",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                },
+                "sunset": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable Sunset Program",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "audio": {
+              "type": "object",
+              "properties": {
+                "isEnabled": {
+                  "title": "Enable Audio",
+                  "type": "boolean",
+                  "default": true
+                },
+                "favoriteInput": {
+                  "title": "Favorite Input",
+                  "type": "number",
+                  "oneOf": [
+                    {
+                      "title": "FM Preset 1",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    {
+                      "title": "FM Preset 2",
+                      "enum": [
+                        2
+                      ]
+                    },
+                    {
+                      "title": "FM Preset 3",
+                      "enum": [
+                        3
+                      ]
+                    },
+                    {
+                      "title": "FM Preset 4",
+                      "enum": [
+                        4
+                      ]
+                    },
+                    {
+                      "title": "FM Preset 5",
+                      "enum": [
+                        5
+                      ]
+                    },
+                    {
+                      "title": "Auxiliary",
+                      "enum": [
+                        6
+                      ]
+                    }
+                  ],
+                  "description": "This is the input that will be used when the audio device is turned on.",
+                  "condition": {
+                    "functionBody": "return model.somneos[arrayIndices[0]].audio.isEnabled === true;"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "pollingSeconds": {
         "title": "Polling Interval",
         "type": "number",
-        "default": 30,
+        "placeholder": 30,
         "description": "Interval (in seconds) to check status and update accessories."
-      },
-      "enableHumidty": {
-        "title": "Enable Humidity Sensor",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "enableLuxSensor": {
-        "title": "Enable Lux Sensor",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "enableTemperatureSensor": {
-        "title": "Enable Temperature Sensor",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "enableMainLight": {
-        "title": "Enable Main Dimmable Light",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "enableNightLight": {
-        "title": "Enable Night Light",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "enableRelaxBreatheProgram": {
-        "title": "Enable RelaxBreathe Program",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "enableSunsetProgram": {
-        "title": "Enable Sunset Program",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "enableAudio": {
-        "title": "Enable Audio",
-        "type": "string",
-        "oneOf": [
-          {
-            "title": "Enabled",
-            "enum": [
-              true
-            ]
-          },
-          {
-            "title": "Disabled",
-            "enum": [
-              false
-            ]
-          }
-        ]
-      },
-      "favoriteInput": {
-        "title": "Favorite Input",
-        "type": "number",
-        "oneOf": [
-          {
-            "title": "FM Preset 1",
-            "enum": [
-              1
-            ]
-          },
-          {
-            "title": "FM Preset 2",
-            "enum": [
-              2
-            ]
-          },
-          {
-            "title": "FM Preset 3",
-            "enum": [
-              3
-            ]
-          },
-          {
-            "title": "FM Preset 4",
-            "enum": [
-              4
-            ]
-          },
-          {
-            "title": "FM Preset 5",
-            "enum": [
-              5
-            ]
-          },
-          {
-            "title": "Auxiliary",
-            "enum": [
-              6
-            ]
-          }
-        ],
-        "description": "This is the input that will be used when the audio device is turned on."
       }
     }
   },
@@ -223,9 +194,27 @@
     },
     {
       "type": "section",
-      "title": "Somneo Settings",
       "items": [
-        "host"
+        {
+          "key": "somneos",
+          "title": "Somneo Clocks",
+          "type": "array",
+          "orderable": false,
+          "buttonText": "Add Somneo Clock",
+          "items": [
+            "somneos[].name",
+            "somneos[].host",
+            "somneos[].sensors.temperature.isEnabled",
+            "somneos[].sensors.humidity.isEnabled",
+            "somneos[].sensors.lux.isEnabled",
+            "somneos[].lights.mainLight.isEnabled",
+            "somneos[].lights.nightLight.isEnabled",
+            "somneos[].switches.sunset.isEnabled",
+            "somneos[].switches.relaxBreathe.isEnabled",
+            "somneos[].audio.isEnabled",
+            "somneos[].audio.favoriteInput"
+          ]
+        }
       ]
     },
     {
@@ -234,66 +223,7 @@
       "expandable": true,
       "expanded": false,
       "items": [
-        "pollingSeconds",
-        {
-          "type": "section",
-          "title": "Accessory Settings",
-          "expandable": true,
-          "expanded": false,
-          "items": [
-            {
-              "type": "section",
-              "title": "Sensors",
-              "items": [
-                {
-                  "key": "enableHumiditySensor"
-                },
-                {
-                  "key": "enableLuxSensor"
-                },
-                {
-                  "key": "enableTemperatureSensor"
-                }
-              ]
-            },
-            {
-              "type": "section",
-              "title": "Lights",
-              "items": [
-                {
-                  "key": "enableMainLight"
-                },
-                {
-                  "key": "enableNightLight"
-                }
-              ]
-            },
-            {
-              "type": "section",
-              "title": "Switches",
-              "items": [
-                {
-                  "key": "enableRelaxBreatheProgram"
-                },
-                {
-                  "key": "enableSunsetProgram"
-                }
-              ]
-            },
-            {
-              "type": "section",
-              "title": "Audio",
-              "items": [
-                {
-                  "key": "enableAudio"
-                },
-                {
-                  "key": "favoriteInput"
-                }
-              ]
-            }
-          ]
-        }
+        "pollingSeconds"
       ]
     }
   ]

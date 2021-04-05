@@ -45,48 +45,104 @@ Before installing this plugin, you should install Homebridge using the [official
 
 ## Manual Configuration
 
-### Most Important Parameters
+### Platform Schema
 
-| Field | Required | Description                              | Default Value |
-| ------| :------: | ---------------------------------------- | :-----------: |
-| **platform** | *Yes* | Must always be set to `HomebridgeSomneo`.| N/A |
-| **name** | *Yes* | Set the plugin name for display in the Homebridge logs | `Homebridge Somneo` |
-| **host** | *Yes* | IP address or hostname of the Somneo clock. | N/A |
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :--------: | ----------------------------- | :----------: |
+| **platform** | *Yes* | string | Must always be set to `HomebridgeSomneo`.| N/A |
+| **name** | *Yes* | string | Set the plugin name for display in the Homebridge logs. | `Homebridge Somneo` |
+| **somneos** | *Yes* | object[] | An array of configurations for Somneo clocks | N/A |
+| **pollingSeconds**| No | number | Time in seconds for how often to ping the clock. | `30` or 30000 milliseconds |
 
-### Optional Parameters
+#### Somneo Schema
 
-| Field | Required | Description                              | Default Value |
-| ------| :-------: | ---------------------------------------- | :------------: |
-| **pollingSeconds**| No | Time in seconds for how often to ping the clock. | `30` or 30000 milliseconds |
-| **enableHumitidySensor**| No | Boolean value for whether or not to include the Humidity Sensor. | `true` |
-| **enableLuxSensor**| No | Boolean value for whether or not to include the Light (or Lux) Sensor. | `true` |
-| **enableTemperatureSensor** | No | Boolean value for whether or not to include the Temperature Sensor. | `true` |
-| **enableMainLights** | No | Boolean value for whether or not to include the Main Light (The dimmable light). | `true` |
-| **enableNightLight** | No | Boolean value for whether or not to include the Night Light. |`true`|
-| **enableRelaxBreatheProgram** | No | Boolean value for whether or not to include the RelaxBreathe Program switch. | `true` |
-| **enableSunsetProgram** | No | Boolean value for whether or not to include the Sunset Program switch. | `true` |
-| **enableAudio** | No | Boolean value for whether or not to include the Audio receiver to use the FM Radio and/or Auxiliary Input. | `true` |
-| **favoriteInput** | No | Numeric value specifying the input for the Somneo Audio to go to the first time its turned on in a session. After changing the input, the Somneo will go to the last used input. | `1` or FM Preset 1 |
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **name** | *Yes* | string | The name of the clock. It will be used as a prefix for all of the accessories it exposes. | N/A |
+| **host** | *Yes* | string | IP address or hostname of the Somneo clock. | N/A |
+| **sensors** | *Yes* | object | Settings for sensors in the Somneo clock. | N/A |
+| **lights** | *Yes* | object | Settings for lights in the Somneo clock. | N/A |
+| **switches** | *Yes* | object | Settings for switches in the Somneo clock. | N/A |
+| **audio** | *Yes* | object | Settings for the audio device in the Somneo clock. | N/A |
 
-##### Configuration Parameters Notes
+##### Sensors Schema
 
-Due to the way that the Config UI X visual editor works, in order to not force users to write to their config file when they want to use accessory but have not selected anything, the boolean values can either be a literal boolean of `true` or a string boolean of `"true"`.
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **humidity** | *Yes* | object | Settings for the humidity sensor. | N/A |
+| **lux** | *Yes* | object | Settings for the lux (light) sensor. | N/A |
+| **temperature** | *Yes* | object | Settings for the temperature sensor. | N/A |
 
-###### Input Enumeration
-1. FM Preset 1 is `1`
-2. FM Preset 2 is `2`
-3. FM Preset 3 is `3`
-4. FM Preset 4 is `4`
-5. FM Preset 5 is `5`
-6. Auxiliary is `6`
+###### Humidity Schema
 
-##### Somneo Audio Accessory Note
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the humidity sensor. | `true` |
+
+###### Lux Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the lux (light) sensor. | `true` |
+
+###### Temperature Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the temperature sensor. | `true` |
+
+##### Lights Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **mainLight** | *Yes* | object | Settings for the main (dimmable) light. | N/A |
+| **nightLight** | *Yes* | object | Settings for the (on/off) night light. | N/A |
+
+###### MainLight Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the main light. | `true` |
+
+###### NightLight Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the night light. | `true` |
+
+##### Switches Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **relaxBreathe** | *Yes* | object | Settings for the RelaxBreathe Program switch. | N/A |
+| **sunset** | *Yes* | object | Settings for the Sunset Program switch. | N/A |
+
+###### RelaxBreathe Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the RelaxBreathe Program switch. | `true` |
+
+###### Sunset Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the Sunset Program switch. | `true` |
+
+##### Audio Schema
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean |  Determines whether or not to expose the Audio Device.  | `true` |
+| **favoriteInput** | No | number | Numeric value specifying the input for the Somneo Audio to go to the first time its turned on in a session.<br /><br />After changing the input, the Somneo will go to the last used input.<br /><br />Possible values:<ul><li>FM Preset 1 = `1`</li><li>FM Preset 2 = `2`</li><li>FM Preset 3 = `3`</li><li>FM Preset 4 = `4`</li><li>FM Preset 5 = `5`</li><li>Auxiliary = `6`</li></ul> | `1` or FM Preset 1 |
+
+### Somneo Audio Device Note
 
 The Somneo clock has 5 FM radio presets and an auxiliary input. To help accomodate this, an audio receiver called `Somneo Audio` is available. You can turn in on and it will default to `FM Preset 1`. Additionally, you can raise and lower the volume with the Remote widget in iOS/iPadOS's Control Center.
 
 However, due the way that audio receivers are implemented in Homebridge, they must be exposed as an *External Plugin*. This means that the `Somneo Audio` will need to be onboarded separately from the other accessories.
 
-###### Onboarding Instructions for Somneo Audio
+#### Onboarding Instructions for Somneo Audio
 
 1. Select `Add Accessory` in the Home app.
 2. Then select `I Don't Have a Code or Cannot Scan`.
@@ -94,22 +150,76 @@ However, due the way that audio receivers are implemented in Homebridge, they mu
 <img src="https://user-images.githubusercontent.com/5261774/112217388-f5632d80-8bf8-11eb-83e1-2ce41e83fd20.jpg" width="320" />
 4. Enter your Homebridge PIN and the device will connect to your home.
 
-#### Config Example
+### Config Examples
+
+#### Simplest Configuration
+
+This configuration will expose all items and use the default polling interval with the least work.
 
 ```json
 {
-  "platforms": [
+  "name": "Homebridge Somneo",
+  "somneos": [
     {
-      "name": "Homebridge Somneo",
-      "host": "10.0.0.24",
-      "platform": "HomebridgeSomneo"
+      "name": "Master Bedroom Somneo",
+      "host": "[INSERT_IP_ADDRESS_HERE]"
     }
-  ]
+  ],
+  "platform": "HomebridgeSomneo"
+}
+```
+
+#### Most Verbose Configuration
+
+This configuration will expose all items, but is very verbose. It is presented here to help visualize the JSON structure.
+
+```json
+{
+  "name": "Homebridge Somneo",
+  "somneos": [
+    {
+      "name": "Master Bedroom Somneo",
+      "host": "[INSERT_IP_ADDRESS_HERE]",
+      "sensors": {
+        "humidity": {
+          "isEnabled": true
+        },
+        "lux": {
+          "isEnabled": true
+        },
+        "temperature": {
+          "isEnabled": true
+        }
+      },
+      "lights": {
+        "mainLight": {
+          "isEnabled": true
+        },
+        "nightLight": {
+          "isEnabled": true
+        }
+      },
+      "switches": {
+        "relaxBreathe": {
+          "isEnabled": true
+        },
+        "sunset": {
+          "isEnabled": true
+        }
+      },
+      "audio": {
+        "isEnabled": true,
+        "favoriteInput": 1
+      }
+    }
+  ],
+  "pollingSeconds": 30,
+  "platform": "HomebridgeSomneo"
 }
 ```
 
 ## Future Plans
-- Currently the plugin only supports one Somneo clock. Not sure how many people have multiple clocks.
+- Allow customization of Sunset & RelaxBreathe programs.
 - No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an occupancy sensor, but would need to know what sound level occupied/not should be considered.
 - Better error handling. I am a Java developer by trade and am still learning Typescript :).
 

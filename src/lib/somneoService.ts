@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
+import { Logger } from 'homebridge';
 import https from 'https';
 import { retryAsync } from 'ts-retry';
-import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoConstants } from './somneoConstants';
 import { Light, LightSettings, NightLight, PlaySettings, RelaxBreathe, SensorReadings, Sunset } from './somneoServiceDataTypes';
 
@@ -9,7 +9,7 @@ export class SomneoService {
 
   private static readonly DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
 
-  private readonly baseUri = `https://${this.platform.UserSettings.Host}/di/v1/products/1`;
+  private readonly baseUri = `https://${this.Host}/di/v1/products/1`;
   private readonly http: AxiosInstance;
   private readonly lightsUri = `${this.baseUri}/wulgt`;
   private readonly playingUri = `${this.baseUri}/wuply`;
@@ -18,7 +18,8 @@ export class SomneoService {
   private readonly sunsetUri = `${this.baseUri}/wudsk`;
 
   constructor(
-    private platform: SomneoPlatform,
+    public Host: string,
+    private log: Logger,
   ) {
     this.http = axios.create({
       httpsAgent: new https.Agent({
@@ -33,8 +34,8 @@ export class SomneoService {
       .get(this.sensorsUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.platform.log.debug(
-      `Sensor Readings: temperature=${sensorReadings.mstmp} humidity=${sensorReadings.msrhu} light=${sensorReadings.mslux}`);
+    // eslint-disable-next-line max-len
+    this.log.debug(`Sensor Readings: host=${this.Host} temperature=${sensorReadings.mstmp} humidity=${sensorReadings.msrhu} light=${sensorReadings.mslux}`);
 
     return sensorReadings;
   }
@@ -45,7 +46,7 @@ export class SomneoService {
       .get(this.sunsetUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.platform.log.debug(`Sunset: on=${sunset.onoff}`);
+    this.log.debug(`Sunset: host=${this.Host} on=${sunset.onoff}`);
 
     return sunset;
   }
@@ -65,7 +66,7 @@ export class SomneoService {
       .get(this.relaxBreatheUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.platform.log.debug(`RelaxBreathe: on=${relaxBreathe.onoff}`);
+    this.log.debug(`RelaxBreathe: host=${this.Host} on=${relaxBreathe.onoff}`);
 
     return relaxBreathe;
   }
@@ -85,8 +86,8 @@ export class SomneoService {
       .get(this.lightsUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.platform.log.debug(
-      `Light Settings: lightLevel=${lightSettings.ltlvl} lightOn=${lightSettings.onoff} nightLightOn=${lightSettings.ngtlt}`);
+    // eslint-disable-next-line max-len
+    this.log.debug(`Light Settings: host=${this.Host} lightLevel=${lightSettings.ltlvl} lightOn=${lightSettings.onoff} nightLightOn=${lightSettings.ngtlt}`);
 
     return lightSettings;
   }
@@ -124,8 +125,8 @@ export class SomneoService {
       .get(this.playingUri)
       .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
 
-    this.platform.log.debug(
-      `Play Settings: on=${playSettings.onoff} volume=${playSettings.sdvol} source=${playSettings.snddv} channel=${playSettings.sndch}`);
+    // eslint-disable-next-line max-len
+    this.log.debug(`Play Settings: host=${this.Host} on=${playSettings.onoff} volume=${playSettings.sdvol} source=${playSettings.snddv} channel=${playSettings.sndch}`);
 
     return playSettings;
   }

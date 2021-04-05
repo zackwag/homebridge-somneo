@@ -2,14 +2,10 @@ import { CharacteristicValue, Service } from 'homebridge';
 import { SomneoPlatform } from '../somneoPlatform';
 import { RequestedAccessory } from './requestedAccessory';
 import { SomneoAccessory } from './somneoAccessory';
+import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
 
 export class SomneoSensorAccessory extends SomneoAccessory {
-
-  private static readonly HUMIDITY_SENSOR_NAME = `${SomneoConstants.SOMNEO} Humidity Sensor`;
-  private static readonly LUX_SENSOR_NAME = `${SomneoConstants.SOMNEO} Lux Sensor`;
-  private static readonly NAME = `${SomneoConstants.SOMNEO} Sensors`;
-  private static readonly TEMPERATURE_SENSOR_NAME = `${SomneoConstants.SOMNEO} Temperature Sensor`;
 
   private humidity: number | undefined;
   private humidityService: Service;
@@ -20,13 +16,14 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
   constructor(
     protected platform: SomneoPlatform,
+    protected somneoClock: SomneoClock,
   ) {
-    super(platform);
+    super(platform, somneoClock);
 
     // set the service names, this is what is displayed as the default name on the Home app
-    this.temperatureService = new platform.Service.TemperatureSensor(SomneoSensorAccessory.TEMPERATURE_SENSOR_NAME);
-    this.humidityService = new platform.Service.HumiditySensor(SomneoSensorAccessory.HUMIDITY_SENSOR_NAME);
-    this.luxService = new platform.Service.LightSensor(SomneoSensorAccessory.LUX_SENSOR_NAME);
+    this.temperatureService = new platform.Service.TemperatureSensor(`${this.somneoClock.Name} ${SomneoConstants.SENSOR_TEMPERATURE}`);
+    this.humidityService = new platform.Service.HumiditySensor(`${this.somneoClock.Name} ${SomneoConstants.SENSOR_HUMIDITY}`);
+    this.luxService = new platform.Service.LightSensor(`${this.somneoClock.Name} ${SomneoConstants.SENSOR_LUX}`);
 
     // register handlers for the characteristics
     this.temperatureService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
@@ -45,12 +42,12 @@ export class SomneoSensorAccessory extends SomneoAccessory {
   }
 
   protected getName(): string {
-    return SomneoSensorAccessory.NAME;
+    return `${this.somneoClock.Name} ${SomneoConstants.SENSORS}`;
   }
 
   async updateValues() {
 
-    await this.somneoService.getSensorReadings().then(sensorReadings => {
+    await this.somneoClock.SomneoService.getSensorReadings().then(sensorReadings => {
       this.temperature = sensorReadings.mstmp;
       this.temperatureService
         .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
@@ -139,15 +136,18 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
     const services: Service[] = [this.informationService];
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_TEMPERATURE)) {
+    if (this.somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_TEMPERATURE)) {
+      this.platform.log.debug(`Including sensor=${this.temperatureService.displayName}`);
       services.push(this.temperatureService);
     }
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_HUMIDITY)) {
+    if (this.somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_HUMIDITY)) {
+      this.platform.log.debug(`Including sensor=${this.humidityService.displayName}`);
       services.push(this.humidityService);
     }
 
-    if (this.platform.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_HUMIDITY)) {
+    if (this.somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_LUX)) {
+      this.platform.log.debug(`Including sensor=${this.luxService.displayName}`);
       services.push(this.luxService);
     }
 

@@ -2,34 +2,28 @@ import { AccessoryPlugin, API, Characteristic, Logger, PlatformConfig, Service, 
 import { RequestedAccessory } from './lib/requestedAccessory';
 import { SomneoAccessory } from './lib/somneoAccessory';
 import { SomneoAudioAccessory } from './lib/somneoAudioAccessory';
+import { SomneoConstants } from './lib/somneoConstants';
 import { SomneoMainLightAccessory } from './lib/somneoMainLightAccessory';
 import { SomneoNightLightAccessory } from './lib/somneoNightLightAccessory';
 import { SomneoRelaxBreatheSwitchAccessory } from './lib/somneoRelaxBreatheSwitchAccessory';
 import { SomneoSensorAccessory } from './lib/somneoSensorAccessory';
-import { SomneoService } from './lib/somneoService';
 import { SomneoSunsetSwitchAccessory } from './lib/somneoSunsetSwitchAccessory';
 import { UserSettings } from './lib/userSettings';
 import { PLUGIN_NAME } from './settings';
 
-/**
- * HomebridgePlatform
- * This class is the main constructor for your plugin, this is where you should
- * parse the user config and discover/register accessories with Homebridge.
- */
 export class SomneoPlatform implements StaticPlatformPlugin {
 
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
-  public Audio: SomneoAudioAccessory | undefined;
-  public Sensors: SomneoSensorAccessory | undefined;
-  public MainLight: SomneoMainLightAccessory | undefined;
-  public NightLight: SomneoNightLightAccessory | undefined;
-  public RelaxBreathe: SomneoRelaxBreatheSwitchAccessory | undefined;
-  public readonly SomneoService : SomneoService;
-  public SunsetSwitch: SomneoSunsetSwitchAccessory | undefined;
-  public readonly UserSettings: UserSettings;
+  public readonly HostSensorMap = new Map();
+  public readonly HostMainLightMap = new Map();
+  public readonly HostNightLightMap = new Map();
+  public readonly HostRelaxBreatheSwitchMap = new Map();
+  public readonly HostSunsetSwitchMap = new Map();
+  public readonly HostAudioMap = new Map();
 
   private SomneoAccessories : SomneoAccessory[] = [];
+  private readonly UserSettings: UserSettings;
 
   constructor(
     public readonly log: Logger,
@@ -37,11 +31,15 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     public readonly api: API,
   ) {
     this.UserSettings = new UserSettings(this);
-    this.SomneoService = new SomneoService(this);
+
+    if (this.UserSettings.SomneoClocks.length === 0) {
+      this.log.error('No Somneo clocks specified. Platform is not loading.');
+      return;
+    }
 
     this.buildAccessories();
 
-    this.log.debug(`Platform ${this.config.name} -> Initialized`);
+    this.log.debug(`Platform ${this.UserSettings.PluginName} -> Initialized`);
   }
 
   async accessories(callback: (foundAccessories: AccessoryPlugin[]) => void): Promise<void> {
@@ -50,54 +48,81 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
   private buildAccessories() {
 
-    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_HUMIDITY) ||
-        this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_LUX) ||
-        this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SENSOR_TEMPERATURE)) {
-      this.Sensors = new SomneoSensorAccessory(this);
-      this.log.debug(`Including accessory=${this.Sensors.name}`);
-      this.SomneoAccessories.push(this.Sensors);
+    for (const somneoClock of this.UserSettings.SomneoClocks) {
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_HUMIDITY) ||
+        somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_LUX) ||
+        somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_TEMPERATURE)) {
+        const sensorAccessory = new SomneoSensorAccessory(this, somneoClock);
+
+        this.log.debug(`Including accessory=${sensorAccessory.name}`);
+
+        this.SomneoAccessories.push(sensorAccessory);
+        this.HostSensorMap.set(somneoClock.SomneoService.Host, sensorAccessory);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.LIGHT_MAIN)) {
+        const mainLight = new SomneoMainLightAccessory(this, somneoClock);
+
+        this.log.debug(`Including accessory=${mainLight.name}`);
+
+        this.SomneoAccessories.push(mainLight);
+        this.HostMainLightMap.set(somneoClock.SomneoService.Host, mainLight);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.LIGHT_NIGHT_LIGHT)) {
+        const nightLight = new SomneoNightLightAccessory(this, somneoClock);
+
+        this.log.debug(`Including accessory=${nightLight.name}`);
+
+        this.HostNightLightMap.set(somneoClock.SomneoService.Host, nightLight);
+        this.SomneoAccessories.push(nightLight);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SWITCH_RELAXBREATHE)) {
+        const relaxBreatheSwitch = new SomneoRelaxBreatheSwitchAccessory(this, somneoClock);
+
+        this.log.debug(`Including accessory=${relaxBreatheSwitch.name}`);
+
+        this.HostRelaxBreatheSwitchMap.set(somneoClock.SomneoService.Host, relaxBreatheSwitch);
+        this.SomneoAccessories.push(relaxBreatheSwitch);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET)) {
+        const sunsetSwitch = new SomneoSunsetSwitchAccessory(this, somneoClock);
+
+        this.log.debug(`Including accessory=${sunsetSwitch.name}`);
+
+        this.HostSunsetSwitchMap.set(somneoClock.SomneoService.Host, sunsetSwitch);
+        this.SomneoAccessories.push(sunsetSwitch);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.AUDIO)) {
+        const name = `${somneoClock.Name} ${SomneoConstants.DEVICE_AUDIO}`;
+        const uuid = this.api.hap.uuid.generate(`homebridge:${PLUGIN_NAME}${name}${somneoClock.SomneoService.Host}`);
+        const audioDevice = new SomneoAudioAccessory(name, uuid, this, somneoClock);
+
+        this.log.debug(`Including accessory=${audioDevice.displayName}`);
+
+        this.HostAudioMap.set(somneoClock.SomneoService.Host, audioDevice);
+      }
     }
 
-    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.LIGHT_MAIN)) {
-      this.MainLight = new SomneoMainLightAccessory(this);
-      this.log.debug(`Including accessory=${this.MainLight.name}`);
-      this.SomneoAccessories.push(this.MainLight);
-    }
-
-    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.LIGHT_NIGHT_LIGHT)) {
-      this.NightLight = new SomneoNightLightAccessory(this);
-      this.log.debug(`Including accessory=${this.NightLight.name}`);
-      this.SomneoAccessories.push(this.NightLight);
-    }
-
-    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SWITCH_RELAXBREATHE)) {
-      this.RelaxBreathe = new SomneoRelaxBreatheSwitchAccessory(this);
-      this.log.debug(`Including accessory=${this.RelaxBreathe.name}`);
-      this.SomneoAccessories.push(this.RelaxBreathe);
-    }
-
-    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET)) {
-      this.SunsetSwitch = new SomneoSunsetSwitchAccessory(this);
-      this.log.debug(`Including accessory=${this.SunsetSwitch.name}`);
-      this.SomneoAccessories.push(this.SunsetSwitch);
-    }
-
-    if (this.UserSettings.RequestedAccessories.includes(RequestedAccessory.AUDIO)) {
-      const uuid = this.api.hap.uuid.generate(`homebridge:${PLUGIN_NAME}${SomneoAudioAccessory.NAME}`);
-      this.Audio = new SomneoAudioAccessory(this, uuid);
-      this.api.publishExternalAccessories(PLUGIN_NAME, [this.Audio]);
+    // Publish all audio devices as external accessories
+    if (this.HostAudioMap.size > 0) {
+      this.api.publishExternalAccessories(PLUGIN_NAME, [...this.HostAudioMap.values()]);
     }
 
     this.log.debug(`Starting poll, pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
 
     setInterval(() => {
       this.SomneoAccessories.forEach(somneoAccessory => {
-        this.log.debug(`Updating accessory=${somneoAccessory.name} values.`);
-        somneoAccessory.updateValues();
+        somneoAccessory.updateValues()
+          .then(() => this.log.debug(`Updated accessory=${somneoAccessory.name} values.`));
       });
 
-      if (this.Audio !== undefined) {
-        this.Audio.updateValues();
+      for (const audioDevice of this.HostAudioMap.values()) {
+        audioDevice.updateValues()
+          .then(() => this.log.debug(`Updated accessory=${audioDevice.displayName} values.`));
       }
     }, this.UserSettings.PollingMilliSeconds);
   }
