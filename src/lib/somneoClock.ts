@@ -10,8 +10,8 @@ export class SomneoClock {
     RequestedAccessory.LIGHT_NIGHT_LIGHT];
 
   private static readonly SENSOR_ACCESSORIES = [RequestedAccessory.SENSOR_HUMIDITY,
-    RequestedAccessory.SENSOR_TEMPERATURE,
-    RequestedAccessory.SENSOR_HUMIDITY];
+    RequestedAccessory.SENSOR_LUX,
+    RequestedAccessory.SENSOR_TEMPERATURE];
 
   private static readonly SWITCH_ACCESSORIES = [RequestedAccessory.SWITCH_RELAXBREATHE,
     RequestedAccessory.SWITCH_SUNSET];
