@@ -6,6 +6,12 @@ export interface SensorReadings {
 
 export interface Sunset {
   onoff: boolean;
+  durat?: number;
+  curve?: number;
+  ctype?: string;
+  sndch?: string;
+  snddv?: string;
+  sndlv?: number;
 }
 
 export interface RelaxBreathe {

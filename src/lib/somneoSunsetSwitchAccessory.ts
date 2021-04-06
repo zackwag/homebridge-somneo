@@ -18,7 +18,12 @@ export class SomneoSunsetSwitchAccessory extends somneoSwitchAccessory {
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {
-    return this.somneoClock.SomneoService.modifySunsetState(isOn);
+
+    if (isOn) {
+      return this.somneoClock.SomneoService.turnOnSunsetProgram(this.somneoClock.SunsetProgramPreferences);
+    }
+
+    return this.somneoClock.SomneoService.turnOffSunsetProgram();
   }
 
   protected turnOffConflictingAccessories(): Promise<void> {
