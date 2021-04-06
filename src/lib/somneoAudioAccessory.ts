@@ -1,11 +1,10 @@
-import { Categories, Service } from 'hap-nodejs';
-import { CharacteristicValue } from 'homebridge';
-import { PlatformAccessory } from 'homebridge/lib/platformAccessory';
+import { Service } from 'hap-nodejs';
+import { CharacteristicValue, PlatformAccessory } from 'homebridge';
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
 
-export class SomneoAudioAccessory extends PlatformAccessory {
+export class SomneoAudioAccessory {
 
   private activeInput: number | undefined;
   private channel: string | undefined;
@@ -16,23 +15,20 @@ export class SomneoAudioAccessory extends PlatformAccessory {
   private volume: number | undefined;
 
   constructor(
-    public name: string,
-    public uuid: string,
+    public Accessory: PlatformAccessory,
     private platform: SomneoPlatform,
     private somneoClock: SomneoClock,
   ) {
-    super(name, uuid, Categories.AUDIO_RECEIVER);
-
     // set accessory information
-    this.getService(this.platform.Service.AccessoryInformation)!
+    this.Accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, SomneoConstants.MANUFACTURER)
       .setCharacteristic(this.platform.Characteristic.Model, SomneoConstants.MODEL)
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.somneoClock.SomneoService.Host);
 
-    this.televisionService = this.addService(this.platform.Service.Television);
+    this.televisionService = this.Accessory.addService(this.platform.Service.Television);
 
     this.televisionService
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, this.displayName)
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, this.Accessory.displayName)
       .setCharacteristic(this.platform.Characteristic.SleepDiscoveryMode,
         this.platform.Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
 
@@ -49,7 +45,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
     this.televisionService.getCharacteristic(this.platform.Characteristic.RemoteKey)
       .onSet(this.setRemoteKey.bind(this));
 
-    this.speakerService = this.addService(this.platform.Service.TelevisionSpeaker);
+    this.speakerService = this.Accessory.addService(this.platform.Service.TelevisionSpeaker);
 
     this.speakerService.getCharacteristic(this.platform.Characteristic.VolumeSelector)
       .onSet(this.setVolumeSelector.bind(this));
@@ -75,7 +71,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
       this.volume = playSettings.sdvol!;
 
       this.updateActiveInput(playSettings.snddv, playSettings.sndch);
-    }).catch(err => this.platform.log.error(`Error updating ${this.displayName}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error updating ${this.Accessory.displayName}, err=${err}`));
   }
 
   async setVolumeSelector(value: CharacteristicValue): Promise<void> {
@@ -90,14 +86,15 @@ export class SomneoAudioAccessory extends PlatformAccessory {
 
     this.somneoClock.SomneoService.modifyPlaySettingsVolume(newVolume).then(() => {
       this.volume = newVolume;
-      this.platform.log.info(`Set ${this.displayName} volume ->`, this.volume);
-    }).catch(err => this.platform.log.error(`Error setting ${this.displayName} volume to ${newVolume} value=${value}, err=${err}`));
+      this.platform.log.info(`Set ${this.Accessory.displayName} volume ->`, this.volume);
+    }).catch(err =>
+      this.platform.log.error(`Error setting ${this.Accessory.displayName} volume to ${newVolume} value=${value}, err=${err}`));
   }
 
   async getActive(): Promise<CharacteristicValue> {
 
     if (this.isActive !== undefined) {
-      this.platform.log.debug(`Get ${this.displayName} state ->`, this.isActive);
+      this.platform.log.debug(`Get ${this.Accessory.displayName} state ->`, this.isActive);
     }
 
     return (this.isActive || SomneoConstants.DEFAULT_BINARY_STATE);
@@ -121,19 +118,19 @@ export class SomneoAudioAccessory extends PlatformAccessory {
     (boolValue ? this.somneoClock.SomneoService.modifyPlaySettingsState(true, this.source, this.channel) :
       this.somneoClock.SomneoService.modifyPlaySettingsState(false)).then(() => {
       this.isActive = boolValue;
-      this.platform.log.info(`Set ${this.displayName} state ->`, this.isActive);
+      this.platform.log.info(`Set ${this.Accessory.displayName} state ->`, this.isActive);
 
       if (boolValue) {
         this.updateActiveInput();
-        this.platform.log.info(`Set ${this.displayName} input ->`, this.activeInput);
+        this.platform.log.info(`Set ${this.Accessory.displayName} input ->`, this.activeInput);
       }
-    }).catch(err => this.platform.log.error(`Error setting ${this.displayName} state to ${boolValue}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error setting ${this.Accessory.displayName} state to ${boolValue}, err=${err}`));
   }
 
   async getActiveIdentifier(): Promise<CharacteristicValue> {
 
     if (this.activeInput !== undefined) {
-      this.platform.log.debug(`Get ${this.displayName} input ->`, this.activeInput);
+      this.platform.log.debug(`Get ${this.Accessory.displayName} input ->`, this.activeInput);
     }
 
     return (this.activeInput || SomneoConstants.DEFAULT_ACTIVE_INPUT);
@@ -148,10 +145,10 @@ export class SomneoAudioAccessory extends PlatformAccessory {
 
     this.somneoClock.SomneoService.modifyPlaySettingsInput(numValue).then(() => {
       this.activeInput = numValue;
-      this.platform.log.info(`Set ${this.displayName} input ->`, this.activeInput);
+      this.platform.log.info(`Set ${this.Accessory.displayName} input ->`, this.activeInput);
 
       this.updateChannelAndSource();
-    }).catch(err => this.platform.log.error(`Error setting ${this.displayName} input to ${numValue}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error setting ${this.Accessory.displayName} input to ${numValue}, err=${err}`));
   }
 
   public turnOff() {
@@ -160,10 +157,10 @@ export class SomneoAudioAccessory extends PlatformAccessory {
       this.somneoClock.SomneoService.modifyPlaySettingsState(false).then(() => {
         this.isActive = false;
         this.source = SomneoConstants.SOURCE_OFF;
-        this.platform.log.info(`Set ${this.displayName} state ->`, this.isActive);
+        this.platform.log.info(`Set ${this.Accessory.displayName} state ->`, this.isActive);
         this.televisionService.getCharacteristic(this.platform.Characteristic.Active)
           .updateValue(this.isActive);
-      }).catch(err => this.platform.log.error(`Error turning off ${this.displayName}, err=${err}`));
+      }).catch(err => this.platform.log.error(`Error turning off ${this.Accessory.displayName}, err=${err}`));
     }
   }
 
@@ -185,7 +182,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
     for (let i = 1; i <= SomneoConstants.NUM_FM_RADIO_CHANNELS; i++) {
       const displayName = `FM Preset ${i}`;
 
-      const fmInputService = this.addService(this.platform.Service.InputSource, `fm${i}`, displayName)
+      const fmInputService = this.Accessory.addService(this.platform.Service.InputSource, displayName, displayName)
         .setCharacteristic(this.platform.Characteristic.Identifier, i)
         .setCharacteristic(this.platform.Characteristic.ConfiguredName, displayName)
         .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
@@ -194,7 +191,7 @@ export class SomneoAudioAccessory extends PlatformAccessory {
       this.televisionService.addLinkedService(fmInputService); // link to tv service
     }
 
-    const auxInputService = this.addService(this.platform.Service.InputSource, 'aux', SomneoConstants.AUXILARY)
+    const auxInputService = this.Accessory.addService(this.platform.Service.InputSource, SomneoConstants.AUXILARY, SomneoConstants.AUXILARY)
       .setCharacteristic(this.platform.Characteristic.Identifier, SomneoConstants.INPUT_AUX_NUM)
       .setCharacteristic(this.platform.Characteristic.ConfiguredName, SomneoConstants.AUXILARY)
       .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
