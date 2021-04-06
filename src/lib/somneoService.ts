@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import { Logger } from 'homebridge';
 import https from 'https';
 import { retryAsync } from 'ts-retry';
+import { SunsetProgramPreferences } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
 import { Light, LightSettings, NightLight, PlaySettings, RelaxBreathe, SensorReadings, Sunset } from './somneoServiceDataTypes';
 
@@ -51,9 +52,30 @@ export class SomneoService {
     return sunset;
   }
 
-  async modifySunsetState(isOn: boolean): Promise<void> {
+  async turnOnSunsetProgram(sunsetPrefs: SunsetProgramPreferences): Promise<void> {
 
-    const body: Sunset = { onoff: isOn };
+    const silent = sunsetPrefs.AmbientSounds === SomneoConstants.SUNSET_PROGRAM_SOUND_NONE;
+
+    const body: Sunset = {
+      onoff: true,
+      durat: sunsetPrefs.Duration,
+      curve: sunsetPrefs.LightIntensity,
+      ctype: sunsetPrefs.ColorScheme,
+      sndch: silent ? undefined : sunsetPrefs.AmbientSounds,
+      snddv: silent ? SomneoConstants.SOUND_SOURCE_OFF : SomneoConstants.SOUND_SOURCE_SUNSET_PROGRAM,
+      sndlv: silent ? undefined : sunsetPrefs.Volume,
+    };
+
+    // eslint-disable-next-line max-len
+    this.log.debug(`Sunset: host=${this.Host} on=true durat=${body.durat} curve=${body.curve} ctype=${body.ctype} sndch=${body.sndch} snddv=${body.snddv} sndlv=${body.sndlv}`);
+
+    await retryAsync(() => this.http
+      .put(this.sunsetUri, body)
+      .then(res => res.data));
+  }
+
+  async turnOffSunsetProgram(): Promise<void> {
+    const body: Sunset = { onoff: false };
 
     await retryAsync(() => this.http
       .put(this.sunsetUri, body)
@@ -112,7 +134,7 @@ export class SomneoService {
 
   async modifyMainLightBrightness(brightness: number): Promise<void> {
 
-    const body: Light = { ltlvl: Math.floor((brightness / 4) + 0.5) };
+    const body: Light = { ltlvl: SomneoConstants.convertPercentageToPhilipsPercentage(brightness) };
 
     await retryAsync(() => this.http
       .put(this.lightsUri, body)
@@ -136,10 +158,10 @@ export class SomneoService {
     let body: PlaySettings;
 
     if (isOn) {
-      if (source === SomneoConstants.SOURCE_AUX) {
-        body = { onoff: true, snddv: SomneoConstants.SOURCE_AUX };
+      if (source === SomneoConstants.SOUND_SOURCE_AUX) {
+        body = { onoff: true, snddv: SomneoConstants.SOUND_SOURCE_AUX };
       } else {
-        body = { onoff: true, snddv: SomneoConstants.SOURCE_FM_RADIO, sndch: channel };
+        body = { onoff: true, snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO, sndch: channel };
       }
     } else {
       body = { onoff: false };
@@ -155,9 +177,9 @@ export class SomneoService {
     let body: PlaySettings;
 
     if (input === SomneoConstants.INPUT_AUX_NUM) {
-      body = { snddv: SomneoConstants.SOURCE_AUX };
+      body = { snddv: SomneoConstants.SOUND_SOURCE_AUX };
     } else {
-      body = { snddv: SomneoConstants.SOURCE_FM_RADIO, sndch: String(input) };
+      body = { snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO, sndch: String(input) };
     }
 
     await retryAsync(() => this.http

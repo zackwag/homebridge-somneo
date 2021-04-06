@@ -112,6 +112,153 @@
                       "title": "Enable Sunset Program",
                       "type": "boolean",
                       "default": true
+                    },
+                    "duration": {
+                      "title": "Duration of Program",
+                      "type": "number",
+                      "default": 30,
+                      "oneOf": [
+                        {
+                          "title": "5 Minutes",
+                          "enum": [
+                            5
+                          ]
+                        },
+                        {
+                          "title": "10 Minutes",
+                          "enum": [
+                            10
+                          ]
+                        },
+                        {
+                          "title": "15 Minutes",
+                          "enum": [
+                            15
+                          ]
+                        },
+                        {
+                          "title": "20 Minutes",
+                          "enum": [
+                            20
+                          ]
+                        },
+                        {
+                          "title": "30 Minutes",
+                          "enum": [
+                            30
+                          ]
+                        },
+                        {
+                          "title": "45 Minutes",
+                          "enum": [
+                            45
+                          ]
+                        },
+                        {
+                          "title": "60 Minutes",
+                          "enum": [
+                            60
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.sunset.isEnabled === true;"
+                      }
+                    },
+                    "lightIntensity": {
+                      "title": "Light Intensity %",
+                      "type": "integer",
+                      "default": 80,
+                      "minimum": 4,
+                      "step": 4,
+                      "maximum": 100,
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.sunset.isEnabled === true;"
+                      }
+                    },
+                    "colorScheme": {
+                      "title": "Color Scheme",
+                      "type": "number",
+                      "default": 0,
+                      "oneOf": [
+                        {
+                          "title": "Sunny Day",
+                          "enum": [
+                            0
+                          ]
+                        },
+                        {
+                          "title": "Island red",
+                          "enum": [
+                            1
+                          ]
+                        },
+                        {
+                          "title": "Nordic white",
+                          "enum": [
+                            2
+                          ]
+                        },
+                        {
+                          "title": "Carribean red",
+                          "enum": [
+                            3
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.sunset.isEnabled === true;"
+                      }
+                    },
+                    "ambientSounds": {
+                      "title": "Ambient Sounds",
+                      "type": "string",
+                      "default": "1",
+                      "oneOf": [
+                        {
+                          "title": "Soft Rain",
+                          "enum": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "title": "Ocean Waves",
+                          "enum": [
+                            "2"
+                          ]
+                        },
+                        {
+                          "title": "Under Water",
+                          "enum": [
+                            "3"
+                          ]
+                        },
+                        {
+                          "title": "Summer Lake",
+                          "enum": [
+                            "4"
+                          ]
+                        },
+                        {
+                          "title": "No Sound",
+                          "enum": [
+                            "0"
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.sunset.isEnabled === true;"
+                      }
+                    },
+                    "volume": {
+                      "title": "Volume %",
+                      "type": "integer",
+                      "default": 48,
+                      "minimum": 1,
+                      "maximum": 100,
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.sunset.isEnabled === true && model.somneos[arrayIndices[0]].switches.sunset.ambientSounds !== '0';"
+                      }
                     }
                   }
                 }
@@ -210,6 +357,11 @@
             "somneos[].lights.mainLight.isEnabled",
             "somneos[].lights.nightLight.isEnabled",
             "somneos[].switches.sunset.isEnabled",
+            "somneos[].switches.sunset.duration",
+            "somneos[].switches.sunset.lightIntensity",
+            "somneos[].switches.sunset.colorScheme",
+            "somneos[].switches.sunset.ambientSounds",
+            "somneos[].switches.sunset.volume",
             "somneos[].switches.relaxBreathe.isEnabled",
             "somneos[].audio.isEnabled",
             "somneos[].audio.favoriteInput"

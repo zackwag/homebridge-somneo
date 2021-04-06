@@ -52,7 +52,7 @@ Before installing this plugin, you should install Homebridge using the [official
 | **platform** | *Yes* | string | Must always be set to `HomebridgeSomneo`.| N/A |
 | **name** | *Yes* | string | Set the plugin name for display in the Homebridge logs. | `Homebridge Somneo` |
 | **somneos** | *Yes* | object[] | An array of configurations for Somneo clocks | N/A |
-| **pollingSeconds**| No | number | Time in seconds for how often to ping the clock. | `30` or 30000 milliseconds |
+| **pollingSeconds**| No | number | Time in seconds for how often to ping the clock. | `30` (30000 milliseconds) |
 
 #### Somneo Schema
 
@@ -128,13 +128,17 @@ Before installing this plugin, you should install Homebridge using the [official
 | Field | Required | Data Type | Description                   | Default Value |
 | ------| :------: | :-------: | ----------------------------- | :-----------: |
 | **isEnabled** | No | boolean | Determines whether or not to expose the Sunset Program switch. | `true` |
+| **duration** | No | number | How long the Sunset Program should run for. | `30` (minutes) |
+| **lightIntensity** | No | number | How bright should the Sunset Program start at. The value is a percentage that will be converted to a value between `1 and 25`. | `20` (80%) |
+| **colorScheme** | No | string | What color pattern should play during the Sunset Program.<br /><br />Possible values:<ul><li>Sunny day = `'0'`</li><li>Island red = `'1'`</li><li>Nordic white = `'2'`</li><li>Carribean red = `'3'`</li></ul> | `'0'` (Sunny Day) |
+| **ambientSounds** | No | string | What sounds should play during the Sunset Program.<br /><br />Possible values:<ul><li>Soft Rain = `'1'`</li><li>Ocean Waves = `'2'`</li><li>Under Water = `'3'`</li><li>Summer Lake = `'4'`</li><li>No Sound = `'0'`</li></ul> | `'1'` (Soft Rain) |
 
 ##### Audio Schema
 
 | Field | Required | Data Type | Description                   | Default Value |
 | ------| :------: | :-------: | ----------------------------- | :-----------: |
 | **isEnabled** | No | boolean |  Determines whether or not to expose the Audio Device.  | `true` |
-| **favoriteInput** | No | number | Numeric value specifying the input for the Somneo Audio to go to the first time its turned on in a session.<br /><br />After changing the input, the Somneo will go to the last used input.<br /><br />Possible values:<ul><li>FM Preset 1 = `1`</li><li>FM Preset 2 = `2`</li><li>FM Preset 3 = `3`</li><li>FM Preset 4 = `4`</li><li>FM Preset 5 = `5`</li><li>Auxiliary = `6`</li></ul> | `1` or FM Preset 1 |
+| **favoriteInput** | No | number | Numeric value specifying the input for the Somneo Audio to go to the first time its turned on in a session.<br /><br />After changing the input, the Somneo will go to the last used input.<br /><br />Possible values:<ul><li>FM Preset 1 = `1`</li><li>FM Preset 2 = `2`</li><li>FM Preset 3 = `3`</li><li>FM Preset 4 = `4`</li><li>FM Preset 5 = `5`</li><li>Auxiliary = `6`</li></ul> | `1` (FM Preset 1) |
 
 ### Somneo Audio Device Note
 

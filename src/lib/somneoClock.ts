@@ -6,17 +6,30 @@ import { SomneoService } from './somneoService';
 
 export class SomneoClock {
 
-  private static readonly LIGHT_ACCESSORIES = [RequestedAccessory.LIGHT_MAIN,
+  private static readonly ALL_LIGHT_ACCESSORIES = [RequestedAccessory.LIGHT_MAIN,
     RequestedAccessory.LIGHT_NIGHT_LIGHT];
 
-  private static readonly SENSOR_ACCESSORIES = [RequestedAccessory.SENSOR_HUMIDITY,
+  private static readonly ALL_SENSOR_ACCESSORIES = [RequestedAccessory.SENSOR_HUMIDITY,
     RequestedAccessory.SENSOR_LUX,
     RequestedAccessory.SENSOR_TEMPERATURE];
 
-  private static readonly SWITCH_ACCESSORIES = [RequestedAccessory.SWITCH_RELAXBREATHE,
+  private static readonly ALL_SWITCH_ACCESSORIES = [RequestedAccessory.SWITCH_RELAXBREATHE,
     RequestedAccessory.SWITCH_SUNSET];
 
+  private static readonly DEFAULT_AUDIO_PREFS: AudioPreferences = {
+    FavoriteChannel: SomneoConstants.DEFAULT_AUDIO_CHANNEL,
+    FavoriteSource: SomneoConstants.SOUND_SOURCE_FM_RADIO,
+  };
+
   private static readonly DEFAULT_BOOLEAN_CONFIG_VALUE = true;
+
+  private static readonly DEFAULT_SUNSET_PROGRAM_PREFS: SunsetProgramPreferences = {
+    Duration: SomneoConstants.DEFAULT_SUNSET_PROGRAM_DURATION,
+    LightIntensity: SomneoConstants.DEFAULT_SUNSET_PROGRAM_LIGHT_INTENSITY,
+    ColorScheme: SomneoConstants.DEFAULT_SUNSET_PROGRAM_COLOR_SCHEME,
+    AmbientSounds: SomneoConstants.DEFAULT_SUNSET_PROGRAM_AMBIENT_SOUNDS,
+    Volume: SomneoConstants.DEFAULT_SUNSET_PROGRAM_VOLUME,
+  };
 
   private static readonly IP_V_4_REG_EX = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
@@ -24,10 +37,10 @@ export class SomneoClock {
 
   constructor(
     public Name: string,
-    public RequestedAccessories: RequestedAccessory[],
-    public FavoriteChannel: string,
-    public FavoriteSource: string,
     private host: string,
+    public RequestedAccessories: RequestedAccessory[],
+    public SunsetProgramPreferences: SunsetProgramPreferences,
+    public AudioPreferences: AudioPreferences,
     private log: Logger,
   ) {
     this.SomneoService = new SomneoService(this.host, this.log);
@@ -41,10 +54,12 @@ export class SomneoClock {
     }
 
     const name = this.buildName(config);
+    const host = config.host;
     const requestedAccessories = this.buildRequestedAccessories(config);
-    const channelSourceTuple = this.buildChannelSourceTuple(config, requestedAccessories);
+    const sunsetProgramPreferences = this.buildSunsetProgramPreferences(config, requestedAccessories);
+    const audioPreferences = this.buildAudioPreferences(config, requestedAccessories);
 
-    return new SomneoClock(name, requestedAccessories, channelSourceTuple[0], channelSourceTuple[1], config.host, log);
+    return new SomneoClock(name, host, requestedAccessories, sunsetProgramPreferences, audioPreferences, log);
   }
 
   private static buildName(config: SomneoConfig) {
@@ -79,7 +94,7 @@ export class SomneoClock {
 
     // If not configured, add all switches
     if (config.switches === undefined) {
-      return SomneoClock.SWITCH_ACCESSORIES;
+      return SomneoClock.ALL_SWITCH_ACCESSORIES;
     }
 
     const requestedAccessories: RequestedAccessory[] = [];
@@ -129,7 +144,7 @@ export class SomneoClock {
 
     // If not configured add all lights
     if (config.lights === undefined) {
-      return SomneoClock.LIGHT_ACCESSORIES;
+      return SomneoClock.ALL_LIGHT_ACCESSORIES;
     }
 
     const requestedAccessories: RequestedAccessory[] = [];
@@ -179,7 +194,7 @@ export class SomneoClock {
 
     // If not configured, add all the sensors
     if (config.sensors === undefined) {
-      return SomneoClock.SENSOR_ACCESSORIES;
+      return SomneoClock.ALL_SENSOR_ACCESSORIES;
     }
 
     const requestedAccessories: RequestedAccessory[] = [];
@@ -244,26 +259,66 @@ export class SomneoClock {
     return undefined;
   }
 
-  private static buildChannelSourceTuple(config: SomneoConfig, requestedAccessories: RequestedAccessory[]): [string, string] {
+  private static buildAudioPreferences(config: SomneoConfig, requestedAccessories: RequestedAccessory[]): AudioPreferences {
 
     // If Audio disabled, just leave values as defaults to save time
     if (!requestedAccessories.includes(RequestedAccessory.AUDIO)) {
-      return [String(SomneoConstants.DEFAULT_ACTIVE_INPUT), SomneoConstants.SOURCE_FM_RADIO];
+      return SomneoClock.DEFAULT_AUDIO_PREFS;
     }
 
     // Likewise, if the user did not specify, leave it as the default
     if (config.audio === undefined || config.audio.favoriteInput === undefined) {
-      return [String(SomneoConstants.DEFAULT_ACTIVE_INPUT), SomneoConstants.SOURCE_FM_RADIO];
+      return SomneoClock.DEFAULT_AUDIO_PREFS;
     }
 
     // If AUX set the source and channel
     // Channel is not actually used for AUX in the API, but it's good to have a value
     if (Number(config.audio.favoriteInput) === SomneoConstants.INPUT_AUX_NUM) {
-      return [SomneoConstants.SOURCE_AUX, String(SomneoConstants.DEFAULT_ACTIVE_INPUT)];
+      return { FavoriteChannel: SomneoConstants.DEFAULT_AUDIO_CHANNEL, FavoriteSource: SomneoConstants.SOUND_SOURCE_AUX };
     }
 
     // Otherwise set to FM Radio in Source and Channel
-    return [SomneoConstants.SOURCE_FM_RADIO, String(config.audio.favoriteInput)];
+    return { FavoriteChannel: String(config.audio.favoriteInput), FavoriteSource: SomneoConstants.SOUND_SOURCE_FM_RADIO };
+  }
+
+  private static buildSunsetProgramPreferences(config: SomneoConfig, requestedAccessories: RequestedAccessory[]): SunsetProgramPreferences {
+
+    // If Sunset Program disabled, just leave values as defaults to save time
+    if (!requestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET)) {
+      return SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS;
+    }
+
+    // Likewise, if the user did not specify, leave it as the default
+    if (config.switches === undefined || config.switches.sunset === undefined) {
+      return SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS;
+    }
+
+    const sunset = config.switches.sunset;
+
+    return {
+      Duration: sunset.duration === undefined ? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Duration : sunset.duration,
+      LightIntensity: SomneoClock.getPhilipsPercentageValue(sunset.lightIntensity, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.LightIntensity),
+      ColorScheme: sunset.colorScheme === undefined ? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.ColorScheme : sunset.colorScheme,
+      AmbientSounds: sunset.ambientSounds === undefined ? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.AmbientSounds : sunset.ambientSounds,
+      Volume: SomneoClock.getPhilipsPercentageValue(sunset.volume, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Volume),
+    };
+  }
+
+  private static getPhilipsPercentageValue(configPercentageValue: number | undefined, defaultValue: number) {
+
+    if (configPercentageValue === undefined) {
+      return defaultValue;
+    }
+
+    if (configPercentageValue > SomneoConstants.PERCENTAGE_MAX) {
+      return SomneoConstants.PHILIPS_PERCENTAGE_MAX;
+    }
+
+    if (configPercentageValue < SomneoConstants.PERCENTAGE_MIN) {
+      return SomneoConstants.PHILIPS_PERCENTAGE_MIN;
+    }
+
+    return SomneoConstants.convertPercentageToPhilipsPercentage(configPercentageValue);
   }
 
   private static getBooleanValue(configBooleanValue?: boolean) {
@@ -274,4 +329,17 @@ export class SomneoClock {
 
     return configBooleanValue;
   }
+}
+
+export interface AudioPreferences {
+  FavoriteChannel: string;
+  FavoriteSource: string;
+}
+
+export interface SunsetProgramPreferences {
+  Duration: number;
+  LightIntensity: number;
+  ColorScheme: string;
+  AmbientSounds: string;
+  Volume: number;
 }

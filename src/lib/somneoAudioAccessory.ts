@@ -77,7 +77,7 @@ export class SomneoAudioAccessory {
   async setVolumeSelector(value: CharacteristicValue): Promise<void> {
 
     // If source value is not set or its off, just don't set anything
-    if (this.source === undefined || this.source === SomneoConstants.SOURCE_OFF) {
+    if (this.source === undefined || this.source === SomneoConstants.SOUND_SOURCE_OFF) {
       return;
     }
 
@@ -156,7 +156,7 @@ export class SomneoAudioAccessory {
     if (this.isActive) {
       this.somneoClock.SomneoService.modifyPlaySettingsState(false).then(() => {
         this.isActive = false;
-        this.source = SomneoConstants.SOURCE_OFF;
+        this.source = SomneoConstants.SOUND_SOURCE_OFF;
         this.platform.log.info(`Set ${this.Accessory.displayName} state ->`, this.isActive);
         this.televisionService.getCharacteristic(this.platform.Characteristic.Active)
           .updateValue(this.isActive);
@@ -180,7 +180,7 @@ export class SomneoAudioAccessory {
   private buildInputServices() {
 
     for (let i = 1; i <= SomneoConstants.NUM_FM_RADIO_CHANNELS; i++) {
-      const displayName = `FM Preset ${i}`;
+      const displayName = `${SomneoConstants.INPUT_NAME_FM_PRESET} ${i}`;
 
       const fmInputService = this.Accessory.addService(this.platform.Service.InputSource, displayName, displayName)
         .setCharacteristic(this.platform.Characteristic.Identifier, i)
@@ -191,9 +191,10 @@ export class SomneoAudioAccessory {
       this.televisionService.addLinkedService(fmInputService); // link to tv service
     }
 
-    const auxInputService = this.Accessory.addService(this.platform.Service.InputSource, SomneoConstants.AUXILARY, SomneoConstants.AUXILARY)
+    // eslint-disable-next-line max-len
+    const auxInputService = this.Accessory.addService(this.platform.Service.InputSource, SomneoConstants.INPUT_NAME_AUXILARY, SomneoConstants.INPUT_NAME_AUXILARY)
       .setCharacteristic(this.platform.Characteristic.Identifier, SomneoConstants.INPUT_AUX_NUM)
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, SomneoConstants.AUXILARY)
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, SomneoConstants.INPUT_NAME_AUXILARY)
       .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
       .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER);
 
@@ -204,10 +205,10 @@ export class SomneoAudioAccessory {
 
     const newVolume = (this.volume || 0) + (raiseVolume ? 1 : -1);
 
-    if (newVolume > SomneoConstants.VOLUME_MAX) {
-      return SomneoConstants.VOLUME_MAX;
-    } else if (newVolume < SomneoConstants.VOLUME_MIN) {
-      return SomneoConstants.VOLUME_MIN;
+    if (newVolume > SomneoConstants.PHILIPS_PERCENTAGE_MAX) {
+      return SomneoConstants.PHILIPS_PERCENTAGE_MAX;
+    } else if (newVolume < SomneoConstants.PHILIPS_PERCENTAGE_MIN) {
+      return SomneoConstants.PHILIPS_PERCENTAGE_MIN;
     } else {
       return newVolume;
     }
@@ -216,17 +217,17 @@ export class SomneoAudioAccessory {
   private updateChannelAndSource() {
 
     if (this.activeInput === undefined) {
-      this.channel = this.somneoClock.FavoriteChannel;
-      this.source = this.somneoClock.FavoriteSource;
+      this.channel = this.somneoClock.AudioPreferences.FavoriteChannel;
+      this.source = this.somneoClock.AudioPreferences.FavoriteSource;
       return;
     }
 
     if (this.activeInput === SomneoConstants.INPUT_AUX_NUM) {
-      this.source = SomneoConstants.SOURCE_AUX;
+      this.source = SomneoConstants.SOUND_SOURCE_AUX;
       return;
     }
 
-    this.source = SomneoConstants.SOURCE_FM_RADIO;
+    this.source = SomneoConstants.SOUND_SOURCE_FM_RADIO;
     this.channel = String(this.activeInput);
   }
 
@@ -240,14 +241,14 @@ export class SomneoAudioAccessory {
     // Source and channel should only be undefined the first time the plugin is run
     // So that is when we'll use the favorite values
     if (this.source === undefined || this.channel === undefined) {
-      this.source = this.somneoClock.FavoriteSource;
-      this.channel = this.somneoClock.FavoriteChannel;
+      this.source = this.somneoClock.AudioPreferences.FavoriteSource;
+      this.channel = this.somneoClock.AudioPreferences.FavoriteChannel;
     } else if (newSource !== undefined && newChannel !== undefined) {
       this.source = newSource;
       this.channel = newChannel;
     }
 
-    if (this.source === SomneoConstants.SOURCE_FM_RADIO) {
+    if (this.source === SomneoConstants.SOUND_SOURCE_FM_RADIO) {
       this.activeInput = Number(this.channel);
     } else {
       this.activeInput = SomneoConstants.INPUT_AUX_NUM;
