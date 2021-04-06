@@ -1,4 +1,4 @@
-import { AccessoryPlugin, API, Characteristic, Logger, PlatformConfig, Service, StaticPlatformPlugin } from 'homebridge';
+import { AccessoryPlugin, API, Categories, Characteristic, Logger, PlatformConfig, Service, StaticPlatformPlugin } from 'homebridge';
 import { RequestedAccessory } from './lib/requestedAccessory';
 import { SomneoAccessory } from './lib/somneoAccessory';
 import { SomneoAudioAccessory } from './lib/somneoAudioAccessory';
@@ -97,11 +97,12 @@ export class SomneoPlatform implements StaticPlatformPlugin {
       }
 
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.AUDIO)) {
-        const name = `${somneoClock.Name} ${SomneoConstants.DEVICE_AUDIO}`;
-        const uuid = this.api.hap.uuid.generate(`homebridge:${PLUGIN_NAME}${name}${somneoClock.SomneoService.Host}`);
-        const audioDevice = new SomneoAudioAccessory(name, uuid, this, somneoClock);
+        const displayName = `${somneoClock.Name} ${SomneoConstants.DEVICE_AUDIO}`;
+        const uuid = this.api.hap.uuid.generate(`homebridge:${PLUGIN_NAME}${displayName}${somneoClock.SomneoService.Host}`);
+        const accessory = new this.api.platformAccessory(displayName, uuid, Categories.AUDIO_RECEIVER);
+        const audioDevice = new SomneoAudioAccessory(accessory, this, somneoClock);
 
-        this.log.debug(`Including accessory=${audioDevice.displayName}`);
+        this.log.debug(`Including accessory=${displayName}`);
 
         this.HostAudioMap.set(somneoClock.SomneoService.Host, audioDevice);
       }
@@ -109,7 +110,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
     // Publish all audio devices as external accessories
     if (this.HostAudioMap.size > 0) {
-      this.api.publishExternalAccessories(PLUGIN_NAME, [...this.HostAudioMap.values()]);
+      this.api.publishExternalAccessories(PLUGIN_NAME, Array.from(this.HostAudioMap.values()).map(audioDevice => audioDevice.Accessory));
     }
 
     this.log.debug(`Starting poll, pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
@@ -122,7 +123,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
       for (const audioDevice of this.HostAudioMap.values()) {
         audioDevice.updateValues()
-          .then(() => this.log.debug(`Updated accessory=${audioDevice.displayName} values.`));
+          .then(() => this.log.debug(`Updated accessory=${audioDevice.Accessory.displayName} values.`));
       }
     }, this.UserSettings.PollingMilliSeconds);
   }
