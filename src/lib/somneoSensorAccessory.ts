@@ -71,7 +71,7 @@ export class SomneoSensorAccessory extends SomneoAccessory {
   async setTemperature(value: CharacteristicValue) {
 
     const numValue = value as number;
-    if (numValue === (this.temperature || SomneoConstants.DEFAULT_TEMPERATURE)) {
+    if (numValue === (this.temperature === undefined ? SomneoConstants.DEFAULT_TEMPERATURE : this.temperature)) {
       return;
     }
 
@@ -83,15 +83,16 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
     if (this.temperature !== undefined) {
       this.platform.log.debug(`Get ${this.name} temperature ->`, this.temperature);
+      return this.temperature;
     }
 
-    return (this.temperature || SomneoConstants.DEFAULT_TEMPERATURE);
+    return SomneoConstants.DEFAULT_TEMPERATURE;
   }
 
   async setRelativeHumidity(value: CharacteristicValue) {
 
     const numValue = Number(value);
-    if (numValue === (this.humidity || SomneoConstants.DEFAULT_HUMIDITY)) {
+    if (numValue === (this.humidity === undefined ? SomneoConstants.DEFAULT_HUMIDITY : this.humidity)) {
       return;
     }
 
@@ -103,15 +104,16 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
     if (this.humidity !== undefined) {
       this.platform.log.debug(`Get ${this.name} humidity ->`, this.humidity);
+      return this.humidity;
     }
 
-    return (this.humidity || SomneoConstants.DEFAULT_HUMIDITY);
+    return SomneoConstants.DEFAULT_HUMIDITY;
   }
 
   async setCurrentAmbientLightLevel(value: CharacteristicValue) {
 
     const numValue = Number(value);
-    if (numValue === (this.luxLevel || SomneoConstants.DEFAULT_LUX_LEVEL)) {
+    if (numValue === (this.luxLevel === undefined ? SomneoConstants.DEFAULT_LUX_LEVEL : this.luxLevel)) {
       return;
     }
 
@@ -123,9 +125,10 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
     if (this.luxLevel !== undefined) {
       this.platform.log.debug(`Get ${this.name} lux ->`, this.luxLevel);
+      return this.luxLevel;
     }
 
-    return (this.luxLevel || SomneoConstants.DEFAULT_LUX_LEVEL);
+    return SomneoConstants.DEFAULT_LUX_LEVEL;
   }
 
   /*

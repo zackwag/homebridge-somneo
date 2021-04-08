@@ -1,33 +1,33 @@
 export interface SomneoConfig {
   name?: string;
   host?: string;
-  sensors?: Sensors;
-  lights?: Lights;
-  switches?: Switches;
-  audio?: Audio;
+  sensors?: SensorsConfig;
+  lights?: LightsConfig;
+  switches?: SwitchesConfig;
+  audio?: AudioConfig;
 }
 
-export interface Sensors {
+export interface SensorsConfig {
   humidity?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
   lux?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
   temperature?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
+}
+
+export interface LightsConfig {
+  mainLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
+  nightLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
+}
+
+export interface SwitchesConfig {
+  relaxBreathe?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
+  sunset?: SunsetConfig;
 }
 
 export interface HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe {
   isEnabled?: boolean;
 }
 
-export interface Lights {
-  mainLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
-  nightLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
-}
-
-export interface Switches {
-  relaxBreathe?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
-  sunset?: Sunset;
-}
-
-export interface Sunset {
+export interface SunsetConfig {
   isEnabled?: boolean;
   duration?: number;
   lightIntensity?: number;
@@ -36,7 +36,7 @@ export interface Sunset {
   volume?: number;
 }
 
-export interface Audio {
+export interface AudioConfig {
   isEnabled?: boolean;
   favoriteInput?: number;
 }

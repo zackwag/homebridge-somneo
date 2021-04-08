@@ -1,6 +1,5 @@
-import axios, { AxiosInstance } from 'axios';
+import { AxiosInstance } from 'axios';
 import { Logger } from 'homebridge';
-import https from 'https';
 import { retryAsync } from 'ts-retry';
 import { SunsetProgramPreferences } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
@@ -8,32 +7,20 @@ import { Light, LightSettings, NightLight, PlaySettings, RelaxBreathe, SensorRea
 
 export class SomneoService {
 
-  private static readonly DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
-
-  private readonly baseUri = `https://${this.Host}/di/v1/products/1`;
-  private readonly http: AxiosInstance;
-  private readonly lightsUri = `${this.baseUri}/wulgt`;
-  private readonly playingUri = `${this.baseUri}/wuply`;
-  private readonly relaxBreatheUri = `${this.baseUri}/wurlx`;
-  private readonly sensorsUri = `${this.baseUri}/wusrd`;
-  private readonly sunsetUri = `${this.baseUri}/wudsk`;
+  private readonly httpsClient: AxiosInstance;
 
   constructor(
     public Host: string,
     private log: Logger,
   ) {
-    this.http = axios.create({
-      httpsAgent: new https.Agent({
-        rejectUnauthorized: false,
-      }),
-    });
+    this.httpsClient = SomneoConstants.createHttpsClient(this.Host);
   }
 
   async getSensorReadings(): Promise<SensorReadings> {
 
-    const sensorReadings: SensorReadings = await retryAsync(() => this.http
-      .get(this.sensorsUri)
-      .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
+    const sensorReadings: SensorReadings = await retryAsync(() => this.httpsClient
+      .get(SomneoConstants.URI_SENSORS_ENDPOINT)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
 
     // eslint-disable-next-line max-len
     this.log.debug(`Sensor Readings: host=${this.Host} temperature=${sensorReadings.mstmp} humidity=${sensorReadings.msrhu} light=${sensorReadings.mslux}`);
@@ -43,9 +30,9 @@ export class SomneoService {
 
   async getSunset(): Promise<Sunset> {
 
-    const sunset: Sunset = await retryAsync(() => this.http
-      .get(this.sunsetUri)
-      .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
+    const sunset: Sunset = await retryAsync(() => this.httpsClient
+      .get(SomneoConstants.URI_SUNSET_ENDPOINT)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
 
     this.log.debug(`Sunset: host=${this.Host} on=${sunset.onoff}`);
 
@@ -56,37 +43,47 @@ export class SomneoService {
 
     const silent = sunsetPrefs.AmbientSounds === SomneoConstants.SUNSET_PROGRAM_SOUND_NONE;
 
-    const body: Sunset = {
+    let body: Sunset = {
       onoff: true,
       durat: sunsetPrefs.Duration,
       curve: sunsetPrefs.LightIntensity,
       ctype: sunsetPrefs.ColorScheme,
-      sndch: silent ? undefined : sunsetPrefs.AmbientSounds,
-      snddv: silent ? SomneoConstants.SOUND_SOURCE_OFF : SomneoConstants.SOUND_SOURCE_SUNSET_PROGRAM,
-      sndlv: silent ? undefined : sunsetPrefs.Volume,
+      sndch: sunsetPrefs.AmbientSounds,
+      snddv: SomneoConstants.SOUND_SOURCE_SUNSET_PROGRAM,
+      sndlv: sunsetPrefs.Volume,
     };
+
+    if (silent) {
+      body = {
+        onoff: true,
+        durat: sunsetPrefs.Duration,
+        curve: sunsetPrefs.LightIntensity,
+        ctype: sunsetPrefs.ColorScheme,
+        snddv: SomneoConstants.SOUND_SOURCE_OFF,
+      };
+    }
 
     // eslint-disable-next-line max-len
     this.log.debug(`Sunset: host=${this.Host} on=true durat=${body.durat} curve=${body.curve} ctype=${body.ctype} sndch=${body.sndch} snddv=${body.snddv} sndlv=${body.sndlv}`);
 
-    await retryAsync(() => this.http
-      .put(this.sunsetUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_SUNSET_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async turnOffSunsetProgram(): Promise<void> {
     const body: Sunset = { onoff: false };
 
-    await retryAsync(() => this.http
-      .put(this.sunsetUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_SUNSET_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async getRelaxBreathe(): Promise<RelaxBreathe> {
 
-    const relaxBreathe: RelaxBreathe = await retryAsync(() => this.http
-      .get(this.relaxBreatheUri)
-      .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
+    const relaxBreathe: RelaxBreathe = await retryAsync(() => this.httpsClient
+      .get(SomneoConstants.URI_RELAX_BREATHE)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
 
     this.log.debug(`RelaxBreathe: host=${this.Host} on=${relaxBreathe.onoff}`);
 
@@ -97,16 +94,16 @@ export class SomneoService {
 
     const body: RelaxBreathe = { onoff: isOn };
 
-    await retryAsync(() => this.http
-      .put(this.relaxBreatheUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_RELAX_BREATHE, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async getLightSettings(): Promise<LightSettings> {
 
-    const lightSettings: LightSettings = await retryAsync(() => this.http
-      .get(this.lightsUri)
-      .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
+    const lightSettings: LightSettings = await retryAsync(() => this.httpsClient
+      .get(SomneoConstants.URI_LIGHTS_ENDPOINT)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
 
     // eslint-disable-next-line max-len
     this.log.debug(`Light Settings: host=${this.Host} lightLevel=${lightSettings.ltlvl} lightOn=${lightSettings.onoff} nightLightOn=${lightSettings.ngtlt}`);
@@ -118,34 +115,34 @@ export class SomneoService {
 
     const body: NightLight = { ngtlt: isOn };
 
-    await retryAsync(() => this.http
-      .put(this.lightsUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_LIGHTS_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async modifyMainLightState(isOn: boolean): Promise<void> {
 
     const body: Light = isOn ? { onoff: isOn, tempy: false } : { onoff: false };
 
-    await retryAsync(() => this.http
-      .put(this.lightsUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_LIGHTS_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async modifyMainLightBrightness(brightness: number): Promise<void> {
 
     const body: Light = { ltlvl: SomneoConstants.convertPercentageToPhilipsPercentage(brightness) };
 
-    await retryAsync(() => this.http
-      .put(this.lightsUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_LIGHTS_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async getPlaySettings(): Promise<PlaySettings> {
 
-    const playSettings: PlaySettings = await retryAsync(() => this.http
-      .get(this.playingUri)
-      .then(res => res.data), SomneoService.DEFAULT_RETRY_OPTIONS);
+    const playSettings: PlaySettings = await retryAsync(() => this.httpsClient
+      .get(SomneoConstants.URI_PLAYING_ENDPOINT)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
 
     // eslint-disable-next-line max-len
     this.log.debug(`Play Settings: host=${this.Host} on=${playSettings.onoff} volume=${playSettings.sdvol} source=${playSettings.snddv} channel=${playSettings.sndch}`);
@@ -155,7 +152,7 @@ export class SomneoService {
 
   async modifyPlaySettingsState(isOn: boolean, source?: string, channel?: string) {
 
-    let body: PlaySettings;
+    let body: PlaySettings = { onoff: false };
 
     if (isOn) {
       if (source === SomneoConstants.SOUND_SOURCE_AUX) {
@@ -163,13 +160,11 @@ export class SomneoService {
       } else {
         body = { onoff: true, snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO, sndch: channel };
       }
-    } else {
-      body = { onoff: false };
     }
 
-    await retryAsync(() => this.http
-      .put(this.playingUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_PLAYING_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async modifyPlaySettingsInput(input: number) {
@@ -182,17 +177,17 @@ export class SomneoService {
       body = { snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO, sndch: String(input) };
     }
 
-    await retryAsync(() => this.http
-      .put(this.playingUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_PLAYING_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 
   async modifyPlaySettingsVolume(volume: number) {
 
     const body: PlaySettings = { sdvol: volume };
 
-    await retryAsync(() => this.http
-      .put(this.playingUri, body)
-      .then(res => res.data));
+    await retryAsync(() => this.httpsClient
+      .put(SomneoConstants.URI_PLAYING_ENDPOINT, body)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 }
