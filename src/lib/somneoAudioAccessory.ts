@@ -95,9 +95,10 @@ export class SomneoAudioAccessory {
 
     if (this.isActive !== undefined) {
       this.platform.log.debug(`Get ${this.Accessory.displayName} state ->`, this.isActive);
+      return this.isActive;
     }
 
-    return (this.isActive || SomneoConstants.DEFAULT_BINARY_STATE);
+    return SomneoConstants.DEFAULT_BINARY_STATE;
   }
 
   async setRemoteKey(value: CharacteristicValue): Promise<void> {
@@ -107,7 +108,7 @@ export class SomneoAudioAccessory {
   async setActive(value: CharacteristicValue): Promise<void> {
 
     const boolValue = Boolean(value);
-    if (boolValue === (this.isActive || SomneoConstants.DEFAULT_BINARY_STATE)) {
+    if (boolValue === (this.isActive === undefined ? SomneoConstants.DEFAULT_BINARY_STATE : this.isActive)) {
       return;
     }
 
@@ -131,15 +132,16 @@ export class SomneoAudioAccessory {
 
     if (this.activeInput !== undefined) {
       this.platform.log.debug(`Get ${this.Accessory.displayName} input ->`, this.activeInput);
+      return this.activeInput;
     }
 
-    return (this.activeInput || SomneoConstants.DEFAULT_ACTIVE_INPUT);
+    return SomneoConstants.DEFAULT_ACTIVE_INPUT;
   }
 
   async setActiveIdentifier(value: CharacteristicValue): Promise<void> {
 
     const numValue = Number(value);
-    if (numValue === (this.activeInput || SomneoConstants.DEFAULT_ACTIVE_INPUT)) {
+    if (numValue === (this.activeInput === undefined ? SomneoConstants.DEFAULT_ACTIVE_INPUT : this.activeInput)) {
       return;
     }
 
@@ -192,9 +194,9 @@ export class SomneoAudioAccessory {
     }
 
     // eslint-disable-next-line max-len
-    const auxInputService = this.Accessory.addService(this.platform.Service.InputSource, SomneoConstants.INPUT_NAME_AUXILARY, SomneoConstants.INPUT_NAME_AUXILARY)
+    const auxInputService = this.Accessory.addService(this.platform.Service.InputSource, SomneoConstants.INPUT_NAME_AUXILIARY, SomneoConstants.INPUT_NAME_AUXILIARY)
       .setCharacteristic(this.platform.Characteristic.Identifier, SomneoConstants.INPUT_AUX_NUM)
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, SomneoConstants.INPUT_NAME_AUXILARY)
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, SomneoConstants.INPUT_NAME_AUXILIARY)
       .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
       .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.OTHER);
 

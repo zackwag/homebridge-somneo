@@ -11,15 +11,16 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
 
     if (this.isOn !== undefined) {
       this.platform.log.debug(`Get ${this.name} state ->`, this.isOn);
+      return this.isOn;
     }
 
-    return (this.isOn || SomneoConstants.DEFAULT_BINARY_STATE);
+    return SomneoConstants.DEFAULT_BINARY_STATE;
   }
 
   async setOn(value: CharacteristicValue): Promise<void> {
 
     const boolValue = Boolean(value);
-    if (boolValue === (this.isOn || SomneoConstants.DEFAULT_BINARY_STATE)) {
+    if (boolValue === (this.isOn === undefined ? SomneoConstants.DEFAULT_BINARY_STATE : this.isOn)) {
       return;
     }
 

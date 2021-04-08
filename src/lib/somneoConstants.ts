@@ -1,3 +1,6 @@
+import axios from 'axios';
+import https from 'https';
+
 export class SomneoConstants {
 
   // Constant Numbers
@@ -16,17 +19,20 @@ export class SomneoConstants {
   static readonly DEFAULT_BRIGHTNESS = 0;
   static readonly DEFAULT_HUMIDITY = 0;
   static readonly DEFAULT_LUX_LEVEL = 0.0001;
-  static readonly DEFAULT_TEMPERATURE = 0;
+  static readonly DEFAULT_POLLING_SECONDS = 30;
+  static readonly DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
   static readonly DEFAULT_SUNSET_PROGRAM_AMBIENT_SOUNDS = '1'; // Soft Rain
   static readonly DEFAULT_SUNSET_PROGRAM_COLOR_SCHEME = '0'; // Sunny day
   static readonly DEFAULT_SUNSET_PROGRAM_DURATION = 30;
   static readonly DEFAULT_SUNSET_PROGRAM_LIGHT_INTENSITY = 20; // 80%
   static readonly DEFAULT_SUNSET_PROGRAM_VOLUME = 12; // 48%
+  static readonly DEFAULT_TEMPERATURE = 0;
 
   // Strings
   static readonly DEVICE_AUDIO = 'Audio';
-  static readonly INPUT_NAME_AUXILARY = 'Auxilary';
+  static readonly INPUT_NAME_AUXILIARY = 'Auxiliary';
   static readonly INPUT_NAME_FM_PRESET = 'FM Preset';
+  static readonly IP_V_4_REG_EX = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
   static readonly LIGHT_MAIN_LIGHT = 'Main Light';
   static readonly LIGHT_NIGHT_LIGHT = 'Night Light';
   static readonly MANUFACTURER = 'Philips';
@@ -43,6 +49,22 @@ export class SomneoConstants {
   static readonly SUNSET_PROGRAM_SOUND_NONE = '0';
   static readonly SWITCH_RELAX_BREATHE_PROGRAM = 'RelaxBreathe Program';
   static readonly SWITCH_SUNSET_PROGRAM = 'Sunset Program';
+  static readonly URI_LIGHTS_ENDPOINT = '/wulgt';
+  static readonly URI_PLAYING_ENDPOINT = '/wuply';
+  static readonly URI_RELAX_BREATHE = '/wurlx';
+  static readonly URI_SENSORS_ENDPOINT = '/wusrd';
+  static readonly URI_SUNSET_ENDPOINT = '/wudsk';
+
+  static createHttpsClient(host: string) {
+
+    return axios.create({
+      baseURL: `https://${host}/di/v1/products/1`,
+      httpsAgent: new https.Agent({
+        keepAlive: true, //keepAlive pools and reuses TCP connections, so it's faster
+        rejectUnauthorized: false, // Somneo uses self-signed HTTPS, so this is required
+      }),
+    });
+  }
 
   static convertPercentageToPhilipsPercentage(percentage: number) : number {
     // function always rounds a number up to the next largest integer.

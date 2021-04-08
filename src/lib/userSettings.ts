@@ -2,12 +2,11 @@ import { PlatformConfig } from 'homebridge';
 import { PLUGIN_NAME } from '../settings';
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoClock } from './somneoClock';
+import { SomneoConstants } from './somneoConstants';
 export class UserSettings {
 
-  private static readonly DEFAULT_POLLING_SECONDS = 30;
-
   public PluginName = PLUGIN_NAME;
-  public PollingMilliSeconds = (UserSettings.DEFAULT_POLLING_SECONDS * 1000);
+  public PollingMilliSeconds: number | undefined;
   public SomneoClocks: SomneoClock[] = [];
 
   private config : PlatformConfig;
@@ -49,10 +48,13 @@ export class UserSettings {
 
   private buildPollingMilliSeconds() {
 
-    if (this.config.pollingSeconds === undefined) {
-      return;
+    let pollingSeconds = SomneoConstants.DEFAULT_POLLING_SECONDS;
+
+    // If the user has not specified a polling interval, default to 30s
+    if (this.config.pollingSeconds !== undefined) {
+      pollingSeconds = this.config.pollingSeconds;
     }
-    // If the user has not specified a polling interval, default to 30s (in milliseconds)
-    this.PollingMilliSeconds = (this.config.pollingSeconds * 1000);
+
+    this.PollingMilliSeconds = (pollingSeconds * 1000);
   }
 }

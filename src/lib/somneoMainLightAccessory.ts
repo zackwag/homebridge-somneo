@@ -24,7 +24,7 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
       this.isOn = lightSettings.onoff;
       this.getBinaryService()
         .getCharacteristic(this.getBinaryCharacteristic())
-        .updateValue(lightSettings.onoff);
+        .updateValue(this.isOn);
 
       // Philips stores up to 100 so multiply to get percentage
       this.brightness = (lightSettings.ltlvl * 4);

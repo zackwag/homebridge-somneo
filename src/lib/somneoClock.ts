@@ -1,6 +1,6 @@
 import { Logger } from 'homebridge';
 import { RequestedAccessory } from './requestedAccessory';
-import { Lights, Sensors, SomneoConfig, Switches } from './SomneoConfig';
+import { LightsConfig, SensorsConfig, SomneoConfig, SwitchesConfig } from './somneoConfigDataTypes';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoService } from './somneoService';
 
@@ -31,8 +31,6 @@ export class SomneoClock {
     Volume: SomneoConstants.DEFAULT_SUNSET_PROGRAM_VOLUME,
   };
 
-  private static readonly IP_V_4_REG_EX = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-
   public SomneoService: SomneoService;
 
   constructor(
@@ -49,23 +47,25 @@ export class SomneoClock {
   static create(log: Logger, config: SomneoConfig): SomneoClock | undefined {
 
     // If not defined or not an IP 4 address, reject it
-    if (config.host === undefined || !config.host.match(this.IP_V_4_REG_EX)) {
+    if (config.host === undefined) {
       return undefined;
     }
 
-    const name = this.buildName(config);
+    if (!config.host.match(SomneoConstants.IP_V_4_REG_EX)) {
+      return undefined;
+    }
+
+    if (config.name === undefined) {
+      return undefined;
+    }
+
     const host = config.host;
+    const name = config.name;
     const requestedAccessories = this.buildRequestedAccessories(config);
     const sunsetProgramPreferences = this.buildSunsetProgramPreferences(config, requestedAccessories);
     const audioPreferences = this.buildAudioPreferences(config, requestedAccessories);
 
     return new SomneoClock(name, host, requestedAccessories, sunsetProgramPreferences, audioPreferences, log);
-  }
-
-  private static buildName(config: SomneoConfig) {
-
-    // If Name not specified, default to 'Somneo'
-    return config.name || SomneoConstants.SOMNEO;
   }
 
   private static buildRequestedAccessories(config: SomneoConfig): RequestedAccessory[] {
@@ -83,11 +83,13 @@ export class SomneoClock {
       return [RequestedAccessory.AUDIO];
     }
 
+    const requestedAccessories: RequestedAccessory[] = [];
+
     if (this.getBooleanValue(config.audio.isEnabled)) {
-      return [RequestedAccessory.AUDIO];
+      requestedAccessories.push(RequestedAccessory.AUDIO);
     }
 
-    return [];
+    return requestedAccessories;
   }
 
   private static buildRequestedSwitchAccessories(config: SomneoConfig): RequestedAccessory[] {
@@ -112,7 +114,7 @@ export class SomneoClock {
     return requestedAccessories;
   }
 
-  private static buildRequestedSunsetSwitchAccessory(switchesConfig: Switches): RequestedAccessory | undefined {
+  private static buildRequestedSunsetSwitchAccessory(switchesConfig: SwitchesConfig): RequestedAccessory | undefined {
 
     // If not configured, add sunset
     if (switchesConfig.sunset === undefined) {
@@ -126,7 +128,7 @@ export class SomneoClock {
     return undefined;
   }
 
-  private static buildRequestedRelaxBreatheSwitchAccessory(switchesConfig: Switches): RequestedAccessory | undefined {
+  private static buildRequestedRelaxBreatheSwitchAccessory(switchesConfig: SwitchesConfig): RequestedAccessory | undefined {
 
     // If not configured, add relaxBreathe
     if (switchesConfig.relaxBreathe === undefined) {
@@ -162,7 +164,7 @@ export class SomneoClock {
     return requestedAccessories;
   }
 
-  private static buildRequestedMainLightAccessory(lightsConfig: Lights): RequestedAccessory | undefined {
+  private static buildRequestedMainLightAccessory(lightsConfig: LightsConfig): RequestedAccessory | undefined {
 
     // If not configured, add main light
     if (lightsConfig.mainLight === undefined) {
@@ -176,7 +178,7 @@ export class SomneoClock {
     return undefined;
   }
 
-  private static buildRequestedNightLightAccessory(lightsConfig: Lights): RequestedAccessory | undefined {
+  private static buildRequestedNightLightAccessory(lightsConfig: LightsConfig): RequestedAccessory | undefined {
 
     // If not configured, add night light
     if (lightsConfig.nightLight === undefined) {
@@ -217,7 +219,7 @@ export class SomneoClock {
     return requestedAccessories;
   }
 
-  private static buildRequestedHumitySensorAccessory(sensorsConfig: Sensors): RequestedAccessory | undefined {
+  private static buildRequestedHumitySensorAccessory(sensorsConfig: SensorsConfig): RequestedAccessory | undefined {
 
     // If not configured, add humidity
     if (sensorsConfig.humidity === undefined) {
@@ -231,7 +233,7 @@ export class SomneoClock {
     return undefined;
   }
 
-  private static buildRequestedLuxSensorAccessory(sensorsConfig: Sensors): RequestedAccessory | undefined {
+  private static buildRequestedLuxSensorAccessory(sensorsConfig: SensorsConfig): RequestedAccessory | undefined {
 
     // If not configured, add lux
     if (sensorsConfig.lux === undefined) {
@@ -245,7 +247,7 @@ export class SomneoClock {
     return undefined;
   }
 
-  private static buildRequestedTemperatureSensorAccessory(sensorsConfig: Sensors): RequestedAccessory | undefined {
+  private static buildRequestedTemperatureSensorAccessory(sensorsConfig: SensorsConfig): RequestedAccessory | undefined {
 
     // If not configured, add temperature
     if (sensorsConfig.temperature === undefined) {
@@ -273,7 +275,7 @@ export class SomneoClock {
 
     // If AUX set the source and channel
     // Channel is not actually used for AUX in the API, but it's good to have a value
-    if (Number(config.audio.favoriteInput) === SomneoConstants.INPUT_AUX_NUM) {
+    if (config.audio.favoriteInput === SomneoConstants.INPUT_AUX_NUM) {
       return { FavoriteChannel: SomneoConstants.DEFAULT_AUDIO_CHANNEL, FavoriteSource: SomneoConstants.SOUND_SOURCE_AUX };
     }
 
