@@ -1,12 +1,13 @@
 {
   "pluginAlias": "HomebridgeSomneo",
   "pluginType": "platform",
+  "headerDisplay": "Report issues at https://github.com/zackwag/homebridge-somneo/issues",
   "singular": true,
   "schema": {
     "type": "object",
     "properties": {
       "name": {
-        "title": "Plugin Name",
+        "title": "Platform Name",
         "type": "string",
         "required": true,
         "default": "Homebridge Somneo",
@@ -117,6 +118,7 @@
                       "title": "Duration of Program",
                       "type": "number",
                       "default": 30,
+                      "description": "Defaults to 30 Minutes",
                       "oneOf": [
                         {
                           "title": "5 Minutes",
@@ -166,12 +168,162 @@
                       }
                     },
                     "lightIntensity": {
-                      "title": "Light Intensity %",
+                      "title": "Light Intensity",
                       "type": "integer",
                       "default": 80,
-                      "minimum": 4,
-                      "step": 4,
-                      "maximum": 100,
+                      "description": "Defaults to 80%",
+                      "oneOf": [
+                        {
+                          "title": "4%",
+                          "enum": [
+                            4
+                          ]
+                        },
+                        {
+                          "title": "8%",
+                          "enum": [
+                            8
+                          ]
+                        },
+                        {
+                          "title": "12%",
+                          "enum": [
+                            12
+                          ]
+                        },
+                        {
+                          "title": "16%",
+                          "enum": [
+                            16
+                          ]
+                        },
+                        {
+                          "title": "20%",
+                          "enum": [
+                            20
+                          ]
+                        },
+                        {
+                          "title": "24%",
+                          "enum": [
+                            24
+                          ]
+                        },
+                        {
+                          "title": "28%",
+                          "enum": [
+                            28
+                          ]
+                        },
+                        {
+                          "title": "32%",
+                          "enum": [
+                            32
+                          ]
+                        },
+                        {
+                          "title": "36%",
+                          "enum": [
+                            36
+                          ]
+                        },
+                        {
+                          "title": "40%",
+                          "enum": [
+                            40
+                          ]
+                        },
+                        {
+                          "title": "44%",
+                          "enum": [
+                            44
+                          ]
+                        },
+                        {
+                          "title": "48%",
+                          "enum": [
+                            48
+                          ]
+                        },
+                        {
+                          "title": "52%",
+                          "enum": [
+                            52
+                          ]
+                        },
+                        {
+                          "title": "56%",
+                          "enum": [
+                            56
+                          ]
+                        },
+                        {
+                          "title": "60%",
+                          "enum": [
+                            60
+                          ]
+                        },
+                        {
+                          "title": "64%",
+                          "enum": [
+                            64
+                          ]
+                        },
+                        {
+                          "title": "68%",
+                          "enum": [
+                            68
+                          ]
+                        },
+                        {
+                          "title": "72%",
+                          "enum": [
+                            72
+                          ]
+                        },
+                        {
+                          "title": "76%",
+                          "enum": [
+                            76
+                          ]
+                        },
+                        {
+                          "title": "80%",
+                          "enum": [
+                            80
+                          ]
+                        },
+                        {
+                          "title": "84%",
+                          "enum": [
+                            84
+                          ]
+                        },
+                        {
+                          "title": "88%",
+                          "enum": [
+                            88
+                          ]
+                        },
+                        {
+                          "title": "92%",
+                          "enum": [
+                            92
+                          ]
+                        },
+                        {
+                          "title": "96%",
+                          "enum": [
+                            96
+                          ]
+                        },
+                        {
+                          "title": "100%",
+                          "enum": [
+                            100
+                          ]
+                        }
+                      ],
                       "condition": {
                         "functionBody": "return model.somneos[arrayIndices[0]].switches.sunset.isEnabled === true;"
                       }
@@ -180,6 +332,7 @@
                       "title": "Color Scheme",
                       "type": "number",
                       "default": 0,
+                      "description": "Defaults to Sunny Day",
                       "oneOf": [
                         {
                           "title": "Sunny Day",
@@ -188,19 +341,19 @@
                           ]
                         },
                         {
-                          "title": "Island red",
+                          "title": "Island Red",
                           "enum": [
                             1
                           ]
                         },
                         {
-                          "title": "Nordic white",
+                          "title": "Nordic White",
                           "enum": [
                             2
                           ]
                         },
                         {
-                          "title": "Carribean red",
+                          "title": "Carribean Red",
                           "enum": [
                             3
                           ]
@@ -214,6 +367,7 @@
                       "title": "Ambient Sounds",
                       "type": "string",
                       "default": "1",
+                      "description": "Defaults to Soft Rain",
                       "oneOf": [
                         {
                           "title": "Soft Rain",
@@ -251,11 +405,162 @@
                       }
                     },
                     "volume": {
-                      "title": "Volume %",
+                      "title": "Volume",
                       "type": "integer",
                       "default": 48,
-                      "minimum": 1,
-                      "maximum": 100,
+                      "description": "Defaults to 48%",
+                      "oneOf": [
+                        {
+                          "title": "4%",
+                          "enum": [
+                            4
+                          ]
+                        },
+                        {
+                          "title": "8%",
+                          "enum": [
+                            8
+                          ]
+                        },
+                        {
+                          "title": "12%",
+                          "enum": [
+                            12
+                          ]
+                        },
+                        {
+                          "title": "16%",
+                          "enum": [
+                            16
+                          ]
+                        },
+                        {
+                          "title": "20%",
+                          "enum": [
+                            20
+                          ]
+                        },
+                        {
+                          "title": "24%",
+                          "enum": [
+                            24
+                          ]
+                        },
+                        {
+                          "title": "28%",
+                          "enum": [
+                            28
+                          ]
+                        },
+                        {
+                          "title": "32%",
+                          "enum": [
+                            32
+                          ]
+                        },
+                        {
+                          "title": "36%",
+                          "enum": [
+                            36
+                          ]
+                        },
+                        {
+                          "title": "40%",
+                          "enum": [
+                            40
+                          ]
+                        },
+                        {
+                          "title": "44%",
+                          "enum": [
+                            44
+                          ]
+                        },
+                        {
+                          "title": "48%",
+                          "enum": [
+                            48
+                          ]
+                        },
+                        {
+                          "title": "52%",
+                          "enum": [
+                            52
+                          ]
+                        },
+                        {
+                          "title": "56%",
+                          "enum": [
+                            56
+                          ]
+                        },
+                        {
+                          "title": "60%",
+                          "enum": [
+                            60
+                          ]
+                        },
+                        {
+                          "title": "64%",
+                          "enum": [
+                            64
+                          ]
+                        },
+                        {
+                          "title": "68%",
+                          "enum": [
+                            68
+                          ]
+                        },
+                        {
+                          "title": "72%",
+                          "enum": [
+                            72
+                          ]
+                        },
+                        {
+                          "title": "76%",
+                          "enum": [
+                            76
+                          ]
+                        },
+                        {
+                          "title": "80%",
+                          "enum": [
+                            80
+                          ]
+                        },
+                        {
+                          "title": "84%",
+                          "enum": [
+                            84
+                          ]
+                        },
+                        {
+                          "title": "88%",
+                          "enum": [
+                            88
+                          ]
+                        },
+                        {
+                          "title": "92%",
+                          "enum": [
+                            92
+                          ]
+                        },
+                        {
+                          "title": "96%",
+                          "enum": [
+                            96
+                          ]
+                        },
+                        {
+                          "title": "100%",
+                          "enum": [
+                            100
+                          ]
+                        }
+                      ],
                       "condition": {
                         "functionBody": "return model.somneos[arrayIndices[0]].switches.sunset.isEnabled === true && model.somneos[arrayIndices[0]].switches.sunset.ambientSounds !== '0';"
                       }
@@ -275,6 +580,8 @@
                 "favoriteInput": {
                   "title": "Favorite Input",
                   "type": "number",
+                  "default": 1,
+                  "description": "Defaults to FM Preset 1",
                   "oneOf": [
                     {
                       "title": "FM Preset 1",
@@ -313,7 +620,6 @@
                       ]
                     }
                   ],
-                  "description": "This is the input that will be used when the audio device is turned on.",
                   "condition": {
                     "functionBody": "return model.somneos[arrayIndices[0]].audio.isEnabled === true;"
                   }

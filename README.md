@@ -50,7 +50,7 @@ Before installing this plugin, you should install Homebridge using the [official
 | Field | Required | Data Type | Description                   | Default Value |
 | ------| :------: | :--------: | ----------------------------- | :----------: |
 | **platform** | *Yes* | string | Must always be set to `HomebridgeSomneo`.| N/A |
-| **name** | *Yes* | string | Set the plugin name for display in the Homebridge logs. | `Homebridge Somneo` |
+| **name** | *Yes* | string | Set the platform name for display in the Homebridge logs. | `Homebridge Somneo` |
 | **somneos** | *Yes* | object[] | An array of configurations for Somneo clocks | N/A |
 | **pollingSeconds**| No | number | Time in seconds for how often to ping the clock. | `30` (30000 milliseconds) |
 
@@ -129,9 +129,10 @@ Before installing this plugin, you should install Homebridge using the [official
 | ------| :------: | :-------: | ----------------------------- | :-----------: |
 | **isEnabled** | No | boolean | Determines whether or not to expose the Sunset Program switch. | `true` |
 | **duration** | No | number | How long the Sunset Program should run for. | `30` (minutes) |
-| **lightIntensity** | No | number | How bright should the Sunset Program start at. The value is a percentage that will be converted to a value between `1 and 25`. | `20` (80%) |
-| **colorScheme** | No | string | What color pattern should play during the Sunset Program.<br /><br />Possible values:<ul><li>Sunny day = `'0'`</li><li>Island red = `'1'`</li><li>Nordic white = `'2'`</li><li>Carribean red = `'3'`</li></ul> | `'0'` (Sunny Day) |
+| **lightIntensity** | No | number | How bright the Sunset Program be at the start. The value is a percentage that will be converted to a number between `1 and 25`. | `80` (80% converted to the the Philips API value 20) |
+| **colorScheme** | No | string | What color pattern should play during the Sunset Program.<br /><br />Possible values:<ul><li>Sunny Day = `'0'`</li><li>Island Red = `'1'`</li><li>Nordic White = `'2'`</li><li>Carribean Red = `'3'`</li></ul> | `'0'` (Sunny Day) |
 | **ambientSounds** | No | string | What sounds should play during the Sunset Program.<br /><br />Possible values:<ul><li>Soft Rain = `'1'`</li><li>Ocean Waves = `'2'`</li><li>Under Water = `'3'`</li><li>Summer Lake = `'4'`</li><li>No Sound = `'0'`</li></ul> | `'1'` (Soft Rain) |
+| **volume** | No | number | How loud the Sunset Program should be at the start. The value is a percentage that will be converted to a number between `1 and 25`. | `48` (48% converted to the the Philips API value 12) |
 
 ##### Audio Schema
 
@@ -175,7 +176,7 @@ This configuration will expose all items and use the default polling interval wi
 
 #### Most Verbose Configuration
 
-This configuration will expose all items, but is very verbose. It is presented here to help visualize the JSON structure.
+This configuration will expose all items with default values, but is very verbose. It is presented here to help visualize the JSON structure.
 
 ```json
 {
@@ -208,7 +209,12 @@ This configuration will expose all items, but is very verbose. It is presented h
           "isEnabled": true
         },
         "sunset": {
-          "isEnabled": true
+          "isEnabled": true,
+          "duration": 30,
+          "lightIntensity": 80,
+          "colorScheme": 3,
+          "ambientSounds": "2",
+          "volume": 48
         }
       },
       "audio": {
@@ -223,8 +229,8 @@ This configuration will expose all items, but is very verbose. It is presented h
 ```
 
 ## Future Plans
-- Allow customization of Sunset & RelaxBreathe programs.
-- No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an occupancy sensor, but would need to know what sound level occupied/not should be considered.
+- Allow customization of RelaxBreathe program.
+- No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an motion sensor, but would need to know what sound level motion detected/not should be considered.
 - Better error handling. I am a Java developer by trade and am still learning Typescript :).
 
 ## Recognition
