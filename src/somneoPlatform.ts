@@ -30,7 +30,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.UserSettings = new UserSettings(this);
+    this.UserSettings = UserSettings.create(this);
 
     if (this.UserSettings.SomneoClocks.length === 0) {
       this.log.error('No Somneo clocks specified. Platform is not loading.');
@@ -39,7 +39,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
     this.buildAccessories();
 
-    this.log.debug(`Platform ${this.UserSettings.PluginName} -> Initialized`);
+    this.log.debug(`Platform ${this.UserSettings.PlatformName} -> Initialized`);
   }
 
   async accessories(callback: (foundAccessories: AccessoryPlugin[]) => void): Promise<void> {

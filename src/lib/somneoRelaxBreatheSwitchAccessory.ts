@@ -9,11 +9,17 @@ export class SomneoRelaxBreatheSwitchAccessory extends somneoSwitchAccessory {
 
   async updateValues(): Promise<void> {
 
-    await this.somneoClock.SomneoService.getRelaxBreathe().then((relaxeBreathe) => {
-      this.isOn = relaxeBreathe.onoff;
-      this.getBinaryService()
-        .getCharacteristic(this.getBinaryCharacteristic())
-        .updateValue(this.isOn);
+    await this.somneoClock.SomneoService.getRelaxBreathe().then(relaxeBreathe => {
+      if (relaxeBreathe === undefined) {
+        return;
+      }
+
+      if (relaxeBreathe.onoff !== undefined) {
+        this.isOn = relaxeBreathe.onoff;
+        this.getBinaryService()
+          .getCharacteristic(this.getBinaryCharacteristic())
+          .updateValue(this.isOn);
+      }
     }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
   }
 

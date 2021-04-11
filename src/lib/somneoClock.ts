@@ -33,7 +33,7 @@ export class SomneoClock {
 
   public SomneoService: SomneoService;
 
-  constructor(
+  private constructor(
     public Name: string,
     private host: string,
     public RequestedAccessories: RequestedAccessory[],
@@ -298,10 +298,10 @@ export class SomneoClock {
     const sunset = config.switches.sunset;
 
     return {
-      Duration: sunset.duration === undefined ? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Duration : sunset.duration,
+      Duration: sunset.duration ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Duration,
       LightIntensity: SomneoClock.getPhilipsPercentageValue(sunset.lightIntensity, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.LightIntensity),
-      ColorScheme: sunset.colorScheme === undefined ? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.ColorScheme : sunset.colorScheme,
-      AmbientSounds: sunset.ambientSounds === undefined ? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.AmbientSounds : sunset.ambientSounds,
+      ColorScheme: sunset.colorScheme ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.ColorScheme,
+      AmbientSounds: sunset.ambientSounds ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.AmbientSounds,
       Volume: SomneoClock.getPhilipsPercentageValue(sunset.volume, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Volume),
     };
   }

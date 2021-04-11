@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge Somneo",
   "name": "homebridge-somneo",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "description": "A Homebridge plugin to control Philips Somneo clocks.",
   "license": "Apache-2.0",
   "repository": {

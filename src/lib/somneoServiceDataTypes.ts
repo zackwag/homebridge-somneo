@@ -1,11 +1,11 @@
 export interface SensorReadings {
-  mslux: number;
-  mstmp: number;
-  msrhu: number;
+  mslux?: number;
+  mstmp?: number;
+  msrhu?: number;
 }
 
 export interface Sunset {
-  onoff: boolean;
+  onoff?: boolean;
   durat?: number;
   curve?: number;
   ctype?: string;
@@ -15,13 +15,13 @@ export interface Sunset {
 }
 
 export interface RelaxBreathe {
-  onoff: boolean;
+  onoff?: boolean;
 }
 
 export interface LightSettings {
-  ltlvl: number;
-  onoff: boolean;
-  ngtlt: boolean;
+  ltlvl?: number;
+  onoff?: boolean;
+  ngtlt?: boolean;
 }
 
 export interface Light {
@@ -31,7 +31,7 @@ export interface Light {
 }
 
 export interface NightLight {
-  ngtlt: boolean;
+  ngtlt?: boolean;
 }
 
 export interface PlaySettings {

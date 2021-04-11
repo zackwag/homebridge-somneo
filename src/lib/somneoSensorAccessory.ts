@@ -48,30 +48,40 @@ export class SomneoSensorAccessory extends SomneoAccessory {
   async updateValues() {
 
     await this.somneoClock.SomneoService.getSensorReadings().then(sensorReadings => {
-      this.temperature = sensorReadings.mstmp;
-      this.temperatureService
-        .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-        .updateValue(this.temperature);
+      if (sensorReadings === undefined) {
+        return;
+      }
 
-      this.humidity = sensorReadings.msrhu;
-      this.humidityService
-        .getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-        .updateValue(this.humidity);
+      if (sensorReadings.mstmp !== undefined) {
+        this.temperature = sensorReadings.mstmp;
+        this.temperatureService
+          .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+          .updateValue(this.temperature);
+      }
 
-      // There is a minimum lux value allowedin Homebridge.
-      // Philips uses 0 as the min which will cause errors;
-      this.luxLevel = sensorReadings.mslux > SomneoConstants.DEFAULT_LUX_LEVEL ?
-        sensorReadings.mslux : SomneoConstants.DEFAULT_LUX_LEVEL;
-      this.luxService
-        .getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-        .updateValue(this.luxLevel);
+      if (sensorReadings.msrhu !== undefined) {
+        this.humidity = sensorReadings.msrhu;
+        this.humidityService
+          .getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+          .updateValue(this.humidity);
+      }
+
+      if (sensorReadings.mslux !== undefined) {
+        // There is a minimum lux value allowedin Homebridge.
+        // Philips uses 0 as the min which will cause errors;
+        this.luxLevel = sensorReadings.mslux > SomneoConstants.DEFAULT_LUX_LEVEL ?
+          sensorReadings.mslux : SomneoConstants.DEFAULT_LUX_LEVEL;
+        this.luxService
+          .getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+          .updateValue(this.luxLevel);
+      }
     }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
   }
 
   async setTemperature(value: CharacteristicValue) {
 
     const numValue = value as number;
-    if (numValue === (this.temperature === undefined ? SomneoConstants.DEFAULT_TEMPERATURE : this.temperature)) {
+    if (numValue === (this.temperature ?? SomneoConstants.DEFAULT_TEMPERATURE)) {
       return;
     }
 
@@ -81,18 +91,18 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
   async getTemperature(): Promise<CharacteristicValue> {
 
-    if (this.temperature !== undefined) {
-      this.platform.log.debug(`Get ${this.name} temperature ->`, this.temperature);
-      return this.temperature;
+    if (this.temperature === undefined) {
+      return SomneoConstants.DEFAULT_TEMPERATURE;
     }
 
-    return SomneoConstants.DEFAULT_TEMPERATURE;
+    this.platform.log.debug(`Get ${this.name} temperature ->`, this.temperature);
+    return this.temperature;
   }
 
   async setRelativeHumidity(value: CharacteristicValue) {
 
     const numValue = Number(value);
-    if (numValue === (this.humidity === undefined ? SomneoConstants.DEFAULT_HUMIDITY : this.humidity)) {
+    if (numValue === (this.humidity ?? SomneoConstants.DEFAULT_HUMIDITY)) {
       return;
     }
 
@@ -102,18 +112,18 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
   async getRelativeHumidity(): Promise<CharacteristicValue> {
 
-    if (this.humidity !== undefined) {
-      this.platform.log.debug(`Get ${this.name} humidity ->`, this.humidity);
-      return this.humidity;
+    if (this.humidity === undefined) {
+      return SomneoConstants.DEFAULT_HUMIDITY;
     }
 
-    return SomneoConstants.DEFAULT_HUMIDITY;
+    this.platform.log.debug(`Get ${this.name} humidity ->`, this.humidity);
+    return this.humidity;
   }
 
   async setCurrentAmbientLightLevel(value: CharacteristicValue) {
 
     const numValue = Number(value);
-    if (numValue === (this.luxLevel === undefined ? SomneoConstants.DEFAULT_LUX_LEVEL : this.luxLevel)) {
+    if (numValue === (this.luxLevel ?? SomneoConstants.DEFAULT_LUX_LEVEL)) {
       return;
     }
 

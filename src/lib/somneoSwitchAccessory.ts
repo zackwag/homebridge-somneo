@@ -24,7 +24,7 @@ export abstract class somneoSwitchAccessory extends SomneoBinaryAccessory {
     this.updateValues();
   }
 
-  protected getBinaryService() : Service {
+  protected getBinaryService(): Service {
     return this.switchService;
   }
 
