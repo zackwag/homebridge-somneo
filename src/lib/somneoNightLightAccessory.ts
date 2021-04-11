@@ -20,10 +20,16 @@ export class SomneoNightLightAccessory extends SomneoLightAccessory {
   async updateValues(): Promise<void> {
 
     await this.somneoClock.SomneoService.getLightSettings().then(lightSettings => {
-      this.isOn = lightSettings.ngtlt;
-      this.getBinaryService()
-        .getCharacteristic(this.getBinaryCharacteristic())
-        .updateValue(this.isOn);
+      if (lightSettings === undefined) {
+        return;
+      }
+
+      if (lightSettings.ngtlt !== undefined) {
+        this.isOn = lightSettings.ngtlt;
+        this.getBinaryService()
+          .getCharacteristic(this.getBinaryCharacteristic())
+          .updateValue(this.isOn);
+      }
     }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
   }
 

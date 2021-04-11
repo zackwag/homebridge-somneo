@@ -10,10 +10,16 @@ export class SomneoSunsetSwitchAccessory extends somneoSwitchAccessory {
   public async updateValues(): Promise<void> {
 
     await this.somneoClock.SomneoService.getSunset().then(sunset => {
-      this.isOn = sunset.onoff;
-      this.getBinaryService()
-        .getCharacteristic(this.getBinaryCharacteristic())
-        .updateValue(this.isOn);
+      if (sunset === undefined) {
+        return;
+      }
+
+      if (sunset.onoff !== undefined) {
+        this.isOn = sunset.onoff;
+        this.getBinaryService()
+          .getCharacteristic(this.getBinaryCharacteristic())
+          .updateValue(this.isOn);
+      }
     }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
   }
 

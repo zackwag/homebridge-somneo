@@ -60,15 +60,23 @@ export class SomneoAudioAccessory {
     this.updateValues();
   }
 
-  public async updateValues(): Promise<void> {
+  async updateValues(): Promise<void> {
 
     await this.somneoClock.SomneoService.getPlaySettings().then(playSettings => {
-      this.isActive = playSettings.onoff!;
-      this.televisionService
-        .getCharacteristic(this.platform.Characteristic.Active)
-        .updateValue(this.isActive);
+      if (playSettings === undefined) {
+        return;
+      }
 
-      this.volume = playSettings.sdvol!;
+      if (playSettings.onoff !== undefined) {
+        this.isActive = playSettings.onoff;
+        this.televisionService
+          .getCharacteristic(this.platform.Characteristic.Active)
+          .updateValue(this.isActive);
+      }
+
+      if (playSettings.sdvol !== undefined) {
+        this.volume = playSettings.sdvol;
+      }
 
       this.updateActiveInput(playSettings.snddv, playSettings.sndch);
     }).catch(err => this.platform.log.error(`Error updating ${this.Accessory.displayName}, err=${err}`));
@@ -93,12 +101,12 @@ export class SomneoAudioAccessory {
 
   async getActive(): Promise<CharacteristicValue> {
 
-    if (this.isActive !== undefined) {
-      this.platform.log.debug(`Get ${this.Accessory.displayName} state ->`, this.isActive);
-      return this.isActive;
+    if (this.isActive === undefined) {
+      return SomneoConstants.DEFAULT_BINARY_STATE;
     }
 
-    return SomneoConstants.DEFAULT_BINARY_STATE;
+    this.platform.log.debug(`Get ${this.Accessory.displayName} state ->`, this.isActive);
+    return this.isActive;
   }
 
   async setRemoteKey(value: CharacteristicValue): Promise<void> {
@@ -108,7 +116,7 @@ export class SomneoAudioAccessory {
   async setActive(value: CharacteristicValue): Promise<void> {
 
     const boolValue = Boolean(value);
-    if (boolValue === (this.isActive === undefined ? SomneoConstants.DEFAULT_BINARY_STATE : this.isActive)) {
+    if (boolValue === (this.isActive ?? SomneoConstants.DEFAULT_BINARY_STATE)) {
       return;
     }
 
@@ -141,7 +149,7 @@ export class SomneoAudioAccessory {
   async setActiveIdentifier(value: CharacteristicValue): Promise<void> {
 
     const numValue = Number(value);
-    if (numValue === (this.activeInput === undefined ? SomneoConstants.DEFAULT_ACTIVE_INPUT : this.activeInput)) {
+    if (numValue === (this.activeInput ?? SomneoConstants.DEFAULT_ACTIVE_INPUT)) {
       return;
     }
 
@@ -153,7 +161,7 @@ export class SomneoAudioAccessory {
     }).catch(err => this.platform.log.error(`Error setting ${this.Accessory.displayName} input to ${numValue}, err=${err}`));
   }
 
-  public turnOff() {
+  turnOff() {
 
     if (this.isActive) {
       this.somneoClock.SomneoService.modifyPlaySettingsState(false).then(() => {

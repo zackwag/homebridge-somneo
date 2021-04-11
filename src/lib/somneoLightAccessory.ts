@@ -26,18 +26,18 @@ export abstract class SomneoLightAccessory extends SomneoBinaryAccessory {
 
   async getOn(): Promise<CharacteristicValue> {
 
-    if (this.isOn !== undefined) {
-      this.platform.log.debug(`Get ${this.name} state ->`, this.isOn);
-      return this.isOn;
+    if (this.isOn === undefined) {
+      return SomneoConstants.DEFAULT_BINARY_STATE;
     }
 
-    return SomneoConstants.DEFAULT_BINARY_STATE;
+    this.platform.log.debug(`Get ${this.name} state ->`, this.isOn);
+    return this.isOn;
   }
 
   async setOn(value: CharacteristicValue): Promise<void> {
 
     const boolValue = Boolean(value);
-    if (boolValue === (this.isOn === undefined ? SomneoConstants.DEFAULT_BINARY_STATE : this.isOn)) {
+    if (boolValue === (this.isOn ?? SomneoConstants.DEFAULT_BINARY_STATE)) {
       return;
     }
 

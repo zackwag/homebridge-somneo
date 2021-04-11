@@ -1,60 +1,47 @@
-import { PlatformConfig } from 'homebridge';
-import { PLUGIN_NAME } from '../settings';
+import { Logger, PlatformConfig } from 'homebridge';
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoClock } from './somneoClock';
+import { SomneoConfig } from './somneoConfigDataTypes';
 import { SomneoConstants } from './somneoConstants';
 export class UserSettings {
 
-  public PluginName = PLUGIN_NAME;
-  public PollingMilliSeconds: number | undefined;
-  public SomneoClocks: SomneoClock[] = [];
+  private constructor(
+    public PlatformName: string,
+    public SomneoClocks: SomneoClock[],
+    public PollingMilliSeconds: number,
+  ) { }
 
-  private config : PlatformConfig;
+  static create(platform: SomneoPlatform): UserSettings {
 
-  constructor(
-    private platform: SomneoPlatform,
-  ) {
-    this.config = this.platform.config;
-
-    this.buildName();
-    this.buildSomneoClocks();
-    this.buildPollingMilliSeconds();
+    const config = platform.config;
+    const platformName = UserSettings.buildPlatformName(config);
+    const somneoClocks = UserSettings.buildSomneoClocks(platform.log, config);
+    const pollingMilliseconds = UserSettings.buildPollingMilliSeconds(config);
+    return new UserSettings(platformName, somneoClocks, pollingMilliseconds);
   }
 
-  private buildName() {
-
-    if (this.config.name === undefined) {
-      return;
-    }
-
-    this.PluginName = this.config.name;
-  }
-
-  private buildSomneoClocks() {
-
-    if (this.config.somneos === undefined || this.config.somneos.length === 0) {
-      return;
-    }
-
-    for (const somneoConfig of this.config.somneos) {
-      const somneoClock = SomneoClock.create(this.platform.log, somneoConfig);
-
-      // If SomneoClock is undefined, it was misconfigured. Just skip it
-      if (somneoClock !== undefined) {
-        this.SomneoClocks.push(somneoClock);
-      }
-    }
-  }
-
-  private buildPollingMilliSeconds() {
-
-    let pollingSeconds = SomneoConstants.DEFAULT_POLLING_SECONDS;
+  private static buildPollingMilliSeconds(config: PlatformConfig): number {
 
     // If the user has not specified a polling interval, default to 30s
-    if (this.config.pollingSeconds !== undefined) {
-      pollingSeconds = this.config.pollingSeconds;
+    const pollingSeconds = config.pollingSeconds ?? SomneoConstants.DEFAULT_POLLING_SECONDS;
+    return pollingSeconds * 1000;
+  }
+
+  private static buildSomneoClocks(log: Logger, config: PlatformConfig): SomneoClock[] {
+
+    // If the user has not specified clock configs, default to empty array
+    if (config.somneos === undefined || config.somneos.length === 0) {
+      return [];
     }
 
-    this.PollingMilliSeconds = (pollingSeconds * 1000);
+    return config.somneos
+      .map((somneoConfig: SomneoConfig) => SomneoClock.create(log, somneoConfig))
+      .filter((somneoClock: SomneoClock) => somneoClock !== undefined);
+  }
+
+  private static buildPlatformName(config: PlatformConfig): string {
+
+    // If the user has not specified a platform name, default to Homebridge Somneo
+    return config.name ?? SomneoConstants.DEFAULT_PLAFORM_NAME;
   }
 }

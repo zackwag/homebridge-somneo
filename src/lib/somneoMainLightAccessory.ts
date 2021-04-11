@@ -18,19 +18,27 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
     this.updateValues();
   }
 
-  public async updateValues(): Promise<void> {
+  async updateValues(): Promise<void> {
 
     await this.somneoClock.SomneoService.getLightSettings().then(lightSettings => {
-      this.isOn = lightSettings.onoff;
-      this.getBinaryService()
-        .getCharacteristic(this.getBinaryCharacteristic())
-        .updateValue(this.isOn);
+      if (lightSettings === undefined) {
+        return;
+      }
 
-      // Philips stores up to 100 so multiply to get percentage
-      this.brightness = (lightSettings.ltlvl * 4);
-      this.getBinaryService()
-        .getCharacteristic(this.platform.Characteristic.Brightness)
-        .updateValue(this.brightness);
+      if (lightSettings.onoff !== undefined) {
+        this.isOn = lightSettings.onoff;
+        this.getBinaryService()
+          .getCharacteristic(this.getBinaryCharacteristic())
+          .updateValue(this.isOn);
+      }
+
+      if (lightSettings.ltlvl !== undefined) {
+        // Philips stores up to 100 so multiply to get percentage
+        this.brightness = (lightSettings.ltlvl * 4);
+        this.getBinaryService()
+          .getCharacteristic(this.platform.Characteristic.Brightness)
+          .updateValue(this.brightness);
+      }
     }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
   }
 
