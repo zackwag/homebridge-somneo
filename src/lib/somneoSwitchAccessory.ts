@@ -20,8 +20,6 @@ export abstract class somneoSwitchAccessory extends SomneoBinaryAccessory {
       .getCharacteristic(this.getBinaryCharacteristic())
       .onSet(this.setOn.bind(this))
       .onGet(this.getOn.bind(this));
-
-    this.updateValues();
   }
 
   protected getBinaryService(): Service {

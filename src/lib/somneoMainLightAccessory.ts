@@ -14,8 +14,6 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
     this.getBinaryService()
       .getCharacteristic(this.platform.Characteristic.Brightness)
       .setProps({ minStep: SomneoConstants.BRIGHTNESS_STEP_INTERVAL });
-
-    this.updateValues();
   }
 
   async updateValues(): Promise<void> {

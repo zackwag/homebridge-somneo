@@ -57,7 +57,6 @@ export class SomneoAudioAccessory {
 
 
     this.buildInputServices();
-    this.updateValues();
   }
 
   async updateValues(): Promise<void> {

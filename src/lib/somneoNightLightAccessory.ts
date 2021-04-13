@@ -10,7 +10,6 @@ export class SomneoNightLightAccessory extends SomneoLightAccessory {
     protected somneoClock: SomneoClock,
   ) {
     super(platform, somneoClock);
-    this.updateValues();
   }
 
   protected getName(): string {

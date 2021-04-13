@@ -115,18 +115,24 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
     this.log.debug(`Starting poll, pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
 
-    setInterval(() => {
-      this.SomneoAccessories.reduce(async (previousPromise, nextAccessory) => {
+    this.updateAllAccessoryValues()
+      .then(() => setInterval(() => this.updateAllAccessoryValues(), this.UserSettings.PollingMilliSeconds));
+  }
+
+  private updateAllAccessoryValues(): Promise<void> {
+
+    this.SomneoAccessories.reduce(async (previousPromise, nextAccessory) => {
+      await previousPromise;
+      return nextAccessory.updateValues()
+        .then(() => this.log.debug(`Updated accessory=${nextAccessory.name} values.`));
+    }, Promise.resolve()).then(() => {
+      return [...this.HostAudioMap.values()].reduce(async (previousPromise, nextAccessory) => {
         await previousPromise;
         return nextAccessory.updateValues()
-          .then(() => this.log.debug(`Updated accessory=${nextAccessory.name} values.`));
-      }, Promise.resolve()).then(() => {
-        return [...this.HostAudioMap.values()].reduce(async (previousPromise, nextAccessory) => {
-          await previousPromise;
-          return nextAccessory.updateValues()
-            .then(() => this.log.debug(`Updated accessory=${nextAccessory.Accessory.displayName} values.`));
-        }, Promise.resolve());
-      });
-    }, this.UserSettings.PollingMilliSeconds);
+          .then(() => this.log.debug(`Updated accessory=${nextAccessory.Accessory.displayName} values.`));
+      }, Promise.resolve());
+    });
+
+    return Promise.resolve();
   }
 }
