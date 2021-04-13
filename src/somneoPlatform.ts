@@ -116,15 +116,17 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     this.log.debug(`Starting poll, pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
 
     setInterval(() => {
-      this.SomneoAccessories.forEach(somneoAccessory => {
-        somneoAccessory.updateValues()
-          .then(() => this.log.debug(`Updated accessory=${somneoAccessory.name} values.`));
+      this.SomneoAccessories.reduce(async (previousPromise, nextAccessory) => {
+        await previousPromise;
+        return nextAccessory.updateValues()
+          .then(() => this.log.debug(`Updated accessory=${nextAccessory.name} values.`));
+      }, Promise.resolve()).then(() => {
+        return [...this.HostAudioMap.values()].reduce(async (previousPromise, nextAccessory) => {
+          await previousPromise;
+          return nextAccessory.updateValues()
+            .then(() => this.log.debug(`Updated accessory=${nextAccessory.Accessory.displayName} values.`));
+        }, Promise.resolve());
       });
-
-      for (const audioDevice of this.HostAudioMap.values()) {
-        audioDevice.updateValues()
-          .then(() => this.log.debug(`Updated accessory=${audioDevice.Accessory.displayName} values.`));
-      }
     }, this.UserSettings.PollingMilliSeconds);
   }
 }
