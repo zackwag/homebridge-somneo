@@ -37,8 +37,6 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     this.luxService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
       .onSet(this.setCurrentAmbientLightLevel.bind(this))
       .onGet(this.getCurrentAmbientLightLevel.bind(this));
-
-    this.updateValues();
   }
 
   protected getName(): string {
