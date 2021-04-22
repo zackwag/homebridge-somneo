@@ -122,6 +122,11 @@ Before installing this plugin, you should install Homebridge using the [official
 | Field | Required | Data Type | Description                   | Default Value |
 | ------| :------: | :-------: | ----------------------------- | :-----------: |
 | **isEnabled** | No | boolean | Determines whether or not to expose the RelaxBreathe Program switch. | `true` |
+| **breathsPerMin**| No| number | How many breaths you want to take per minute. | `4` (BPM converted to the Philips value 1) |
+| **duration** | No | number | How long the RelaxBreathe Program should run for. | `10` (minutes) |
+| **guidanceType** | No | number | What kind of guided RelaxBreathe program to run.<br /><br />Possible values:<ul><li>Light = `0`</li><li>Sound = `1`</li></ul> | `0` (Light) |
+| **lightIntensity** | No | number | How bright the RelaxBreathe Program be at its peak. The value is a percentage that will be converted to a number between `1 and 25`. | `80` (80% converted to the the Philips API value 20) |
+| **volume** | No | number | How loud the RelaxBreathe Program should be at its peak. The value is a percentage that will be converted to a number between `1 and 25`. | `48` (48% converted to the the Philips API value 12) |
 
 ###### Sunset Schema
 
@@ -183,7 +188,7 @@ This configuration will expose all items with default values, but is very verbos
   "name": "Homebridge Somneo",
   "somneos": [
     {
-      "name": "Master Bedroom Somneo",
+      "name": "Test Somneo",
       "host": "[INSERT_IP_ADDRESS_HERE]",
       "sensors": {
         "humidity": {
@@ -206,14 +211,19 @@ This configuration will expose all items with default values, but is very verbos
       },
       "switches": {
         "relaxBreathe": {
-          "isEnabled": true
+          "isEnabled": true,
+          "breathsPerMin": 4,
+          "duration": 10,
+          "guidanceType": 0,
+          "lightIntensity": 80,
+          "volume": 48
         },
         "sunset": {
           "isEnabled": true,
           "duration": 30,
           "lightIntensity": 80,
-          "colorScheme": 3,
-          "ambientSounds": "2",
+          "colorScheme": 0,
+          "ambientSounds": "1",
           "volume": 48
         }
       },
@@ -229,7 +239,6 @@ This configuration will expose all items with default values, but is very verbos
 ```
 
 ## Future Plans
-- Allow customization of RelaxBreathe program.
 - No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an motion sensor, but would need to know what sound level motion detected/not should be considered.
 - Better error handling. I am a Java developer by trade and am still learning Typescript :).
 

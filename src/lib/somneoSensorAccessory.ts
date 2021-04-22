@@ -73,7 +73,7 @@ export class SomneoSensorAccessory extends SomneoAccessory {
           .getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
           .updateValue(this.luxLevel);
       }
-    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
   }
 
   async setTemperature(value: CharacteristicValue) {
@@ -84,7 +84,7 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     }
 
     this.temperature = numValue;
-    this.platform.log.info(`Set ${this.name} temperature ->`, this.temperature);
+    this.platform.log.info(`UI Set -> accessory=${this.temperatureService.displayName} temperature=${this.temperature}`);
   }
 
   async getTemperature(): Promise<CharacteristicValue> {
@@ -93,7 +93,7 @@ export class SomneoSensorAccessory extends SomneoAccessory {
       return SomneoConstants.DEFAULT_TEMPERATURE;
     }
 
-    this.platform.log.debug(`Get ${this.name} temperature ->`, this.temperature);
+    this.platform.log.debug(`UI Get -> accessory=${this.temperatureService.displayName} temperature=${this.temperature}`);
     return this.temperature;
   }
 
@@ -105,7 +105,7 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     }
 
     this.humidity = numValue;
-    this.platform.log.info(`Set ${this.name} humidity ->`, this.humidity);
+    this.platform.log.info(`UI Set -> accessory=${this.humidityService.displayName} humidity=${this.humidity}`);
   }
 
   async getRelativeHumidity(): Promise<CharacteristicValue> {
@@ -114,7 +114,7 @@ export class SomneoSensorAccessory extends SomneoAccessory {
       return SomneoConstants.DEFAULT_HUMIDITY;
     }
 
-    this.platform.log.debug(`Get ${this.name} humidity ->`, this.humidity);
+    this.platform.log.debug(`UI Get -> accessory=${this.humidityService.displayName} humidity=${this.humidity}`);
     return this.humidity;
   }
 
@@ -126,13 +126,13 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     }
 
     this.luxLevel = numValue;
-    this.platform.log.info(`Set ${this.name} lux ->`, this.luxLevel);
+    this.platform.log.info(`UI Set -> accessory=${this.luxService.displayName} lux=${this.luxLevel}`);
   }
 
   async getCurrentAmbientLightLevel(): Promise<CharacteristicValue> {
 
     if (this.luxLevel !== undefined) {
-      this.platform.log.debug(`Get ${this.name} lux ->`, this.luxLevel);
+      this.platform.log.debug(`UI Get -> accessory=${this.luxService.displayName} lux=${this.luxLevel}`);
       return this.luxLevel;
     }
 
@@ -148,17 +148,17 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     const services: Service[] = [this.informationService];
 
     if (this.somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_TEMPERATURE)) {
-      this.platform.log.debug(`Including sensor=${this.temperatureService.displayName}`);
+      this.platform.log.debug(`Included -> accessory=${this.temperatureService.displayName}`);
       services.push(this.temperatureService);
     }
 
     if (this.somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_HUMIDITY)) {
-      this.platform.log.debug(`Including sensor=${this.humidityService.displayName}`);
+      this.platform.log.debug(`Included -> accessory=${this.humidityService.displayName}`);
       services.push(this.humidityService);
     }
 
     if (this.somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_LUX)) {
-      this.platform.log.debug(`Including sensor=${this.luxService.displayName}`);
+      this.platform.log.debug(`Included -> accessory=${this.luxService.displayName}`);
       services.push(this.luxService);
     }
 

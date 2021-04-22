@@ -31,13 +31,12 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
       }
 
       if (lightSettings.ltlvl !== undefined) {
-        // Philips stores up to 100 so multiply to get percentage
-        this.brightness = (lightSettings.ltlvl * 4);
+        this.brightness = SomneoConstants.convertPhilipsPercentageToPercentage(lightSettings.ltlvl);
         this.getBinaryService()
           .getCharacteristic(this.platform.Characteristic.Brightness)
           .updateValue(this.brightness);
       }
-    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
   }
 
   protected getName(): string {
@@ -45,11 +44,16 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {
-    return this.somneoClock.SomneoService.modifyMainLightState(isOn);
+
+    if (isOn) {
+      return this.somneoClock.SomneoService.turnOnMainLight();
+    }
+
+    return this.somneoClock.SomneoService.turnOffMainLight();
   }
 
   protected modifySomneoServiceBrightness(brightness: number): Promise<void> {
-    return this.somneoClock.SomneoService.modifyMainLightBrightness(brightness);
+    return this.somneoClock.SomneoService.updateMainLightBrightness(brightness);
   }
 
   protected turnOffConflictingAccessories(): Promise<void> {

@@ -29,11 +29,16 @@ export class SomneoNightLightAccessory extends SomneoLightAccessory {
           .getCharacteristic(this.getBinaryCharacteristic())
           .updateValue(this.isOn);
       }
-    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {
-    return this.somneoClock.SomneoService.modifyNightLightState(isOn);
+
+    if (isOn) {
+      return this.somneoClock.SomneoService.turnOnNightLight();
+    }
+
+    return this.somneoClock.SomneoService.turnOffNightLight();
   }
 
   protected turnOffConflictingAccessories(): Promise<void> {

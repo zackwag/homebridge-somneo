@@ -29,8 +29,8 @@ export abstract class SomneoDimmableLightAccessory extends SomneoLightAccessory 
 
     this.modifySomneoServiceBrightness(numValue).then(() => {
       this.brightness = numValue;
-      this.platform.log.info(`Set ${this.name} brightness ->`, numValue);
-    }).catch(err => this.platform.log.error(`Error setting ${this.name} brightness to ${numValue}, err=${err}`));
+      this.platform.log.info(`UI Set -> accessory=${this.name} brightness=${numValue}`);
+    }).catch(err => this.platform.log.error(`Error -> Setting accessory=${this.name} brightness=${numValue} err=${err}`));
   }
 
   async getLightBrightness(): Promise<CharacteristicValue> {
@@ -39,7 +39,7 @@ export abstract class SomneoDimmableLightAccessory extends SomneoLightAccessory 
       return SomneoConstants.DEFAULT_BRIGHTNESS;
     }
 
-    this.platform.log.debug(`Get ${this.name} brightness ->`, this.brightness);
+    this.platform.log.debug(`UI Get -> accessory=${this.name} brightness=${this.brightness}`);
     return this.brightness;
   }
 

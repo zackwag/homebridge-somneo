@@ -103,6 +103,433 @@
                       "title": "Enable RelaxBreathe Program",
                       "type": "boolean",
                       "default": true
+                    },
+                    "breathsPerMin": {
+                      "title": "Breaths Per Minute",
+                      "type": "number",
+                      "default": 4,
+                      "description": "Defaults to 4 Breaths Per Minute",
+                      "oneOf": [
+                        {
+                          "title": "4 bpm",
+                          "enum": [
+                            4
+                          ]
+                        },
+                        {
+                          "title": "5 bpm",
+                          "enum": [
+                            5
+                          ]
+                        },
+                        {
+                          "title": "6 bpm",
+                          "enum": [
+                            6
+                          ]
+                        },
+                        {
+                          "title": "7 bpm",
+                          "enum": [
+                            7
+                          ]
+                        },
+                        {
+                          "title": "8 bpm",
+                          "enum": [
+                            8
+                          ]
+                        },
+                        {
+                          "title": "9 bpm",
+                          "enum": [
+                            9
+                          ]
+                        },
+                        {
+                          "title": "10 bpm",
+                          "enum": [
+                            10
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.relaxBreathe.isEnabled === true;"
+                      }
+                    },
+                    "duration": {
+                      "title": "Duration of Program",
+                      "type": "number",
+                      "default": 10,
+                      "description": "Defaults to 10 Minutes",
+                      "oneOf": [
+                        {
+                          "title": "5 Minutes",
+                          "enum": [
+                            5
+                          ]
+                        },
+                        {
+                          "title": "10 Minutes",
+                          "enum": [
+                            10
+                          ]
+                        },
+                        {
+                          "title": "15 Minutes",
+                          "enum": [
+                            15
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.relaxBreathe.isEnabled === true;"
+                      }
+                    },
+                    "guidanceType": {
+                      "title": "Guidance Type",
+                      "type": "number",
+                      "default": 0,
+                      "description": "Defaults to Light",
+                      "oneOf": [
+                        {
+                          "title": "Light",
+                          "enum": [
+                            0
+                          ]
+                        },
+                        {
+                          "title": "Sound",
+                          "enum": [
+                            1
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.relaxBreathe.isEnabled === true;"
+                      }
+                    },
+                    "lightIntensity": {
+                      "title": "Light Intensity",
+                      "type": "number",
+                      "default": 80,
+                      "description": "Defaults to 80%",
+                      "oneOf": [
+                        {
+                          "title": "4%",
+                          "enum": [
+                            4
+                          ]
+                        },
+                        {
+                          "title": "8%",
+                          "enum": [
+                            8
+                          ]
+                        },
+                        {
+                          "title": "12%",
+                          "enum": [
+                            12
+                          ]
+                        },
+                        {
+                          "title": "16%",
+                          "enum": [
+                            16
+                          ]
+                        },
+                        {
+                          "title": "20%",
+                          "enum": [
+                            20
+                          ]
+                        },
+                        {
+                          "title": "24%",
+                          "enum": [
+                            24
+                          ]
+                        },
+                        {
+                          "title": "28%",
+                          "enum": [
+                            28
+                          ]
+                        },
+                        {
+                          "title": "32%",
+                          "enum": [
+                            32
+                          ]
+                        },
+                        {
+                          "title": "36%",
+                          "enum": [
+                            36
+                          ]
+                        },
+                        {
+                          "title": "40%",
+                          "enum": [
+                            40
+                          ]
+                        },
+                        {
+                          "title": "44%",
+                          "enum": [
+                            44
+                          ]
+                        },
+                        {
+                          "title": "48%",
+                          "enum": [
+                            48
+                          ]
+                        },
+                        {
+                          "title": "52%",
+                          "enum": [
+                            52
+                          ]
+                        },
+                        {
+                          "title": "56%",
+                          "enum": [
+                            56
+                          ]
+                        },
+                        {
+                          "title": "60%",
+                          "enum": [
+                            60
+                          ]
+                        },
+                        {
+                          "title": "64%",
+                          "enum": [
+                            64
+                          ]
+                        },
+                        {
+                          "title": "68%",
+                          "enum": [
+                            68
+                          ]
+                        },
+                        {
+                          "title": "72%",
+                          "enum": [
+                            72
+                          ]
+                        },
+                        {
+                          "title": "76%",
+                          "enum": [
+                            76
+                          ]
+                        },
+                        {
+                          "title": "80%",
+                          "enum": [
+                            80
+                          ]
+                        },
+                        {
+                          "title": "84%",
+                          "enum": [
+                            84
+                          ]
+                        },
+                        {
+                          "title": "88%",
+                          "enum": [
+                            88
+                          ]
+                        },
+                        {
+                          "title": "92%",
+                          "enum": [
+                            92
+                          ]
+                        },
+                        {
+                          "title": "96%",
+                          "enum": [
+                            96
+                          ]
+                        },
+                        {
+                          "title": "100%",
+                          "enum": [
+                            100
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.relaxBreathe.isEnabled === true && model.somneos[arrayIndices[0]].switches.relaxBreathe.guidanceType === 0;"
+                      }
+                    },
+                    "volume": {
+                      "title": "Volume",
+                      "type": "number",
+                      "default": 48,
+                      "description": "Defaults to 48%",
+                      "oneOf": [
+                        {
+                          "title": "4%",
+                          "enum": [
+                            4
+                          ]
+                        },
+                        {
+                          "title": "8%",
+                          "enum": [
+                            8
+                          ]
+                        },
+                        {
+                          "title": "12%",
+                          "enum": [
+                            12
+                          ]
+                        },
+                        {
+                          "title": "16%",
+                          "enum": [
+                            16
+                          ]
+                        },
+                        {
+                          "title": "20%",
+                          "enum": [
+                            20
+                          ]
+                        },
+                        {
+                          "title": "24%",
+                          "enum": [
+                            24
+                          ]
+                        },
+                        {
+                          "title": "28%",
+                          "enum": [
+                            28
+                          ]
+                        },
+                        {
+                          "title": "32%",
+                          "enum": [
+                            32
+                          ]
+                        },
+                        {
+                          "title": "36%",
+                          "enum": [
+                            36
+                          ]
+                        },
+                        {
+                          "title": "40%",
+                          "enum": [
+                            40
+                          ]
+                        },
+                        {
+                          "title": "44%",
+                          "enum": [
+                            44
+                          ]
+                        },
+                        {
+                          "title": "48%",
+                          "enum": [
+                            48
+                          ]
+                        },
+                        {
+                          "title": "52%",
+                          "enum": [
+                            52
+                          ]
+                        },
+                        {
+                          "title": "56%",
+                          "enum": [
+                            56
+                          ]
+                        },
+                        {
+                          "title": "60%",
+                          "enum": [
+                            60
+                          ]
+                        },
+                        {
+                          "title": "64%",
+                          "enum": [
+                            64
+                          ]
+                        },
+                        {
+                          "title": "68%",
+                          "enum": [
+                            68
+                          ]
+                        },
+                        {
+                          "title": "72%",
+                          "enum": [
+                            72
+                          ]
+                        },
+                        {
+                          "title": "76%",
+                          "enum": [
+                            76
+                          ]
+                        },
+                        {
+                          "title": "80%",
+                          "enum": [
+                            80
+                          ]
+                        },
+                        {
+                          "title": "84%",
+                          "enum": [
+                            84
+                          ]
+                        },
+                        {
+                          "title": "88%",
+                          "enum": [
+                            88
+                          ]
+                        },
+                        {
+                          "title": "92%",
+                          "enum": [
+                            92
+                          ]
+                        },
+                        {
+                          "title": "96%",
+                          "enum": [
+                            96
+                          ]
+                        },
+                        {
+                          "title": "100%",
+                          "enum": [
+                            100
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.relaxBreathe.isEnabled === true && model.somneos[arrayIndices[0]].switches.relaxBreathe.guidanceType === 1;"
+                      }
                     }
                   }
                 },
@@ -169,7 +596,7 @@
                     },
                     "lightIntensity": {
                       "title": "Light Intensity",
-                      "type": "integer",
+                      "type": "number",
                       "default": 80,
                       "description": "Defaults to 80%",
                       "oneOf": [
@@ -406,7 +833,7 @@
                     },
                     "volume": {
                       "title": "Volume",
-                      "type": "integer",
+                      "type": "number",
                       "default": 48,
                       "description": "Defaults to 48%",
                       "oneOf": [
@@ -669,6 +1096,11 @@
             "somneos[].switches.sunset.ambientSounds",
             "somneos[].switches.sunset.volume",
             "somneos[].switches.relaxBreathe.isEnabled",
+            "somneos[].switches.relaxBreathe.breathsPerMin",
+            "somneos[].switches.relaxBreathe.duration",
+            "somneos[].switches.relaxBreathe.guidanceType",
+            "somneos[].switches.relaxBreathe.lightIntensity",
+            "somneos[].switches.relaxBreathe.volume",
             "somneos[].audio.isEnabled",
             "somneos[].audio.favoriteInput"
           ]

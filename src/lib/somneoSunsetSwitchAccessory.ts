@@ -9,7 +9,7 @@ export class SomneoSunsetSwitchAccessory extends somneoSwitchAccessory {
 
   public async updateValues(): Promise<void> {
 
-    await this.somneoClock.SomneoService.getSunset().then(sunset => {
+    await this.somneoClock.SomneoService.getSunsetProgram().then(sunset => {
       if (sunset === undefined) {
         return;
       }
@@ -20,7 +20,7 @@ export class SomneoSunsetSwitchAccessory extends somneoSwitchAccessory {
           .getCharacteristic(this.getBinaryCharacteristic())
           .updateValue(this.isOn);
       }
-    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {
