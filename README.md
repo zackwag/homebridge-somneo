@@ -188,7 +188,7 @@ This configuration will expose all items with default values, but is very verbos
   "name": "Homebridge Somneo",
   "somneos": [
     {
-      "name": "Test Somneo",
+      "name": "Master Bedroom Somneo",
       "host": "[INSERT_IP_ADDRESS_HERE]",
       "sensors": {
         "humidity": {
