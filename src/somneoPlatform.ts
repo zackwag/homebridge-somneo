@@ -33,13 +33,13 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     this.UserSettings = UserSettings.create(this);
 
     if (this.UserSettings.SomneoClocks.length === 0) {
-      this.log.error('No Somneo clocks specified. Platform is not loading.');
+      this.log.error('Error -> No Somneo clocks specified. Platform is not loading.');
       return;
     }
 
     this.buildAccessories();
 
-    this.log.debug(`Platform ${this.UserSettings.PlatformName} -> Initialized`);
+    this.log.debug(`Initialized -> platform=${this.UserSettings.PlatformName}`);
   }
 
   async accessories(callback: (foundAccessories: AccessoryPlugin[]) => void): Promise<void> {
@@ -54,7 +54,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
         somneoClock.RequestedAccessories.includes(RequestedAccessory.SENSOR_TEMPERATURE)) {
         const sensorAccessory = new SomneoSensorAccessory(this, somneoClock);
 
-        this.log.debug(`Including accessory=${sensorAccessory.name}`);
+        this.log.debug(`Included -> accessory=${sensorAccessory.name}`);
 
         this.SomneoAccessories.push(sensorAccessory);
         this.HostSensorMap.set(somneoClock.SomneoService.Host, sensorAccessory);
@@ -63,7 +63,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.LIGHT_MAIN)) {
         const mainLight = new SomneoMainLightAccessory(this, somneoClock);
 
-        this.log.debug(`Including accessory=${mainLight.name}`);
+        this.log.debug(`Included -> accessory=${mainLight.name}`);
 
         this.SomneoAccessories.push(mainLight);
         this.HostMainLightMap.set(somneoClock.SomneoService.Host, mainLight);
@@ -72,7 +72,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.LIGHT_NIGHT_LIGHT)) {
         const nightLight = new SomneoNightLightAccessory(this, somneoClock);
 
-        this.log.debug(`Including accessory=${nightLight.name}`);
+        this.log.debug(`Included -> accessory=${nightLight.name}`);
 
         this.HostNightLightMap.set(somneoClock.SomneoService.Host, nightLight);
         this.SomneoAccessories.push(nightLight);
@@ -81,7 +81,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SWITCH_RELAXBREATHE)) {
         const relaxBreatheSwitch = new SomneoRelaxBreatheSwitchAccessory(this, somneoClock);
 
-        this.log.debug(`Including accessory=${relaxBreatheSwitch.name}`);
+        this.log.debug(`Included -> accessory=${relaxBreatheSwitch.name}`);
 
         this.HostRelaxBreatheSwitchMap.set(somneoClock.SomneoService.Host, relaxBreatheSwitch);
         this.SomneoAccessories.push(relaxBreatheSwitch);
@@ -90,7 +90,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET)) {
         const sunsetSwitch = new SomneoSunsetSwitchAccessory(this, somneoClock);
 
-        this.log.debug(`Including accessory=${sunsetSwitch.name}`);
+        this.log.debug(`Included -> accessory=${sunsetSwitch.name}`);
 
         this.HostSunsetSwitchMap.set(somneoClock.SomneoService.Host, sunsetSwitch);
         this.SomneoAccessories.push(sunsetSwitch);
@@ -102,7 +102,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
         const accessory = new this.api.platformAccessory(displayName, uuid, Categories.AUDIO_RECEIVER);
         const audioDevice = new SomneoAudioAccessory(accessory, this, somneoClock);
 
-        this.log.debug(`Including accessory=${displayName}`);
+        this.log.debug(`Included -> accessory=${displayName}`);
 
         this.HostAudioMap.set(somneoClock.SomneoService.Host, audioDevice);
       }
@@ -113,7 +113,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
       this.api.publishExternalAccessories(PLUGIN_NAME, Array.from(this.HostAudioMap.values()).map(audioDevice => audioDevice.Accessory));
     }
 
-    this.log.debug(`Starting poll, pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
+    this.log.debug(`Polling -> pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
 
     this.updateAllAccessoryValues()
       .then(() => setInterval(() => this.updateAllAccessoryValues(), this.UserSettings.PollingMilliSeconds));
@@ -124,12 +124,12 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     this.SomneoAccessories.reduce(async (previousPromise, nextAccessory) => {
       await previousPromise;
       return nextAccessory.updateValues()
-        .then(() => this.log.debug(`Updated accessory=${nextAccessory.name} values.`));
+        .then(() => this.log.debug(`Polled -> accessory=${nextAccessory.name}`));
     }, Promise.resolve()).then(() => {
       return [...this.HostAudioMap.values()].reduce(async (previousPromise, nextAccessory) => {
         await previousPromise;
         return nextAccessory.updateValues()
-          .then(() => this.log.debug(`Updated accessory=${nextAccessory.Accessory.displayName} values.`));
+          .then(() => this.log.debug(`Polled -> accessory=${nextAccessory.Accessory.displayName}`));
       }, Promise.resolve());
     });
 

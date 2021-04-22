@@ -1,5 +1,6 @@
 import axios from 'axios';
 import https from 'https';
+import { AudioPreferences, RelaxeBreatheProgramPreferences, SunsetProgramPreferences } from './somneoClock';
 
 export class SomneoConstants {
 
@@ -16,11 +17,17 @@ export class SomneoConstants {
   static readonly DEFAULT_ACTIVE_INPUT = 1;
   static readonly DEFAULT_AUDIO_CHANNEL = '1';
   static readonly DEFAULT_BINARY_STATE = false;
+  static readonly DEFAULT_BOOLEAN_CONFIG_VALUE = true;
   static readonly DEFAULT_BRIGHTNESS = 0;
   static readonly DEFAULT_HUMIDITY = 0;
   static readonly DEFAULT_LUX_LEVEL = 0.0001;
   static readonly DEFAULT_POLLING_SECONDS = 30;
-  static readonly DEFAULT_PLAFORM_NAME = 'Homebridge Somneo';
+  static readonly DEFAULT_PLATFORM_NAME = 'Homebridge Somneo';
+  static readonly DEFAULT_RELAX_BREATHE_BPM = 1; // 4 Breaths Per Min
+  static readonly DEFAULT_RELAX_BREATHE_DURATION = 10;
+  static readonly DEFAULT_RELAX_BREATHE_GUIDANCE_TYPE = 1; // Light
+  static readonly DEFAULT_RELAX_BREATHE_INTENSITY = 20; // 80%
+  static readonly DEFAULT_RELAX_BREATHE_VOLUME = 12; // 48%
   static readonly DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
   static readonly DEFAULT_SUNSET_PROGRAM_AMBIENT_SOUNDS = '1'; // Soft Rain
   static readonly DEFAULT_SUNSET_PROGRAM_COLOR_SCHEME = '0'; // Sunny day
@@ -38,6 +45,7 @@ export class SomneoConstants {
   static readonly LIGHT_NIGHT_LIGHT = 'Night Light';
   static readonly MANUFACTURER = 'Philips';
   static readonly MODEL = 'Somneo HF3670/60';
+  static readonly RELAX_BREATHE_GUIDANCE_TYPE_LIGHT = 0;
   static readonly SENSORS = 'Sensors';
   static readonly SENSOR_HUMIDITY = 'Humidity';
   static readonly SENSOR_LUX = 'Lux';
@@ -50,11 +58,37 @@ export class SomneoConstants {
   static readonly SUNSET_PROGRAM_SOUND_NONE = '0';
   static readonly SWITCH_RELAX_BREATHE_PROGRAM = 'RelaxBreathe Program';
   static readonly SWITCH_SUNSET_PROGRAM = 'Sunset Program';
+  static readonly TYPE_AUDIO_DEVICE_SETTINGS = 'AudioDeviceSettings';
+  static readonly TYPE_LIGHT_SETTINGS = 'LightSettings';
+  static readonly TYPE_RELAX_BREATHE_PROGRAM_SETTINGS = 'RelaxBreatheProgramSettings';
+  static readonly TYPE_SENSOR_READINGS = 'SensorReadings';
+  static readonly TYPE_SUNSET_PROGRAM_SETTINGS = 'SunsetProgramSettings';
+  static readonly URI_AUDIO_ENDPOINT = '/wuply';
   static readonly URI_LIGHTS_ENDPOINT = '/wulgt';
-  static readonly URI_PLAYING_ENDPOINT = '/wuply';
   static readonly URI_RELAX_BREATHE = '/wurlx';
   static readonly URI_SENSORS_ENDPOINT = '/wusrd';
   static readonly URI_SUNSET_ENDPOINT = '/wudsk';
+
+  static readonly DEFAULT_AUDIO_PREFS: AudioPreferences = {
+    FavoriteChannel: SomneoConstants.DEFAULT_AUDIO_CHANNEL,
+    FavoriteSource: SomneoConstants.SOUND_SOURCE_FM_RADIO,
+  };
+
+  static readonly DEFAULT_RELAX_BREATHE_PROGRAM_PREFS: RelaxeBreatheProgramPreferences = {
+    BreathsPerMin: SomneoConstants.DEFAULT_RELAX_BREATHE_BPM,
+    Duration: SomneoConstants.DEFAULT_RELAX_BREATHE_DURATION,
+    GuidanceType: SomneoConstants.DEFAULT_RELAX_BREATHE_GUIDANCE_TYPE,
+    LightIntensity: SomneoConstants.DEFAULT_SUNSET_PROGRAM_LIGHT_INTENSITY,
+    Volume: SomneoConstants.DEFAULT_RELAX_BREATHE_VOLUME,
+  };
+
+  static readonly DEFAULT_SUNSET_PROGRAM_PREFS: SunsetProgramPreferences = {
+    Duration: SomneoConstants.DEFAULT_SUNSET_PROGRAM_DURATION,
+    LightIntensity: SomneoConstants.DEFAULT_SUNSET_PROGRAM_LIGHT_INTENSITY,
+    ColorScheme: SomneoConstants.DEFAULT_SUNSET_PROGRAM_COLOR_SCHEME,
+    AmbientSounds: SomneoConstants.DEFAULT_SUNSET_PROGRAM_AMBIENT_SOUNDS,
+    Volume: SomneoConstants.DEFAULT_SUNSET_PROGRAM_VOLUME,
+  };
 
   static createHttpsClient(host: string) {
 
@@ -70,5 +104,10 @@ export class SomneoConstants {
   static convertPercentageToPhilipsPercentage(percentage: number) : number {
     // function always rounds a number up to the next largest integer.
     return Math.ceil(percentage / SomneoConstants.BRIGHTNESS_STEP_INTERVAL);
+  }
+
+  static convertPhilipsPercentageToPercentage(philipsPercentage: number) : number {
+    // Philips stores up to 25 so multiply to get percentage
+    return philipsPercentage * SomneoConstants.BRIGHTNESS_STEP_INTERVAL;
   }
 }

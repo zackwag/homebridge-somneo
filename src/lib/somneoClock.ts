@@ -16,27 +16,13 @@ export class SomneoClock {
   private static readonly ALL_SWITCH_ACCESSORIES = [RequestedAccessory.SWITCH_RELAXBREATHE,
     RequestedAccessory.SWITCH_SUNSET];
 
-  private static readonly DEFAULT_AUDIO_PREFS: AudioPreferences = {
-    FavoriteChannel: SomneoConstants.DEFAULT_AUDIO_CHANNEL,
-    FavoriteSource: SomneoConstants.SOUND_SOURCE_FM_RADIO,
-  };
-
-  private static readonly DEFAULT_BOOLEAN_CONFIG_VALUE = true;
-
-  private static readonly DEFAULT_SUNSET_PROGRAM_PREFS: SunsetProgramPreferences = {
-    Duration: SomneoConstants.DEFAULT_SUNSET_PROGRAM_DURATION,
-    LightIntensity: SomneoConstants.DEFAULT_SUNSET_PROGRAM_LIGHT_INTENSITY,
-    ColorScheme: SomneoConstants.DEFAULT_SUNSET_PROGRAM_COLOR_SCHEME,
-    AmbientSounds: SomneoConstants.DEFAULT_SUNSET_PROGRAM_AMBIENT_SOUNDS,
-    Volume: SomneoConstants.DEFAULT_SUNSET_PROGRAM_VOLUME,
-  };
-
   public SomneoService: SomneoService;
 
   private constructor(
     public Name: string,
     private host: string,
     public RequestedAccessories: RequestedAccessory[],
+    public RelaxBreatheProgramPreferences: RelaxeBreatheProgramPreferences,
     public SunsetProgramPreferences: SunsetProgramPreferences,
     public AudioPreferences: AudioPreferences,
     private log: Logger,
@@ -62,10 +48,12 @@ export class SomneoClock {
     const host = config.host;
     const name = config.name;
     const requestedAccessories = this.buildRequestedAccessories(config);
+    const relaxBreatheProgramPrefernces = this.buildRelaxBreatheProgramPreferences(config, requestedAccessories);
     const sunsetProgramPreferences = this.buildSunsetProgramPreferences(config, requestedAccessories);
     const audioPreferences = this.buildAudioPreferences(config, requestedAccessories);
 
-    return new SomneoClock(name, host, requestedAccessories, sunsetProgramPreferences, audioPreferences, log);
+    return new SomneoClock(name, host, requestedAccessories, relaxBreatheProgramPrefernces, sunsetProgramPreferences,
+      audioPreferences, log);
   }
 
   private static buildRequestedAccessories(config: SomneoConfig): RequestedAccessory[] {
@@ -265,12 +253,12 @@ export class SomneoClock {
 
     // If Audio disabled, just leave values as defaults to save time
     if (!requestedAccessories.includes(RequestedAccessory.AUDIO)) {
-      return SomneoClock.DEFAULT_AUDIO_PREFS;
+      return SomneoConstants.DEFAULT_AUDIO_PREFS;
     }
 
     // Likewise, if the user did not specify, leave it as the default
     if (config.audio === undefined || config.audio.favoriteInput === undefined) {
-      return SomneoClock.DEFAULT_AUDIO_PREFS;
+      return SomneoConstants.DEFAULT_AUDIO_PREFS;
     }
 
     // If AUX set the source and channel
@@ -283,27 +271,64 @@ export class SomneoClock {
     return { FavoriteChannel: String(config.audio.favoriteInput), FavoriteSource: SomneoConstants.SOUND_SOURCE_FM_RADIO };
   }
 
+  private static buildRelaxBreatheProgramPreferences(config: SomneoConfig, requestedAccessories: RequestedAccessory[]):
+    RelaxeBreatheProgramPreferences {
+
+    // If RelaxBreathe Program disabled, just leave values as defaults to save time
+    if (!requestedAccessories.includes(RequestedAccessory.SWITCH_RELAXBREATHE)) {
+      return SomneoConstants.DEFAULT_RELAX_BREATHE_PROGRAM_PREFS;
+    }
+
+    // Likewise, if the user did not specify, leave it as the default
+    if (config.switches === undefined || config.switches.relaxBreathe === undefined) {
+      return SomneoConstants.DEFAULT_RELAX_BREATHE_PROGRAM_PREFS;
+    }
+
+    const relaxBreathe = config.switches.relaxBreathe;
+
+    return {
+      // eslint-disable-next-line max-len
+      BreathsPerMin: SomneoClock.getPhilipsBpmValue(relaxBreathe.breathsPerMin, SomneoConstants.DEFAULT_RELAX_BREATHE_PROGRAM_PREFS.BreathsPerMin),
+      Duration: relaxBreathe.duration ?? SomneoConstants.DEFAULT_RELAX_BREATHE_PROGRAM_PREFS.Duration,
+      GuidanceType: relaxBreathe.guidanceType ?? SomneoConstants.DEFAULT_RELAX_BREATHE_PROGRAM_PREFS.GuidanceType,
+      // eslint-disable-next-line max-len
+      LightIntensity: SomneoClock.getPhilipsPercentageValue(relaxBreathe.lightIntensity, SomneoConstants.DEFAULT_RELAX_BREATHE_PROGRAM_PREFS.LightIntensity),
+      Volume: SomneoClock.getPhilipsPercentageValue(relaxBreathe.volume, SomneoConstants.DEFAULT_RELAX_BREATHE_PROGRAM_PREFS.Volume),
+    };
+  }
+
   private static buildSunsetProgramPreferences(config: SomneoConfig, requestedAccessories: RequestedAccessory[]): SunsetProgramPreferences {
 
     // If Sunset Program disabled, just leave values as defaults to save time
     if (!requestedAccessories.includes(RequestedAccessory.SWITCH_SUNSET)) {
-      return SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS;
+      return SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS;
     }
 
     // Likewise, if the user did not specify, leave it as the default
     if (config.switches === undefined || config.switches.sunset === undefined) {
-      return SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS;
+      return SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS;
     }
 
     const sunset = config.switches.sunset;
 
     return {
-      Duration: sunset.duration ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Duration,
-      LightIntensity: SomneoClock.getPhilipsPercentageValue(sunset.lightIntensity, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.LightIntensity),
-      ColorScheme: sunset.colorScheme ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.ColorScheme,
-      AmbientSounds: sunset.ambientSounds ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.AmbientSounds,
-      Volume: SomneoClock.getPhilipsPercentageValue(sunset.volume, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Volume),
+      Duration: sunset.duration ?? SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.Duration,
+      // eslint-disable-next-line max-len
+      LightIntensity: SomneoClock.getPhilipsPercentageValue(sunset.lightIntensity, SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.LightIntensity),
+      ColorScheme: sunset.colorScheme ?? SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.ColorScheme,
+      AmbientSounds: sunset.ambientSounds ?? SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.AmbientSounds,
+      Volume: SomneoClock.getPhilipsPercentageValue(sunset.volume, SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.Volume),
     };
+  }
+
+  private static getPhilipsBpmValue(configValue: number | undefined, defaultValue: number) {
+
+    if (configValue === undefined) {
+      return defaultValue;
+    }
+
+    // BPM stored as enum in Philips API. But subtracting 3 gets the value easily
+    return configValue - 3;
   }
 
   private static getPhilipsPercentageValue(configPercentageValue: number | undefined, defaultValue: number) {
@@ -326,7 +351,7 @@ export class SomneoClock {
   private static getBooleanValue(configBooleanValue?: boolean) {
 
     if (configBooleanValue === undefined) {
-      return SomneoClock.DEFAULT_BOOLEAN_CONFIG_VALUE;
+      return SomneoConstants.DEFAULT_BOOLEAN_CONFIG_VALUE;
     }
 
     return configBooleanValue;
@@ -343,5 +368,13 @@ export interface SunsetProgramPreferences {
   LightIntensity: number;
   ColorScheme: string;
   AmbientSounds: string;
+  Volume: number;
+}
+
+export interface RelaxeBreatheProgramPreferences {
+  BreathsPerMin: number;
+  Duration: number;
+  GuidanceType: number;
+  LightIntensity: number;
   Volume: number;
 }

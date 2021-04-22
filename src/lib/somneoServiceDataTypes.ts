@@ -1,10 +1,34 @@
+export interface AudioDeviceSettings {
+  onoff?: boolean;
+  tempy?: boolean;
+  sdvol?: number;
+  snddv?: string;
+  sndch?: string;
+}
+
+export interface LightSettings {
+  onoff?: boolean;
+  tempy?: boolean;
+  ltlvl?: number;
+  ngtlt?: boolean;
+}
+
+export interface RelaxBreatheProgramSettings {
+  onoff?: boolean;
+  progr?: number;
+  durat?: number;
+  rtype?: number;
+  intny?: number;
+  sndlv?: number;
+}
+
 export interface SensorReadings {
   mslux?: number;
   mstmp?: number;
   msrhu?: number;
 }
 
-export interface Sunset {
+export interface SunsetProgramSettings {
   onoff?: boolean;
   durat?: number;
   curve?: number;
@@ -12,33 +36,4 @@ export interface Sunset {
   sndch?: string;
   snddv?: string;
   sndlv?: number;
-}
-
-export interface RelaxBreathe {
-  onoff?: boolean;
-}
-
-export interface LightSettings {
-  ltlvl?: number;
-  onoff?: boolean;
-  ngtlt?: boolean;
-}
-
-export interface Light {
-  onoff?: boolean;
-  tempy?: boolean;
-  ltlvl?: number;
-}
-
-export interface NightLight {
-  ngtlt?: boolean;
-}
-
-export interface PlaySettings {
-
-  onoff?: boolean;
-  tempy?: boolean;
-  sdvol?: number;
-  snddv?: string;
-  sndch?: string;
 }

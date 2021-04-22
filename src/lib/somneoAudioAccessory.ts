@@ -78,7 +78,7 @@ export class SomneoAudioAccessory {
       }
 
       this.updateActiveInput(playSettings.snddv, playSettings.sndch);
-    }).catch(err => this.platform.log.error(`Error updating ${this.Accessory.displayName}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.Accessory.displayName} err=${err}`));
   }
 
   async setVolumeSelector(value: CharacteristicValue): Promise<void> {
@@ -91,11 +91,11 @@ export class SomneoAudioAccessory {
     // If value is 0 it's a raise, if it's 1 it's a lower
     const newVolume = this.getNewVolume(value === 0);
 
-    this.somneoClock.SomneoService.modifyPlaySettingsVolume(newVolume).then(() => {
+    this.somneoClock.SomneoService.updateAudioDeviceVolume(newVolume).then(() => {
       this.volume = newVolume;
-      this.platform.log.info(`Set ${this.Accessory.displayName} volume ->`, this.volume);
+      this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} volume=${this.volume}`);
     }).catch(err =>
-      this.platform.log.error(`Error setting ${this.Accessory.displayName} volume to ${newVolume} value=${value}, err=${err}`));
+      this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} volume=${newVolume} err=${err}`));
   }
 
   async getActive(): Promise<CharacteristicValue> {
@@ -104,7 +104,7 @@ export class SomneoAudioAccessory {
       return SomneoConstants.DEFAULT_BINARY_STATE;
     }
 
-    this.platform.log.debug(`Get ${this.Accessory.displayName} state ->`, this.isActive);
+    this.platform.log.debug(`UI Get -> accessory=${this.Accessory.displayName} active=${this.isActive}`);
     return this.isActive;
   }
 
@@ -123,22 +123,23 @@ export class SomneoAudioAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    (boolValue ? this.somneoClock.SomneoService.modifyPlaySettingsState(true, this.source, this.channel) :
-      this.somneoClock.SomneoService.modifyPlaySettingsState(false)).then(() => {
+    (boolValue ? this.somneoClock.SomneoService.turnOnAudioDevice(this.source!, this.channel!) :
+      this.somneoClock.SomneoService.turnOffAudioDevice()
+    ).then(() => {
       this.isActive = boolValue;
-      this.platform.log.info(`Set ${this.Accessory.displayName} state ->`, this.isActive);
+      this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} active=${this.isActive}`);
 
       if (boolValue) {
         this.updateActiveInput();
-        this.platform.log.info(`Set ${this.Accessory.displayName} input ->`, this.activeInput);
+        this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} active=${this.activeInput}`);
       }
-    }).catch(err => this.platform.log.error(`Error setting ${this.Accessory.displayName} state to ${boolValue}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} active=${boolValue} err=${err}`));
   }
 
   async getActiveIdentifier(): Promise<CharacteristicValue> {
 
     if (this.activeInput !== undefined) {
-      this.platform.log.debug(`Get ${this.Accessory.displayName} input ->`, this.activeInput);
+      this.platform.log.debug(`UI Get -> accessory=${this.Accessory.displayName} activeIndentifier=${this.activeInput}`);
       return this.activeInput;
     }
 
@@ -152,25 +153,28 @@ export class SomneoAudioAccessory {
       return;
     }
 
-    this.somneoClock.SomneoService.modifyPlaySettingsInput(numValue).then(() => {
+    this.somneoClock.SomneoService.updateAudioDeviceInput(numValue).then(() => {
       this.activeInput = numValue;
-      this.platform.log.info(`Set ${this.Accessory.displayName} input ->`, this.activeInput);
+      this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} activeIdentifier=${this.activeInput}`);
 
       this.updateChannelAndSource();
-    }).catch(err => this.platform.log.error(`Error setting ${this.Accessory.displayName} input to ${numValue}, err=${err}`));
+    }).catch(err =>
+      this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} activeIdentifier=${numValue} err=${err}`));
   }
 
-  turnOff() {
+  turnOff(): Promise<void> {
 
     if (this.isActive) {
-      this.somneoClock.SomneoService.modifyPlaySettingsState(false).then(() => {
+      this.somneoClock.SomneoService.turnOffAudioDevice().then(() => {
         this.isActive = false;
         this.source = SomneoConstants.SOUND_SOURCE_OFF;
-        this.platform.log.info(`Set ${this.Accessory.displayName} state ->`, this.isActive);
+        this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} active=${this.isActive}`);
         this.televisionService.getCharacteristic(this.platform.Characteristic.Active)
           .updateValue(this.isActive);
-      }).catch(err => this.platform.log.error(`Error turning off ${this.Accessory.displayName}, err=${err}`));
+      }).catch(err => this.platform.log.error(`Error -> Turning off accessory=${this.Accessory.displayName} err=${err}`));
     }
+
+    return Promise.resolve();
   }
 
   private turnOffConflictingAccessories(): Promise<void> {

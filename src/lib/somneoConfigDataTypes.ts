@@ -8,22 +8,22 @@ export interface SomneoConfig {
 }
 
 export interface SensorsConfig {
-  humidity?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
-  lux?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
-  temperature?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
+  humidity?: HumidityOrLuxOrTemperatureOrMainLightOrNightLight;
+  lux?: HumidityOrLuxOrTemperatureOrMainLightOrNightLight;
+  temperature?: HumidityOrLuxOrTemperatureOrMainLightOrNightLight;
 }
 
 export interface LightsConfig {
-  mainLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
-  nightLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
+  mainLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLight;
+  nightLight?: HumidityOrLuxOrTemperatureOrMainLightOrNightLight;
 }
 
 export interface SwitchesConfig {
-  relaxBreathe?: HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe;
+  relaxBreathe?: RelaxBreatheConfig;
   sunset?: SunsetConfig;
 }
 
-export interface HumidityOrLuxOrTemperatureOrMainLightOrNightLightOrRelaxBreathe {
+export interface HumidityOrLuxOrTemperatureOrMainLightOrNightLight {
   isEnabled?: boolean;
 }
 
@@ -33,6 +33,15 @@ export interface SunsetConfig {
   lightIntensity?: number;
   colorScheme?: string;
   ambientSounds?: string;
+  volume?: number;
+}
+
+export interface RelaxBreatheConfig {
+  isEnabled?: boolean;
+  breathsPerMin?: number;
+  duration?: number;
+  guidanceType?: number;
+  lightIntensity?: number;
   volume?: number;
 }
 

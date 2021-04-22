@@ -9,7 +9,7 @@ export class SomneoRelaxBreatheSwitchAccessory extends somneoSwitchAccessory {
 
   async updateValues(): Promise<void> {
 
-    await this.somneoClock.SomneoService.getRelaxBreathe().then(relaxeBreathe => {
+    await this.somneoClock.SomneoService.getRelaxBreatheProgramSettings().then(relaxeBreathe => {
       if (relaxeBreathe === undefined) {
         return;
       }
@@ -20,11 +20,16 @@ export class SomneoRelaxBreatheSwitchAccessory extends somneoSwitchAccessory {
           .getCharacteristic(this.getBinaryCharacteristic())
           .updateValue(this.isOn);
       }
-    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {
-    return this.somneoClock.SomneoService.modifyRelaxBreatheState(isOn);
+
+    if (isOn) {
+      return this.somneoClock.SomneoService.turnOnRelaxBreatheProgram(this.somneoClock.RelaxBreatheProgramPreferences);
+    }
+
+    return this.somneoClock.SomneoService.turnOffRelaxBreatheProgram();
   }
 
   protected turnOffConflictingAccessories(): Promise<void> {

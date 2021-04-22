@@ -1,9 +1,10 @@
 import { AxiosInstance } from 'axios';
 import { Logger } from 'homebridge';
 import { retryAsync } from 'ts-retry';
-import { SunsetProgramPreferences } from './somneoClock';
+import { RelaxeBreatheProgramPreferences, SunsetProgramPreferences } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
-import { Light, LightSettings, NightLight, PlaySettings, RelaxBreathe, SensorReadings, Sunset } from './somneoServiceDataTypes';
+// eslint-disable-next-line max-len
+import { AudioDeviceSettings, LightSettings, RelaxBreatheProgramSettings, SensorReadings, SunsetProgramSettings } from './somneoServiceDataTypes';
 
 export class SomneoService {
 
@@ -16,34 +17,135 @@ export class SomneoService {
     this.httpsClient = SomneoConstants.createHttpsClient(this.Host);
   }
 
-  async getSensorReadings(): Promise<SensorReadings> {
-
-    const sensorReadings: SensorReadings = await retryAsync(() => this.httpsClient
-      .get(SomneoConstants.URI_SENSORS_ENDPOINT)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-
-    // eslint-disable-next-line max-len
-    this.log.debug(`Sensor Readings: host=${this.Host} temperature=${sensorReadings.mstmp} humidity=${sensorReadings.msrhu} light=${sensorReadings.mslux}`);
-
-    return sensorReadings;
+  async getPlaySettings(): Promise<AudioDeviceSettings> {
+    return this.getData<AudioDeviceSettings>(SomneoConstants.URI_AUDIO_ENDPOINT, SomneoConstants.TYPE_AUDIO_DEVICE_SETTINGS);
   }
 
-  async getSunset(): Promise<Sunset> {
+  async getLightSettings(): Promise<LightSettings> {
+    return this.getData<LightSettings>(SomneoConstants.URI_LIGHTS_ENDPOINT, SomneoConstants.TYPE_LIGHT_SETTINGS);
+  }
 
-    const sunset: Sunset = await retryAsync(() => this.httpsClient
-      .get(SomneoConstants.URI_SUNSET_ENDPOINT)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
+  async getRelaxBreatheProgramSettings(): Promise<RelaxBreatheProgramSettings> {
 
-    this.log.debug(`Sunset: host=${this.Host} on=${sunset.onoff}`);
+    return this.getData<RelaxBreatheProgramSettings>(SomneoConstants.URI_RELAX_BREATHE,
+      SomneoConstants.TYPE_RELAX_BREATHE_PROGRAM_SETTINGS);
+  }
 
-    return sunset;
+  async getSensorReadings(): Promise<SensorReadings> {
+    return this.getData<SensorReadings>(SomneoConstants.URI_SENSORS_ENDPOINT, SomneoConstants.TYPE_SENSOR_READINGS);
+  }
+
+  async getSunsetProgram(): Promise<SunsetProgramSettings> {
+    return this.getData<SunsetProgramSettings>(SomneoConstants.URI_SUNSET_ENDPOINT, SomneoConstants.TYPE_SUNSET_PROGRAM_SETTINGS);
+  }
+
+  async turnOffAudioDevice(): Promise<void> {
+
+    const data: AudioDeviceSettings = { onoff: false };
+    this.putData<AudioDeviceSettings>(SomneoConstants.URI_AUDIO_ENDPOINT, data, SomneoConstants.TYPE_AUDIO_DEVICE_SETTINGS);
+  }
+
+  async turnOnAudioDevice(source: string, channel: string): Promise<void> {
+
+    const data: AudioDeviceSettings = (source === SomneoConstants.SOUND_SOURCE_AUX) ? {
+      onoff: true,
+      snddv: SomneoConstants.SOUND_SOURCE_AUX,
+    } : {
+      onoff: true,
+      snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO, sndch: channel,
+    };
+
+    this.putData<AudioDeviceSettings>(SomneoConstants.URI_AUDIO_ENDPOINT, data, SomneoConstants.TYPE_AUDIO_DEVICE_SETTINGS);
+  }
+
+  async updateAudioDeviceInput(input: number): Promise<void> {
+
+    const data: AudioDeviceSettings = (input === SomneoConstants.INPUT_AUX_NUM) ? {
+      snddv: SomneoConstants.SOUND_SOURCE_AUX,
+    } : {
+      snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO,
+      sndch: String(input),
+    };
+
+    this.putData<AudioDeviceSettings>(SomneoConstants.URI_AUDIO_ENDPOINT, data, SomneoConstants.TYPE_AUDIO_DEVICE_SETTINGS);
+  }
+
+  async updateAudioDeviceVolume (volume: number): Promise<void> {
+
+    const data: AudioDeviceSettings = { sdvol: volume };
+    this.putData<AudioDeviceSettings>(SomneoConstants.URI_AUDIO_ENDPOINT, data, SomneoConstants.TYPE_AUDIO_DEVICE_SETTINGS);
+  }
+
+  async turnOffMainLight(): Promise<void> {
+
+    const data: LightSettings = { onoff: false };
+    this.putData<LightSettings>(SomneoConstants.URI_LIGHTS_ENDPOINT, data, SomneoConstants.TYPE_LIGHT_SETTINGS);
+  }
+
+  async turnOnMainLight(): Promise<void> {
+
+    const data: LightSettings = { onoff: true, tempy: false };
+    this.putData<LightSettings>(SomneoConstants.URI_LIGHTS_ENDPOINT, data, SomneoConstants.TYPE_LIGHT_SETTINGS);
+  }
+
+  async updateMainLightBrightness(brightness: number): Promise<void> {
+
+    const data: LightSettings = { ltlvl: SomneoConstants.convertPercentageToPhilipsPercentage(brightness) };
+    this.putData<LightSettings>(SomneoConstants.URI_LIGHTS_ENDPOINT, data, SomneoConstants.TYPE_LIGHT_SETTINGS);
+  }
+
+  async turnOffNightLight(): Promise<void> {
+
+    const body: LightSettings = { ngtlt: false };
+    this.putData<LightSettings>(SomneoConstants.URI_LIGHTS_ENDPOINT, body, SomneoConstants.TYPE_LIGHT_SETTINGS);
+  }
+
+  async turnOnNightLight(): Promise<void> {
+
+    const body: LightSettings = { ngtlt: true };
+    this.putData<LightSettings>(SomneoConstants.URI_LIGHTS_ENDPOINT, body, SomneoConstants.TYPE_LIGHT_SETTINGS);
+  }
+
+  async turnOffRelaxBreatheProgram(): Promise<void> {
+
+    const data: RelaxBreatheProgramSettings = { onoff: false };
+    this.putData<RelaxBreatheProgramSettings>(SomneoConstants.URI_RELAX_BREATHE, data, SomneoConstants.TYPE_RELAX_BREATHE_PROGRAM_SETTINGS);
+  }
+
+  async turnOnRelaxBreatheProgram(relaxBreathePrefs: RelaxeBreatheProgramPreferences): Promise<void> {
+
+    const data: RelaxBreatheProgramSettings = (relaxBreathePrefs.GuidanceType === SomneoConstants.RELAX_BREATHE_GUIDANCE_TYPE_LIGHT) ? {
+      onoff: true,
+      progr: relaxBreathePrefs.BreathsPerMin,
+      durat: relaxBreathePrefs.Duration,
+      rtype: relaxBreathePrefs.GuidanceType,
+      intny: relaxBreathePrefs.LightIntensity,
+    } : {
+      onoff: true,
+      progr: relaxBreathePrefs.BreathsPerMin,
+      durat: relaxBreathePrefs.Duration,
+      rtype: relaxBreathePrefs.GuidanceType,
+      sndlv: relaxBreathePrefs.Volume,
+    };
+
+    this.putData(SomneoConstants.URI_RELAX_BREATHE, data, SomneoConstants.TYPE_RELAX_BREATHE_PROGRAM_SETTINGS);
+  }
+
+  async turnOffSunsetProgram(): Promise<void> {
+
+    const data: SunsetProgramSettings = { onoff: false };
+    this.putData(SomneoConstants.URI_SUNSET_ENDPOINT, data, SomneoConstants.TYPE_SUNSET_PROGRAM_SETTINGS);
   }
 
   async turnOnSunsetProgram(sunsetPrefs: SunsetProgramPreferences): Promise<void> {
 
-    const silent = sunsetPrefs.AmbientSounds === SomneoConstants.SUNSET_PROGRAM_SOUND_NONE;
-
-    let body: Sunset = {
+    const data: SunsetProgramSettings = (sunsetPrefs.AmbientSounds === SomneoConstants.SUNSET_PROGRAM_SOUND_NONE) ? {
+      onoff: true,
+      durat: sunsetPrefs.Duration,
+      curve: sunsetPrefs.LightIntensity,
+      ctype: sunsetPrefs.ColorScheme,
+      snddv: SomneoConstants.SOUND_SOURCE_OFF,
+    } : {
       onoff: true,
       durat: sunsetPrefs.Duration,
       curve: sunsetPrefs.LightIntensity,
@@ -53,141 +155,34 @@ export class SomneoService {
       sndlv: sunsetPrefs.Volume,
     };
 
-    if (silent) {
-      body = {
-        onoff: true,
-        durat: sunsetPrefs.Duration,
-        curve: sunsetPrefs.LightIntensity,
-        ctype: sunsetPrefs.ColorScheme,
-        snddv: SomneoConstants.SOUND_SOURCE_OFF,
-      };
+    this.putData(SomneoConstants.URI_SUNSET_ENDPOINT, data, SomneoConstants.TYPE_SUNSET_PROGRAM_SETTINGS);
+  }
+
+  private async getData<T>(uri: string, type: string): Promise<T> {
+
+    const data = await retryAsync(() => this.httpsClient
+      .get(uri)
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
+
+    if (this.getData !== undefined) {
+      this.log.debug(`HTTP Get -> type=${type} host=${this.Host} data=${JSON.stringify(data)}`);
     }
 
-    // eslint-disable-next-line max-len
-    this.log.debug(`Sunset: host=${this.Host} on=true durat=${body.durat} curve=${body.curve} ctype=${body.ctype} sndch=${body.sndch} snddv=${body.snddv} sndlv=${body.sndlv}`);
-
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_SUNSET_ENDPOINT, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
+    return data;
   }
 
-  async turnOffSunsetProgram(): Promise<void> {
-    const body: Sunset = { onoff: false };
+  private async putData<T>(uri: string, data: T, type: string) {
 
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_SUNSET_ENDPOINT, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-  }
-
-  async getRelaxBreathe(): Promise<RelaxBreathe> {
-
-    const relaxBreathe: RelaxBreathe = await retryAsync(() => this.httpsClient
-      .get(SomneoConstants.URI_RELAX_BREATHE)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-
-    this.log.debug(`RelaxBreathe: host=${this.Host} on=${relaxBreathe.onoff}`);
-
-    return relaxBreathe;
-  }
-
-  async modifyRelaxBreatheState(isOn: boolean): Promise<void> {
-
-    const body: RelaxBreathe = { onoff: isOn };
-
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_RELAX_BREATHE, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-  }
-
-  async getLightSettings(): Promise<LightSettings> {
-
-    const lightSettings: LightSettings = await retryAsync(() => this.httpsClient
-      .get(SomneoConstants.URI_LIGHTS_ENDPOINT)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-
-    // eslint-disable-next-line max-len
-    this.log.debug(`Light Settings: host=${this.Host} lightLevel=${lightSettings.ltlvl} lightOn=${lightSettings.onoff} nightLightOn=${lightSettings.ngtlt}`);
-
-    return lightSettings;
-  }
-
-  async modifyNightLightState(isOn: boolean): Promise<void> {
-
-    const body: NightLight = { ngtlt: isOn };
-
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_LIGHTS_ENDPOINT, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-  }
-
-  async modifyMainLightState(isOn: boolean): Promise<void> {
-
-    const body: Light = isOn ? { onoff: isOn, tempy: false } : { onoff: false };
-
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_LIGHTS_ENDPOINT, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-  }
-
-  async modifyMainLightBrightness(brightness: number): Promise<void> {
-
-    const body: Light = { ltlvl: SomneoConstants.convertPercentageToPhilipsPercentage(brightness) };
-
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_LIGHTS_ENDPOINT, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-  }
-
-  async getPlaySettings(): Promise<PlaySettings> {
-
-    const playSettings: PlaySettings = await retryAsync(() => this.httpsClient
-      .get(SomneoConstants.URI_PLAYING_ENDPOINT)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-
-    // eslint-disable-next-line max-len
-    this.log.debug(`Play Settings: host=${this.Host} on=${playSettings.onoff} volume=${playSettings.sdvol} source=${playSettings.snddv} channel=${playSettings.sndch}`);
-
-    return playSettings;
-  }
-
-  async modifyPlaySettingsState(isOn: boolean, source?: string, channel?: string) {
-
-    let body: PlaySettings = { onoff: false };
-
-    if (isOn) {
-      if (source === SomneoConstants.SOUND_SOURCE_AUX) {
-        body = { onoff: true, snddv: SomneoConstants.SOUND_SOURCE_AUX };
-      } else {
-        body = { onoff: true, snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO, sndch: channel };
-      }
+    if (data === undefined) {
+      // This should never happen, but including to stop the app from breaking
+      return;
     }
 
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_PLAYING_ENDPOINT, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-  }
-
-  async modifyPlaySettingsInput(input: number) {
-
-    let body: PlaySettings;
-
-    if (input === SomneoConstants.INPUT_AUX_NUM) {
-      body = { snddv: SomneoConstants.SOUND_SOURCE_AUX };
-    } else {
-      body = { snddv: SomneoConstants.SOUND_SOURCE_FM_RADIO, sndch: String(input) };
-    }
+    this.log.debug(`HTTP Put -> type=${type} host=${this.Host} data=${JSON.stringify(data)}`);
 
     await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_PLAYING_ENDPOINT, body)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-  }
-
-  async modifyPlaySettingsVolume(volume: number) {
-
-    const body: PlaySettings = { sdvol: volume };
-
-    await retryAsync(() => this.httpsClient
-      .put(SomneoConstants.URI_PLAYING_ENDPOINT, body)
+      .put(uri, data)
       .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
   }
 }
+

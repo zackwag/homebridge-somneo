@@ -42,6 +42,6 @@ export class UserSettings {
   private static buildPlatformName(config: PlatformConfig): string {
 
     // If the user has not specified a platform name, default to Homebridge Somneo
-    return config.name ?? SomneoConstants.DEFAULT_PLAFORM_NAME;
+    return config.name ?? SomneoConstants.DEFAULT_PLATFORM_NAME;
   }
 }
