@@ -30,10 +30,17 @@ export abstract class SomneoDimmableLightAccessory extends SomneoLightAccessory 
     this.modifySomneoServiceBrightness(numValue).then(() => {
       this.brightness = numValue;
       this.platform.log.info(`UI Set -> accessory=${this.name} brightness=${numValue}`);
-    }).catch(err => this.platform.log.error(`Error -> Setting accessory=${this.name} brightness=${numValue} err=${err}`));
+    }).catch(err => {
+      this.platform.log.error(`Error -> Setting accessory=${this.name} brightness=${numValue} err=${err}`);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    });
   }
 
   async getLightBrightness(): Promise<CharacteristicValue> {
+
+    if (this.hasGetError) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
 
     if (this.brightness === undefined) {
       return SomneoConstants.DEFAULT_BRIGHTNESS;

@@ -43,40 +43,46 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     return `${this.somneoClock.Name} ${SomneoConstants.SENSORS}`;
   }
 
-  async updateValues() {
+  async updateValues(): Promise<void> {
 
-    await this.somneoClock.SomneoService.getSensorReadings().then(sensorReadings => {
-      if (sensorReadings === undefined) {
-        return;
-      }
+    return this.somneoClock.SomneoService.getSensorReadings()
+      .then(sensorReadings => {
+        if (sensorReadings === undefined) {
+          return;
+        }
 
-      if (sensorReadings.mstmp !== undefined) {
-        this.temperature = sensorReadings.mstmp;
-        this.temperatureService
-          .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-          .updateValue(this.temperature);
-      }
+        if (sensorReadings.mstmp !== undefined) {
+          this.temperature = sensorReadings.mstmp;
+          this.temperatureService
+            .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+            .updateValue(this.temperature);
+        }
 
-      if (sensorReadings.msrhu !== undefined) {
-        this.humidity = sensorReadings.msrhu;
-        this.humidityService
-          .getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-          .updateValue(this.humidity);
-      }
+        if (sensorReadings.msrhu !== undefined) {
+          this.humidity = sensorReadings.msrhu;
+          this.humidityService
+            .getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+            .updateValue(this.humidity);
+        }
 
-      if (sensorReadings.mslux !== undefined) {
-        // There is a minimum lux value allowedin Homebridge.
+        if (sensorReadings.mslux !== undefined) {
+        // There is a minimum lux value allowed in Homebridge.
         // Philips uses 0 as the min which will cause errors;
-        this.luxLevel = sensorReadings.mslux > SomneoConstants.DEFAULT_LUX_LEVEL ?
-          sensorReadings.mslux : SomneoConstants.DEFAULT_LUX_LEVEL;
-        this.luxService
-          .getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-          .updateValue(this.luxLevel);
-      }
-    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
+          this.luxLevel = sensorReadings.mslux > SomneoConstants.DEFAULT_LUX_LEVEL ?
+            sensorReadings.mslux : SomneoConstants.DEFAULT_LUX_LEVEL;
+          this.luxService
+            .getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+            .updateValue(this.luxLevel);
+        }
+
+        this.hasGetError = false;
+      }).catch(err => {
+        this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
+        this.hasGetError = true;
+      });
   }
 
-  async setTemperature(value: CharacteristicValue) {
+  async setTemperature(value: CharacteristicValue): Promise<void> {
 
     const numValue = value as number;
     if (numValue === (this.temperature ?? SomneoConstants.DEFAULT_TEMPERATURE)) {
@@ -88,6 +94,10 @@ export class SomneoSensorAccessory extends SomneoAccessory {
   }
 
   async getTemperature(): Promise<CharacteristicValue> {
+
+    if (this.hasGetError) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
 
     if (this.temperature === undefined) {
       return SomneoConstants.DEFAULT_TEMPERATURE;
@@ -110,6 +120,10 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
   async getRelativeHumidity(): Promise<CharacteristicValue> {
 
+    if (this.hasGetError) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+
     if (this.humidity === undefined) {
       return SomneoConstants.DEFAULT_HUMIDITY;
     }
@@ -131,12 +145,16 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
   async getCurrentAmbientLightLevel(): Promise<CharacteristicValue> {
 
-    if (this.luxLevel !== undefined) {
-      this.platform.log.debug(`UI Get -> accessory=${this.luxService.displayName} lux=${this.luxLevel}`);
-      return this.luxLevel;
+    if (this.hasGetError) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
 
-    return SomneoConstants.DEFAULT_LUX_LEVEL;
+    if (this.luxLevel === undefined) {
+      return SomneoConstants.DEFAULT_LUX_LEVEL;
+    }
+
+    this.platform.log.debug(`UI Get -> accessory=${this.luxService.displayName} lux=${this.luxLevel}`);
+    return this.luxLevel;
   }
 
   /*

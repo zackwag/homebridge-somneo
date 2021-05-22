@@ -6,6 +6,7 @@ import { SomneoConstants } from './somneoConstants';
 export abstract class SomneoAccessory implements AccessoryPlugin {
 
   protected informationService: Service;
+  protected hasGetError = false;
 
   public name : string;
 

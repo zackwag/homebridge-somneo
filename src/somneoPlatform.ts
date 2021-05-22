@@ -115,24 +115,25 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
     this.log.debug(`Polling -> pollingInterval=${this.UserSettings.PollingMilliSeconds}ms`);
 
-    this.updateAllAccessoryValues()
-      .then(() => setInterval(() => this.updateAllAccessoryValues(), this.UserSettings.PollingMilliSeconds));
+    // Poll for status changes outside of HomeKit
+    this.pollAccessories()
+      .then(() => {
+        setInterval(() => this.pollAccessories(), this.UserSettings.PollingMilliSeconds);
+      });
   }
 
-  private updateAllAccessoryValues(): Promise<void> {
+  private async pollAccessories(): Promise<void> {
 
-    this.SomneoAccessories.reduce(async (previousPromise, nextAccessory) => {
+    await this.SomneoAccessories.reduce(async (previousPromise, nextAccessory) => {
       await previousPromise;
       return nextAccessory.updateValues()
         .then(() => this.log.debug(`Polled -> accessory=${nextAccessory.name}`));
-    }, Promise.resolve()).then(() => {
-      return [...this.HostAudioMap.values()].reduce(async (previousPromise, nextAccessory) => {
-        await previousPromise;
-        return nextAccessory.updateValues()
-          .then(() => this.log.debug(`Polled -> accessory=${nextAccessory.Accessory.displayName}`));
-      }, Promise.resolve());
-    });
+    }, Promise.resolve());
+    return [...this.HostAudioMap.values()].reduce(async (previousPromise_1, nextAccessory_1) => {
+      await previousPromise_1;
+      return nextAccessory_1.updateValues()
+        .then(() => this.log.debug(`Polled -> accessory=${nextAccessory_1.Accessory.displayName}`));
+    }, Promise.resolve());
 
-    return Promise.resolve();
   }
 }

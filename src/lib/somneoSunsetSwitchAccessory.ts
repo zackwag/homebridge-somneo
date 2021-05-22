@@ -1,26 +1,32 @@
 import { SomneoConstants } from './somneoConstants';
-import { somneoSwitchAccessory } from './somneoSwitchAccessory';
+import { SomneoSwitchAccessory } from './somneoSwitchAccessory';
 
-export class SomneoSunsetSwitchAccessory extends somneoSwitchAccessory {
+export class SomneoSunsetSwitchAccessory extends SomneoSwitchAccessory {
 
   protected getName(): string {
     return `${this.somneoClock.Name} ${SomneoConstants.SWITCH_SUNSET_PROGRAM}`;
   }
 
-  public async updateValues(): Promise<void> {
+  async updateValues(): Promise<void> {
 
-    await this.somneoClock.SomneoService.getSunsetProgram().then(sunset => {
-      if (sunset === undefined) {
-        return;
-      }
+    return this.somneoClock.SomneoService.getSunsetProgram()
+      .then(sunset => {
+        if (sunset === undefined) {
+          return;
+        }
 
-      if (sunset.onoff !== undefined) {
-        this.isOn = sunset.onoff;
-        this.getBinaryService()
-          .getCharacteristic(this.getBinaryCharacteristic())
-          .updateValue(this.isOn);
-      }
-    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
+        if (sunset.onoff !== undefined) {
+          this.isOn = sunset.onoff;
+          this.getBinaryService()
+            .getCharacteristic(this.getBinaryCharacteristic())
+            .updateValue(this.isOn);
+        }
+
+        this.hasGetError = false;
+      }).catch(err => {
+        this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
+        this.hasGetError = true;
+      });
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {

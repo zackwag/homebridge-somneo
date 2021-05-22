@@ -160,15 +160,15 @@ export class SomneoService {
 
   private async getData<T>(uri: string, type: string): Promise<T> {
 
-    const data = await retryAsync(() => this.httpsClient
+    return retryAsync(() => this.httpsClient
       .get(uri)
-      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS);
-
-    if (this.getData !== undefined) {
-      this.log.debug(`HTTP Get -> type=${type} host=${this.Host} data=${JSON.stringify(data)}`);
-    }
-
-    return data;
+      .then(res => res.data), SomneoConstants.DEFAULT_RETRY_OPTIONS)
+      .then(data => {
+        if (data !== undefined) {
+          this.log.debug(`HTTP Get -> type=${type} host=${this.Host} data=${JSON.stringify(data)}`);
+        }
+        return data;
+      });
   }
 
   private async putData<T>(uri: string, data: T, type: string) {
