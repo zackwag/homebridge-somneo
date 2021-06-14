@@ -6,6 +6,7 @@ import { SomneoConstants } from './somneoConstants';
 
 export class SomneoAudioAccessory {
 
+  private hasGetError = false;
   private activeInput: number | undefined;
   private channel: string | undefined;
   private isActive: boolean | undefined;
@@ -55,30 +56,35 @@ export class SomneoAudioAccessory {
       .setCharacteristic(this.platform.Characteristic.VolumeControlType,
         this.platform.Characteristic.VolumeControlType.ABSOLUTE);
 
-
     this.buildInputServices();
   }
 
   async updateValues(): Promise<void> {
 
-    await this.somneoClock.SomneoService.getPlaySettings().then(playSettings => {
-      if (playSettings === undefined) {
-        return;
-      }
+    return this.somneoClock.SomneoService.getPlaySettings()
+      .then(playSettings => {
+        if (playSettings === undefined) {
+          return;
+        }
 
-      if (playSettings.onoff !== undefined) {
-        this.isActive = playSettings.onoff;
-        this.televisionService
-          .getCharacteristic(this.platform.Characteristic.Active)
-          .updateValue(this.isActive);
-      }
+        if (playSettings.onoff !== undefined) {
+          this.isActive = playSettings.onoff;
+          this.televisionService
+            .getCharacteristic(this.platform.Characteristic.Active)
+            .updateValue(this.isActive);
+        }
 
-      if (playSettings.sdvol !== undefined) {
-        this.volume = playSettings.sdvol;
-      }
+        if (playSettings.sdvol !== undefined) {
+          this.volume = playSettings.sdvol;
+        }
 
-      this.updateActiveInput(playSettings.snddv, playSettings.sndch);
-    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.Accessory.displayName} err=${err}`));
+        this.updateActiveInput(playSettings.snddv, playSettings.sndch);
+
+        this.hasGetError = false;
+      }).catch(err => {
+        this.platform.log.error(`Error -> Updating accessory=${this.Accessory.displayName} err=${err}`);
+        this.hasGetError = true;
+      });
   }
 
   async setVolumeSelector(value: CharacteristicValue): Promise<void> {
@@ -94,11 +100,17 @@ export class SomneoAudioAccessory {
     this.somneoClock.SomneoService.updateAudioDeviceVolume(newVolume).then(() => {
       this.volume = newVolume;
       this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} volume=${this.volume}`);
-    }).catch(err =>
-      this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} volume=${newVolume} err=${err}`));
+    }).catch(err => {
+      this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} volume=${newVolume} err=${err}`);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    });
   }
 
   async getActive(): Promise<CharacteristicValue> {
+
+    if (this.hasGetError) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
 
     if (this.isActive === undefined) {
       return SomneoConstants.DEFAULT_BINARY_STATE;
@@ -123,7 +135,7 @@ export class SomneoAudioAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    (boolValue ? this.somneoClock.SomneoService.turnOnAudioDevice(this.source!, this.channel!) :
+    return (boolValue ? this.somneoClock.SomneoService.turnOnAudioDevice(this.source!, this.channel!) :
       this.somneoClock.SomneoService.turnOffAudioDevice()
     ).then(() => {
       this.isActive = boolValue;
@@ -133,17 +145,24 @@ export class SomneoAudioAccessory {
         this.updateActiveInput();
         this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} active=${this.activeInput}`);
       }
-    }).catch(err => this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} active=${boolValue} err=${err}`));
+    }).catch(err => {
+      this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} active=${boolValue} err=${err}`);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    });
   }
 
   async getActiveIdentifier(): Promise<CharacteristicValue> {
 
-    if (this.activeInput !== undefined) {
-      this.platform.log.debug(`UI Get -> accessory=${this.Accessory.displayName} activeIndentifier=${this.activeInput}`);
-      return this.activeInput;
+    if (this.hasGetError) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
 
-    return SomneoConstants.DEFAULT_ACTIVE_INPUT;
+    if (this.activeInput === undefined) {
+      return SomneoConstants.DEFAULT_ACTIVE_INPUT;
+    }
+
+    this.platform.log.debug(`UI Get -> accessory=${this.Accessory.displayName} activeIndentifier=${this.activeInput}`);
+    return this.activeInput;
   }
 
   async setActiveIdentifier(value: CharacteristicValue): Promise<void> {
@@ -158,8 +177,10 @@ export class SomneoAudioAccessory {
       this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} activeIdentifier=${this.activeInput}`);
 
       this.updateChannelAndSource();
-    }).catch(err =>
-      this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} activeIdentifier=${numValue} err=${err}`));
+    }).catch(err => {
+      this.platform.log.error(`Error -> Setting accessory=${this.Accessory.displayName} activeIdentifier=${numValue} err=${err}`);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    });
   }
 
   turnOff(): Promise<void> {
@@ -171,7 +192,10 @@ export class SomneoAudioAccessory {
         this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} active=${this.isActive}`);
         this.televisionService.getCharacteristic(this.platform.Characteristic.Active)
           .updateValue(this.isActive);
-      }).catch(err => this.platform.log.error(`Error -> Turning off accessory=${this.Accessory.displayName} err=${err}`));
+      }).catch(err => {
+        this.platform.log.error(`Error -> Turning off accessory=${this.Accessory.displayName} err=${err}`);
+        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+      });
     }
 
     return Promise.resolve();

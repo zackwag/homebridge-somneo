@@ -18,25 +18,31 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
 
   async updateValues(): Promise<void> {
 
-    await this.somneoClock.SomneoService.getLightSettings().then(lightSettings => {
-      if (lightSettings === undefined) {
-        return;
-      }
+    return this.somneoClock.SomneoService.getLightSettings()
+      .then(lightSettings => {
+        if (lightSettings === undefined) {
+          return;
+        }
 
-      if (lightSettings.onoff !== undefined) {
-        this.isOn = lightSettings.onoff;
-        this.getBinaryService()
-          .getCharacteristic(this.getBinaryCharacteristic())
-          .updateValue(this.isOn);
-      }
+        if (lightSettings.onoff !== undefined) {
+          this.isOn = lightSettings.onoff;
+          this.getBinaryService()
+            .getCharacteristic(this.getBinaryCharacteristic())
+            .updateValue(this.isOn);
+        }
 
-      if (lightSettings.ltlvl !== undefined) {
-        this.brightness = SomneoConstants.convertPhilipsPercentageToPercentage(lightSettings.ltlvl);
-        this.getBinaryService()
-          .getCharacteristic(this.platform.Characteristic.Brightness)
-          .updateValue(this.brightness);
-      }
-    }).catch(err => this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`));
+        if (lightSettings.ltlvl !== undefined) {
+          this.brightness = SomneoConstants.convertPhilipsPercentageToPercentage(lightSettings.ltlvl);
+          this.getBinaryService()
+            .getCharacteristic(this.platform.Characteristic.Brightness)
+            .updateValue(this.brightness);
+        }
+
+        this.hasGetError = false;
+      }).catch(err => {
+        this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
+        this.hasGetError = true;
+      });
   }
 
   protected getName(): string {

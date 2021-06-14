@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import https from 'https';
 import { AudioPreferences, RelaxeBreatheProgramPreferences, SunsetProgramPreferences } from './somneoClock';
 
@@ -90,7 +90,7 @@ export class SomneoConstants {
     Volume: SomneoConstants.DEFAULT_SUNSET_PROGRAM_VOLUME,
   };
 
-  static createHttpsClient(host: string) {
+  static createHttpsClient(host: string): AxiosInstance {
 
     return axios.create({
       baseURL: `https://${host}/di/v1/products/1`,

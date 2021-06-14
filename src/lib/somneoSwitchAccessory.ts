@@ -3,7 +3,7 @@ import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoBinaryAccessory } from './somneoBinaryAccessory';
 import { SomneoClock } from './somneoClock';
 
-export abstract class somneoSwitchAccessory extends SomneoBinaryAccessory {
+export abstract class SomneoSwitchAccessory extends SomneoBinaryAccessory {
 
   protected switchService: Service;
 

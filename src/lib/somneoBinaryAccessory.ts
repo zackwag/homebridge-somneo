@@ -9,6 +9,10 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
 
   async getOn(): Promise<CharacteristicValue> {
 
+    if (this.hasGetError) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+
     if (this.isOn === undefined) {
       return SomneoConstants.DEFAULT_BINARY_STATE;
     }
@@ -28,11 +32,13 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    this.modifySomneoServiceState(boolValue).then( () => {
+    this.modifySomneoServiceState(boolValue).then(() => {
       this.isOn = boolValue;
       this.platform.log.info(`UI Set -> accessory=${this.name} on=${this.isOn}`);
-    }).catch(err =>
-      this.platform.log.error(`Error -> Setting accessory=${this.name} on=${boolValue} err=${err}`));
+    }).catch(err => {
+      this.platform.log.error(`Error -> Setting accessory=${this.name} on=${boolValue} err=${err}`);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    });
   }
 
   turnOff(): Promise<void> {
@@ -44,7 +50,10 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
         this.getBinaryService()
           .getCharacteristic(this.getBinaryCharacteristic())
           .updateValue(this.isOn);
-      }).catch(err => this.platform.log.error(`Error -> Turning off accessory=${this.name} err=${err}`));
+      }).catch(err => {
+        this.platform.log.error(`Error -> Turning off accessory=${this.name} err=${err}`);
+        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+      });
     }
 
     return Promise.resolve();
