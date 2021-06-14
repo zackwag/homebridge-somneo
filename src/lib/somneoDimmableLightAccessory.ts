@@ -38,6 +38,7 @@ export abstract class SomneoDimmableLightAccessory extends SomneoLightAccessory 
 
   async getLightBrightness(): Promise<CharacteristicValue> {
 
+<<<<<<< Updated upstream
     if (this.hasGetError) {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -47,6 +48,13 @@ export abstract class SomneoDimmableLightAccessory extends SomneoLightAccessory 
     }
 
     this.platform.log.debug(`UI Get -> accessory=${this.name} brightness=${this.brightness}`);
+=======
+    if (this.brightness === undefined) {
+      return SomneoConstants.DEFAULT_BRIGHTNESS;
+    }
+
+    this.platform.log.debug(`Get ${this.name} brightness ->`, this.brightness);
+>>>>>>> Stashed changes
     return this.brightness;
   }
 

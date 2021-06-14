@@ -39,7 +39,11 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
     this.buildAccessories();
 
+<<<<<<< Updated upstream
     this.log.debug(`Initialized -> platform=${this.UserSettings.PlatformName}`);
+=======
+    this.log.debug(`Platform ${this.UserSettings.PlatformName} -> Initialized`);
+>>>>>>> Stashed changes
   }
 
   async accessories(callback: (foundAccessories: AccessoryPlugin[]) => void): Promise<void> {

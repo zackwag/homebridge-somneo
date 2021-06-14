@@ -18,6 +18,7 @@ export class SomneoNightLightAccessory extends SomneoLightAccessory {
 
   async updateValues(): Promise<void> {
 
+<<<<<<< Updated upstream
     return this.somneoClock.SomneoService.getLightSettings()
       .then(lightSettings => {
         if (lightSettings === undefined) {
@@ -36,6 +37,20 @@ export class SomneoNightLightAccessory extends SomneoLightAccessory {
         this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
         this.hasGetError = true;
       });
+=======
+    await this.somneoClock.SomneoService.getLightSettings().then(lightSettings => {
+      if (lightSettings === undefined) {
+        return;
+      }
+
+      if (lightSettings.ngtlt !== undefined) {
+        this.isOn = lightSettings.ngtlt;
+        this.getBinaryService()
+          .getCharacteristic(this.getBinaryCharacteristic())
+          .updateValue(this.isOn);
+      }
+    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+>>>>>>> Stashed changes
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {

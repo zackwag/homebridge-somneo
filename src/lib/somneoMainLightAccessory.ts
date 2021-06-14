@@ -17,6 +17,7 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
   }
 
   async updateValues(): Promise<void> {
+<<<<<<< Updated upstream
 
     return this.somneoClock.SomneoService.getLightSettings()
       .then(lightSettings => {
@@ -43,6 +44,29 @@ export class SomneoMainLightAccessory extends SomneoDimmableLightAccessory {
         this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
         this.hasGetError = true;
       });
+=======
+
+    await this.somneoClock.SomneoService.getLightSettings().then(lightSettings => {
+      if (lightSettings === undefined) {
+        return;
+      }
+
+      if (lightSettings.onoff !== undefined) {
+        this.isOn = lightSettings.onoff;
+        this.getBinaryService()
+          .getCharacteristic(this.getBinaryCharacteristic())
+          .updateValue(this.isOn);
+      }
+
+      if (lightSettings.ltlvl !== undefined) {
+        // Philips stores up to 100 so multiply to get percentage
+        this.brightness = (lightSettings.ltlvl * 4);
+        this.getBinaryService()
+          .getCharacteristic(this.platform.Characteristic.Brightness)
+          .updateValue(this.brightness);
+      }
+    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+>>>>>>> Stashed changes
   }
 
   protected getName(): string {

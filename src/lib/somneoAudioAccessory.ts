@@ -60,6 +60,7 @@ export class SomneoAudioAccessory {
   }
 
   async updateValues(): Promise<void> {
+<<<<<<< Updated upstream
 
     return this.somneoClock.SomneoService.getPlaySettings()
       .then(playSettings => {
@@ -79,6 +80,24 @@ export class SomneoAudioAccessory {
         }
 
         this.updateActiveInput(playSettings.snddv, playSettings.sndch);
+=======
+
+    await this.somneoClock.SomneoService.getPlaySettings().then(playSettings => {
+      if (playSettings === undefined) {
+        return;
+      }
+
+      if (playSettings.onoff !== undefined) {
+        this.isActive = playSettings.onoff;
+        this.televisionService
+          .getCharacteristic(this.platform.Characteristic.Active)
+          .updateValue(this.isActive);
+      }
+
+      if (playSettings.sdvol !== undefined) {
+        this.volume = playSettings.sdvol;
+      }
+>>>>>>> Stashed changes
 
         this.hasGetError = false;
       }).catch(err => {
@@ -108,15 +127,22 @@ export class SomneoAudioAccessory {
 
   async getActive(): Promise<CharacteristicValue> {
 
+<<<<<<< Updated upstream
     if (this.hasGetError) {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
 
+=======
+>>>>>>> Stashed changes
     if (this.isActive === undefined) {
       return SomneoConstants.DEFAULT_BINARY_STATE;
     }
 
+<<<<<<< Updated upstream
     this.platform.log.debug(`UI Get -> accessory=${this.Accessory.displayName} active=${this.isActive}`);
+=======
+    this.platform.log.debug(`Get ${this.Accessory.displayName} state ->`, this.isActive);
+>>>>>>> Stashed changes
     return this.isActive;
   }
 
@@ -183,7 +209,11 @@ export class SomneoAudioAccessory {
     });
   }
 
+<<<<<<< Updated upstream
   turnOff(): Promise<void> {
+=======
+  turnOff() {
+>>>>>>> Stashed changes
 
     if (this.isActive) {
       this.somneoClock.SomneoService.turnOffAudioDevice().then(() => {

@@ -9,6 +9,7 @@ export class SomneoRelaxBreatheSwitchAccessory extends SomneoSwitchAccessory {
 
   async updateValues(): Promise<void> {
 
+<<<<<<< Updated upstream
     await this.somneoClock.SomneoService.getRelaxBreatheProgramSettings()
       .then(relaxeBreathe => {
         if (relaxeBreathe === undefined) {
@@ -27,6 +28,20 @@ export class SomneoRelaxBreatheSwitchAccessory extends SomneoSwitchAccessory {
         this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
         this.hasGetError = true;
       });
+=======
+    await this.somneoClock.SomneoService.getRelaxBreathe().then(relaxeBreathe => {
+      if (relaxeBreathe === undefined) {
+        return;
+      }
+
+      if (relaxeBreathe.onoff !== undefined) {
+        this.isOn = relaxeBreathe.onoff;
+        this.getBinaryService()
+          .getCharacteristic(this.getBinaryCharacteristic())
+          .updateValue(this.isOn);
+      }
+    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
+>>>>>>> Stashed changes
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {

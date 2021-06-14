@@ -312,12 +312,20 @@ export class SomneoClock {
     const sunset = config.switches.sunset;
 
     return {
+<<<<<<< Updated upstream
       Duration: sunset.duration ?? SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.Duration,
       // eslint-disable-next-line max-len
       LightIntensity: SomneoClock.getPhilipsPercentageValue(sunset.lightIntensity, SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.LightIntensity),
       ColorScheme: sunset.colorScheme ?? SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.ColorScheme,
       AmbientSounds: sunset.ambientSounds ?? SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.AmbientSounds,
       Volume: SomneoClock.getPhilipsPercentageValue(sunset.volume, SomneoConstants.DEFAULT_SUNSET_PROGRAM_PREFS.Volume),
+=======
+      Duration: sunset.duration ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Duration,
+      LightIntensity: SomneoClock.getPhilipsPercentageValue(sunset.lightIntensity, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.LightIntensity),
+      ColorScheme: sunset.colorScheme ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.ColorScheme,
+      AmbientSounds: sunset.ambientSounds ?? SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.AmbientSounds,
+      Volume: SomneoClock.getPhilipsPercentageValue(sunset.volume, SomneoClock.DEFAULT_SUNSET_PROGRAM_PREFS.Volume),
+>>>>>>> Stashed changes
     };
   }
 

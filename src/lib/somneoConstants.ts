@@ -22,12 +22,16 @@ export class SomneoConstants {
   static readonly DEFAULT_HUMIDITY = 0;
   static readonly DEFAULT_LUX_LEVEL = 0.0001;
   static readonly DEFAULT_POLLING_SECONDS = 30;
+<<<<<<< Updated upstream
   static readonly DEFAULT_PLATFORM_NAME = 'Homebridge Somneo';
   static readonly DEFAULT_RELAX_BREATHE_BPM = 1; // 4 Breaths Per Min
   static readonly DEFAULT_RELAX_BREATHE_DURATION = 10;
   static readonly DEFAULT_RELAX_BREATHE_GUIDANCE_TYPE = 1; // Light
   static readonly DEFAULT_RELAX_BREATHE_INTENSITY = 20; // 80%
   static readonly DEFAULT_RELAX_BREATHE_VOLUME = 12; // 48%
+=======
+  static readonly DEFAULT_PLAFORM_NAME = 'Homebridge Somneo';
+>>>>>>> Stashed changes
   static readonly DEFAULT_RETRY_OPTIONS = { delay: 100, maxTry: 5 };
   static readonly DEFAULT_SUNSET_PROGRAM_AMBIENT_SOUNDS = '1'; // Soft Rain
   static readonly DEFAULT_SUNSET_PROGRAM_COLOR_SCHEME = '0'; // Sunny day
