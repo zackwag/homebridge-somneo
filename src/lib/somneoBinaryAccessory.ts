@@ -9,7 +9,6 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
 
   async getOn(): Promise<CharacteristicValue> {
 
-<<<<<<< Updated upstream
     if (this.hasGetError) {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -19,13 +18,6 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
     }
 
     this.platform.log.debug(`UI Get -> accessory=${this.name} on=${this.isOn}`);
-=======
-    if (this.isOn === undefined) {
-      return SomneoConstants.DEFAULT_BINARY_STATE;
-    }
-
-    this.platform.log.debug(`Get ${this.name} state ->`, this.isOn);
->>>>>>> Stashed changes
     return this.isOn;
   }
 

@@ -7,7 +7,6 @@ export class SomneoSunsetSwitchAccessory extends SomneoSwitchAccessory {
     return `${this.somneoClock.Name} ${SomneoConstants.SWITCH_SUNSET_PROGRAM}`;
   }
 
-<<<<<<< Updated upstream
   async updateValues(): Promise<void> {
 
     return this.somneoClock.SomneoService.getSunsetProgram()
@@ -28,22 +27,6 @@ export class SomneoSunsetSwitchAccessory extends SomneoSwitchAccessory {
         this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
         this.hasGetError = true;
       });
-=======
-  public async updateValues(): Promise<void> {
-
-    await this.somneoClock.SomneoService.getSunset().then(sunset => {
-      if (sunset === undefined) {
-        return;
-      }
-
-      if (sunset.onoff !== undefined) {
-        this.isOn = sunset.onoff;
-        this.getBinaryService()
-          .getCharacteristic(this.getBinaryCharacteristic())
-          .updateValue(this.isOn);
-      }
-    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
->>>>>>> Stashed changes
   }
 
   protected modifySomneoServiceState(isOn: boolean): Promise<void> {

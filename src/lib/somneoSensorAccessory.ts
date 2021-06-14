@@ -43,7 +43,6 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     return `${this.somneoClock.Name} ${SomneoConstants.SENSORS}`;
   }
 
-<<<<<<< Updated upstream
   async updateValues(): Promise<void> {
 
     return this.somneoClock.SomneoService.getSensorReadings()
@@ -81,39 +80,6 @@ export class SomneoSensorAccessory extends SomneoAccessory {
         this.platform.log.error(`Error -> Updating accessory=${this.name} err=${err}`);
         this.hasGetError = true;
       });
-=======
-  async updateValues() {
-
-    await this.somneoClock.SomneoService.getSensorReadings().then(sensorReadings => {
-      if (sensorReadings === undefined) {
-        return;
-      }
-
-      if (sensorReadings.mstmp !== undefined) {
-        this.temperature = sensorReadings.mstmp;
-        this.temperatureService
-          .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-          .updateValue(this.temperature);
-      }
-
-      if (sensorReadings.msrhu !== undefined) {
-        this.humidity = sensorReadings.msrhu;
-        this.humidityService
-          .getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-          .updateValue(this.humidity);
-      }
-
-      if (sensorReadings.mslux !== undefined) {
-        // There is a minimum lux value allowedin Homebridge.
-        // Philips uses 0 as the min which will cause errors;
-        this.luxLevel = sensorReadings.mslux > SomneoConstants.DEFAULT_LUX_LEVEL ?
-          sensorReadings.mslux : SomneoConstants.DEFAULT_LUX_LEVEL;
-        this.luxService
-          .getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-          .updateValue(this.luxLevel);
-      }
-    }).catch(err => this.platform.log.error(`Error updating ${this.name}, err=${err}`));
->>>>>>> Stashed changes
   }
 
   async setTemperature(value: CharacteristicValue): Promise<void> {
@@ -129,22 +95,15 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
   async getTemperature(): Promise<CharacteristicValue> {
 
-<<<<<<< Updated upstream
     if (this.hasGetError) {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
 
-=======
->>>>>>> Stashed changes
     if (this.temperature === undefined) {
       return SomneoConstants.DEFAULT_TEMPERATURE;
     }
 
-<<<<<<< Updated upstream
     this.platform.log.debug(`UI Get -> accessory=${this.temperatureService.displayName} temperature=${this.temperature}`);
-=======
-    this.platform.log.debug(`Get ${this.name} temperature ->`, this.temperature);
->>>>>>> Stashed changes
     return this.temperature;
   }
 
@@ -161,7 +120,6 @@ export class SomneoSensorAccessory extends SomneoAccessory {
 
   async getRelativeHumidity(): Promise<CharacteristicValue> {
 
-<<<<<<< Updated upstream
     if (this.hasGetError) {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
@@ -171,13 +129,6 @@ export class SomneoSensorAccessory extends SomneoAccessory {
     }
 
     this.platform.log.debug(`UI Get -> accessory=${this.humidityService.displayName} humidity=${this.humidity}`);
-=======
-    if (this.humidity === undefined) {
-      return SomneoConstants.DEFAULT_HUMIDITY;
-    }
-
-    this.platform.log.debug(`Get ${this.name} humidity ->`, this.humidity);
->>>>>>> Stashed changes
     return this.humidity;
   }
 
