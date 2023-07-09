@@ -78,7 +78,7 @@ export class SomneoService {
 
   async turnOffMainLight(): Promise<void> {
 
-    const data: LightSettings = { onoff: false };
+    const data: LightSettings = { onoff: false, tempy: false };
     this.putData<LightSettings>(SomneoConstants.URI_LIGHTS_ENDPOINT, data, SomneoConstants.TYPE_LIGHT_SETTINGS);
   }
 
