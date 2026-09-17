@@ -22,13 +22,13 @@ There is no automated test suite — verify changes against a real (or simulated
 
 ## Commit messages and pull requests
 
-This repo uses [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, etc.). Pull requests are squash-merged, and the **PR title** becomes the commit on `main` — so PR titles must follow this format. This is enforced automatically by the "Conventional Commits" check.
+This repo uses [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, etc.). Pull requests are squash-merged, and the **PR title** becomes the commit on `master` — so PR titles must follow this format. This is enforced automatically by the "Conventional Commits" check.
 
-Direct pushes to `main` are allowed but must also use a Conventional Commits-formatted commit message (validated by the same check).
+Direct pushes to `master` are allowed but must also use a Conventional Commits-formatted commit message (validated by the same check).
 
 ## Opening a pull request
 
-1. Fork the repo and create a branch off `main`.
+1. Fork the repo and create a branch off `master`.
 2. Make your changes.
 3. Open a pull request with a Conventional Commits-formatted title.
 4. Wait for CI to pass — required checks must be green before merge.
