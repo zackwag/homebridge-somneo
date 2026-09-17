@@ -22,8 +22,13 @@ export class UserSettings {
 
   private static buildPollingMilliSeconds(config: PlatformConfig): number {
 
-    // If the user has not specified a polling interval, default to 30s
-    const pollingSeconds = config.pollingSeconds ?? SomneoConstants.DEFAULT_POLLING_SECONDS;
+    // If the user has not specified a polling interval (or specified an invalid
+    // one, e.g. 0), default to 30s. A 0s interval would otherwise hammer the
+    // Somneo device with back-to-back requests as fast as the event loop allows.
+    const configuredPollingSeconds = config.pollingSeconds;
+    const pollingSeconds = (configuredPollingSeconds === undefined || configuredPollingSeconds <= 0)
+      ? SomneoConstants.DEFAULT_POLLING_SECONDS
+      : configuredPollingSeconds;
     return pollingSeconds * 1000;
   }
 

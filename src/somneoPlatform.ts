@@ -15,7 +15,6 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
-  public readonly HostSensorMap = new Map();
   public readonly HostMainLightMap = new Map();
   public readonly HostNightLightMap = new Map();
   public readonly HostRelaxBreatheSwitchMap = new Map();
@@ -57,7 +56,6 @@ export class SomneoPlatform implements StaticPlatformPlugin {
         this.log.debug(`Included -> accessory=${sensorAccessory.name}`);
 
         this.SomneoAccessories.push(sensorAccessory);
-        this.HostSensorMap.set(somneoClock.SomneoService.Host, sensorAccessory);
       }
 
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.LIGHT_MAIN)) {

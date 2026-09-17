@@ -27,7 +27,7 @@ export abstract class SomneoDimmableLightAccessory extends SomneoLightAccessory 
       return;
     }
 
-    this.modifySomneoServiceBrightness(numValue).then(() => {
+    return this.modifySomneoServiceBrightness(numValue).then(() => {
       this.brightness = numValue;
       this.platform.log.info(`UI Set -> accessory=${this.name} brightness=${numValue}`);
     }).catch(err => {
