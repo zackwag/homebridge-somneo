@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/zackwag/homebridge-somneo/compare/homebridge-somneo-v1.7.0...homebridge-somneo-v1.8.0) (2026-09-17)
+
+
+### Features
+
+* support Homebridge 2.0 ([#64](https://github.com/zackwag/homebridge-somneo/issues/64)) ([2cd3935](https://github.com/zackwag/homebridge-somneo/commit/2cd3935c7a7abe20a9949608c000445bb66199da))
+
 ## [1.7.0](https://github.com/zackwag/homebridge-somneo/compare/homebridge-somneo-v1.6.4...homebridge-somneo-v1.7.0) (2026-09-17)
 
 
