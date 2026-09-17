@@ -34,14 +34,17 @@ export class SomneoClock {
 
     // If not defined or not an IP 4 address, reject it
     if (config.host === undefined) {
+      log.warn(`Skipping Somneo clock -> name=${config.name} is missing a required 'host'.`);
       return undefined;
     }
 
     if (!config.host.match(SomneoConstants.IP_V_4_REG_EX)) {
+      log.warn(`Skipping Somneo clock -> host=${config.host} is not a valid IPv4 address.`);
       return undefined;
     }
 
     if (config.name === undefined) {
+      log.warn(`Skipping Somneo clock -> host=${config.host} is missing a required 'name'.`);
       return undefined;
     }
 
