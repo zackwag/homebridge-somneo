@@ -23,7 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Lint PR title
-        if: github.event_name == 'pull_request'
+        # Dependabot's auto-generated titles ("Bump x from y to z") don't follow
+        # Conventional Commits and aren't user-editable at the source, so exempt
+        # its PRs rather than requiring a manual retitle on every dependency bump.
+        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
