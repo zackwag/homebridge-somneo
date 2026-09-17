@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/zackwag/homebridge-somneo/compare/homebridge-somneo-v1.6.4...homebridge-somneo-v1.7.0) (2026-09-17)
+
+
+### Features
+
+* add wake alarm enable/disable, snooze, and dismiss switches ([#62](https://github.com/zackwag/homebridge-somneo/issues/62)) ([3dfb47b](https://github.com/zackwag/homebridge-somneo/commit/3dfb47b8f7d961fa00536191d2132e7a8c129261))
+
 ## [1.6.4](https://github.com/zackwag/homebridge-somneo/compare/homebridge-somneo-v1.6.3...homebridge-somneo-v1.6.4) (2026-09-17)
 
 
