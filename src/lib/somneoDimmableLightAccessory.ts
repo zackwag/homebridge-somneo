@@ -1,4 +1,4 @@
-import { CharacteristicValue } from 'homebridge';
+import type { CharacteristicValue } from 'homebridge' with { 'resolution-mode': 'import' };
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';

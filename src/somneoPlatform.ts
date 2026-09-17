@@ -1,4 +1,5 @@
-import { AccessoryPlugin, API, Categories, Characteristic, Logger, PlatformConfig, Service, StaticPlatformPlugin } from 'homebridge';
+// eslint-disable-next-line max-len
+import type { AccessoryPlugin, API, Characteristic, Logger, PlatformConfig, Service, StaticPlatformPlugin } from 'homebridge' with { 'resolution-mode': 'import' };
 import { RequestedAccessory } from './lib/requestedAccessory';
 import { SomneoAccessory } from './lib/somneoAccessory';
 import { SomneoAudioAccessory } from './lib/somneoAudioAccessory';
@@ -16,8 +17,8 @@ import { PLUGIN_NAME } from './settings';
 
 export class SomneoPlatform implements StaticPlatformPlugin {
 
-  public readonly Service: typeof Service = this.api.hap.Service;
-  public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+  public readonly Service: typeof Service;
+  public readonly Characteristic: typeof Characteristic;
   public readonly HostMainLightMap = new Map();
   public readonly HostNightLightMap = new Map();
   public readonly HostRelaxBreatheSwitchMap = new Map();
@@ -32,6 +33,8 @@ export class SomneoPlatform implements StaticPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
+    this.Service = api.hap.Service;
+    this.Characteristic = api.hap.Characteristic;
     this.UserSettings = UserSettings.create(this);
 
     if (this.UserSettings.SomneoClocks.length === 0) {
@@ -124,7 +127,7 @@ export class SomneoPlatform implements StaticPlatformPlugin {
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.AUDIO)) {
         const displayName = `${somneoClock.Name} ${SomneoConstants.DEVICE_AUDIO}`;
         const uuid = this.api.hap.uuid.generate(`homebridge:${PLUGIN_NAME}${displayName}${somneoClock.SomneoService.Host}`);
-        const accessory = new this.api.platformAccessory(displayName, uuid, Categories.AUDIO_RECEIVER);
+        const accessory = new this.api.platformAccessory(displayName, uuid, this.api.hap.Categories.AUDIO_RECEIVER);
         const audioDevice = new SomneoAudioAccessory(accessory, this, somneoClock);
 
         this.log.debug(`Included -> accessory=${displayName}`);

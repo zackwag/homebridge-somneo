@@ -1,4 +1,4 @@
-import { AccessoryPlugin, Service } from 'homebridge';
+import type { AccessoryPlugin, Service } from 'homebridge' with { 'resolution-mode': 'import' };
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoClock } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
