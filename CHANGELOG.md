@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.4](https://github.com/zackwag/homebridge-somneo/compare/homebridge-somneo-v1.6.3...homebridge-somneo-v1.6.4) (2026-09-17)
+
+
+### Bug Fixes
+
+* correct engines.homebridge minimum to match .onSet/.onGet usage ([#59](https://github.com/zackwag/homebridge-somneo/issues/59)) ([e765674](https://github.com/zackwag/homebridge-somneo/commit/e76567470aea91dc7af9df82953f1937e05d3eab))
+* make Somneo clock name a real config default, not a UI placeholder ([#61](https://github.com/zackwag/homebridge-somneo/issues/61)) ([566dfbe](https://github.com/zackwag/homebridge-somneo/commit/566dfbe41e9514aaab985db12a21611c5b17451c))
+
 ## [1.6.3](https://github.com/zackwag/homebridge-somneo/compare/homebridge-somneo-v1.6.2...homebridge-somneo-v1.6.3) (2026-09-17)
 
 
