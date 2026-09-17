@@ -1,4 +1,4 @@
-import { CharacteristicValue, Service } from 'homebridge';
+import type { CharacteristicValue, Service } from 'homebridge' with { 'resolution-mode': 'import' };
 import { SomneoPlatform } from '../somneoPlatform';
 import { RequestedAccessory } from './requestedAccessory';
 import { SomneoAccessory } from './somneoAccessory';

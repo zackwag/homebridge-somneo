@@ -1,4 +1,4 @@
-import { CharacteristicValue } from 'homebridge';
+import type { CharacteristicValue } from 'homebridge' with { 'resolution-mode': 'import' };
 import { SomneoSwitchAccessory } from './somneoSwitchAccessory';
 
 export abstract class SomneoMomentarySwitchAccessory extends SomneoSwitchAccessory {

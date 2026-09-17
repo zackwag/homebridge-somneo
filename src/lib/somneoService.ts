@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios';
-import { Logger } from 'homebridge';
+import type { Logger } from 'homebridge' with { 'resolution-mode': 'import' };
 import { retryAsync } from 'ts-retry';
 import { RelaxeBreatheProgramPreferences, SunsetProgramPreferences } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';

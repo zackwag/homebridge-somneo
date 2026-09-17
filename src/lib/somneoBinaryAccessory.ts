@@ -1,5 +1,4 @@
-import { Service } from 'hap-nodejs';
-import { CharacteristicValue } from 'homebridge';
+import type { CharacteristicValue, Service } from 'homebridge' with { 'resolution-mode': 'import' };
 import { SomneoAccessory } from './somneoAccessory';
 import { SomneoConstants } from './somneoConstants';
 

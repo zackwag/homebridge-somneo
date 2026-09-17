@@ -1,4 +1,4 @@
-import { Logger, PlatformConfig } from 'homebridge';
+import type { Logger, PlatformConfig } from 'homebridge' with { 'resolution-mode': 'import' };
 import { SomneoPlatform } from '../somneoPlatform';
 import { SomneoClock } from './somneoClock';
 import { SomneoConfig } from './somneoConfigDataTypes';

@@ -1,4 +1,4 @@
-import { Logger } from 'homebridge';
+import type { Logger } from 'homebridge' with { 'resolution-mode': 'import' };
 import { RequestedAccessory } from './requestedAccessory';
 import { SomneoConfig, SwitchesConfig } from './somneoConfigDataTypes';
 import { SomneoConstants } from './somneoConstants';
