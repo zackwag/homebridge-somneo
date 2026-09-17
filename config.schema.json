@@ -23,7 +23,7 @@
               "title": "Name",
               "type": "string",
               "required": true,
-              "placeholder": "Somneo",
+              "default": "Somneo",
               "description": "Name of the Somneo clock."
             },
             "host": {
