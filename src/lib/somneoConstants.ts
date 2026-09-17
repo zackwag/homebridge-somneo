@@ -78,7 +78,7 @@ export class SomneoConstants {
     BreathsPerMin: SomneoConstants.DEFAULT_RELAX_BREATHE_BPM,
     Duration: SomneoConstants.DEFAULT_RELAX_BREATHE_DURATION,
     GuidanceType: SomneoConstants.DEFAULT_RELAX_BREATHE_GUIDANCE_TYPE,
-    LightIntensity: SomneoConstants.DEFAULT_SUNSET_PROGRAM_LIGHT_INTENSITY,
+    LightIntensity: SomneoConstants.DEFAULT_RELAX_BREATHE_INTENSITY,
     Volume: SomneoConstants.DEFAULT_RELAX_BREATHE_VOLUME,
   };
 

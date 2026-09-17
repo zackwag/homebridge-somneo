@@ -32,7 +32,7 @@ export abstract class SomneoBinaryAccessory extends SomneoAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    this.modifySomneoServiceState(boolValue).then(() => {
+    return this.modifySomneoServiceState(boolValue).then(() => {
       this.isOn = boolValue;
       this.platform.log.info(`UI Set -> accessory=${this.name} on=${this.isOn}`);
     }).catch(err => {

@@ -97,7 +97,7 @@ export class SomneoAudioAccessory {
     // If value is 0 it's a raise, if it's 1 it's a lower
     const newVolume = this.getNewVolume(value === 0);
 
-    this.somneoClock.SomneoService.updateAudioDeviceVolume(newVolume).then(() => {
+    return this.somneoClock.SomneoService.updateAudioDeviceVolume(newVolume).then(() => {
       this.volume = newVolume;
       this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} volume=${this.volume}`);
     }).catch(err => {
@@ -135,7 +135,12 @@ export class SomneoAudioAccessory {
       this.turnOffConflictingAccessories();
     }
 
-    return (boolValue ? this.somneoClock.SomneoService.turnOnAudioDevice(this.source!, this.channel!) :
+    // source/channel are only populated after a successful poll; fall back to the
+    // configured favorite if the device is turned on before that first poll completes.
+    const source = this.source ?? this.somneoClock.AudioPreferences.FavoriteSource;
+    const channel = this.channel ?? this.somneoClock.AudioPreferences.FavoriteChannel;
+
+    return (boolValue ? this.somneoClock.SomneoService.turnOnAudioDevice(source, channel) :
       this.somneoClock.SomneoService.turnOffAudioDevice()
     ).then(() => {
       this.isActive = boolValue;
@@ -172,7 +177,7 @@ export class SomneoAudioAccessory {
       return;
     }
 
-    this.somneoClock.SomneoService.updateAudioDeviceInput(numValue).then(() => {
+    return this.somneoClock.SomneoService.updateAudioDeviceInput(numValue).then(() => {
       this.activeInput = numValue;
       this.platform.log.info(`UI Set -> accessory=${this.Accessory.displayName} activeIdentifier=${this.activeInput}`);
 

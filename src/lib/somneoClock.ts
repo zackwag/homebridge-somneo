@@ -1,6 +1,6 @@
 import { Logger } from 'homebridge';
 import { RequestedAccessory } from './requestedAccessory';
-import { LightsConfig, SensorsConfig, SomneoConfig, SwitchesConfig } from './somneoConfigDataTypes';
+import { SomneoConfig } from './somneoConfigDataTypes';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoService } from './somneoService';
 
@@ -87,47 +87,10 @@ export class SomneoClock {
       return SomneoClock.ALL_SWITCH_ACCESSORIES;
     }
 
-    const requestedAccessories: RequestedAccessory[] = [];
-
-    const sunsetSwitch = this.buildRequestedSunsetSwitchAccessory(config.switches);
-    if (sunsetSwitch !== undefined) {
-      requestedAccessories.push(sunsetSwitch);
-    }
-
-    const relaxBreatheSwitch = this.buildRequestedRelaxBreatheSwitchAccessory(config.switches);
-    if (relaxBreatheSwitch !== undefined) {
-      requestedAccessories.push(relaxBreatheSwitch);
-    }
-
-    return requestedAccessories;
-  }
-
-  private static buildRequestedSunsetSwitchAccessory(switchesConfig: SwitchesConfig): RequestedAccessory | undefined {
-
-    // If not configured, add sunset
-    if (switchesConfig.sunset === undefined) {
-      return RequestedAccessory.SWITCH_SUNSET;
-    }
-
-    if (this.getBooleanValue(switchesConfig.sunset.isEnabled)) {
-      return RequestedAccessory.SWITCH_SUNSET;
-    }
-
-    return undefined;
-  }
-
-  private static buildRequestedRelaxBreatheSwitchAccessory(switchesConfig: SwitchesConfig): RequestedAccessory | undefined {
-
-    // If not configured, add relaxBreathe
-    if (switchesConfig.relaxBreathe === undefined) {
-      return RequestedAccessory.SWITCH_RELAXBREATHE;
-    }
-
-    if (this.getBooleanValue(switchesConfig.relaxBreathe.isEnabled)) {
-      return RequestedAccessory.SWITCH_RELAXBREATHE;
-    }
-
-    return undefined;
+    return [
+      this.buildRequestedAccessory(config.switches.sunset, RequestedAccessory.SWITCH_SUNSET),
+      this.buildRequestedAccessory(config.switches.relaxBreathe, RequestedAccessory.SWITCH_RELAXBREATHE),
+    ].filter((accessory): accessory is RequestedAccessory => accessory !== undefined);
   }
 
   private static buildRequestedLightAccessories(config: SomneoConfig): RequestedAccessory[] {
@@ -137,47 +100,10 @@ export class SomneoClock {
       return SomneoClock.ALL_LIGHT_ACCESSORIES;
     }
 
-    const requestedAccessories: RequestedAccessory[] = [];
-
-    const mainLight = this.buildRequestedMainLightAccessory(config.lights);
-    if (mainLight !== undefined) {
-      requestedAccessories.push(mainLight);
-    }
-
-    const nightLight = this.buildRequestedNightLightAccessory(config.lights);
-    if (nightLight !== undefined) {
-      requestedAccessories.push(nightLight);
-    }
-
-    return requestedAccessories;
-  }
-
-  private static buildRequestedMainLightAccessory(lightsConfig: LightsConfig): RequestedAccessory | undefined {
-
-    // If not configured, add main light
-    if (lightsConfig.mainLight === undefined) {
-      return RequestedAccessory.LIGHT_MAIN;
-    }
-
-    if (this.getBooleanValue(lightsConfig.mainLight.isEnabled)) {
-      return RequestedAccessory.LIGHT_MAIN;
-    }
-
-    return undefined;
-  }
-
-  private static buildRequestedNightLightAccessory(lightsConfig: LightsConfig): RequestedAccessory | undefined {
-
-    // If not configured, add night light
-    if (lightsConfig.nightLight === undefined) {
-      return RequestedAccessory.LIGHT_NIGHT_LIGHT;
-    }
-
-    if (this.getBooleanValue(lightsConfig.nightLight.isEnabled)) {
-      return RequestedAccessory.LIGHT_NIGHT_LIGHT;
-    }
-
-    return undefined;
+    return [
+      this.buildRequestedAccessory(config.lights.mainLight, RequestedAccessory.LIGHT_MAIN),
+      this.buildRequestedAccessory(config.lights.nightLight, RequestedAccessory.LIGHT_NIGHT_LIGHT),
+    ].filter((accessory): accessory is RequestedAccessory => accessory !== undefined);
   }
 
   private static buildRequestedSensorAccessories(config: SomneoConfig): RequestedAccessory[] {
@@ -187,66 +113,27 @@ export class SomneoClock {
       return SomneoClock.ALL_SENSOR_ACCESSORIES;
     }
 
-    const requestedAccessories: RequestedAccessory[] = [];
-
-    const humiditySensor = this.buildRequestedHumitySensorAccessory(config.sensors);
-    if (humiditySensor !== undefined) {
-      requestedAccessories.push(humiditySensor);
-    }
-
-    const luxSensor = this.buildRequestedLuxSensorAccessory(config.sensors);
-    if (luxSensor !== undefined) {
-      requestedAccessories.push(luxSensor);
-    }
-
-    const temperatureSensor = this.buildRequestedTemperatureSensorAccessory(config.sensors);
-    if (temperatureSensor !== undefined) {
-      requestedAccessories.push(temperatureSensor);
-    }
-
-    return requestedAccessories;
+    return [
+      this.buildRequestedAccessory(config.sensors.humidity, RequestedAccessory.SENSOR_HUMIDITY),
+      this.buildRequestedAccessory(config.sensors.lux, RequestedAccessory.SENSOR_LUX),
+      this.buildRequestedAccessory(config.sensors.temperature, RequestedAccessory.SENSOR_TEMPERATURE),
+    ].filter((accessory): accessory is RequestedAccessory => accessory !== undefined);
   }
 
-  private static buildRequestedHumitySensorAccessory(sensorsConfig: SensorsConfig): RequestedAccessory | undefined {
+  // Every sensor/light/switch config section shares the same "isEnabled?" shape and
+  // the same enable/disable rule, so this one helper replaces what used to be seven
+  // near-identical buildRequestedXAccessory methods.
+  private static buildRequestedAccessory(
+    accessoryConfig: { isEnabled?: boolean } | undefined,
+    accessory: RequestedAccessory,
+  ): RequestedAccessory | undefined {
 
-    // If not configured, add humidity
-    if (sensorsConfig.humidity === undefined) {
-      return RequestedAccessory.SENSOR_HUMIDITY;
+    // If not configured, include it by default
+    if (accessoryConfig === undefined) {
+      return accessory;
     }
 
-    if (this.getBooleanValue(sensorsConfig.humidity.isEnabled)) {
-      return RequestedAccessory.SENSOR_HUMIDITY;
-    }
-
-    return undefined;
-  }
-
-  private static buildRequestedLuxSensorAccessory(sensorsConfig: SensorsConfig): RequestedAccessory | undefined {
-
-    // If not configured, add lux
-    if (sensorsConfig.lux === undefined) {
-      return RequestedAccessory.SENSOR_LUX;
-    }
-
-    if (this.getBooleanValue(sensorsConfig.lux.isEnabled)) {
-      return RequestedAccessory.SENSOR_LUX;
-    }
-
-    return undefined;
-  }
-
-  private static buildRequestedTemperatureSensorAccessory(sensorsConfig: SensorsConfig): RequestedAccessory | undefined {
-
-    // If not configured, add temperature
-    if (sensorsConfig.temperature === undefined) {
-      return RequestedAccessory.SENSOR_TEMPERATURE;
-    }
-
-    if (this.getBooleanValue(sensorsConfig.temperature.isEnabled)) {
-      return RequestedAccessory.SENSOR_TEMPERATURE;
-    }
-
-    return undefined;
+    return this.getBooleanValue(accessoryConfig.isEnabled) ? accessory : undefined;
   }
 
   private static buildAudioPreferences(config: SomneoConfig, requestedAccessories: RequestedAccessory[]): AudioPreferences {
