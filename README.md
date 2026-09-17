@@ -116,6 +116,7 @@ Before installing this plugin, you should install Homebridge using the [official
 | ------| :------: | :-------: | ----------------------------- | :-----------: |
 | **relaxBreathe** | *Yes* | object | Settings for the RelaxBreathe Program switch. | N/A |
 | **sunset** | *Yes* | object | Settings for the Sunset Program switch. | N/A |
+| **wakeAlarm** | No | object | Settings for the Wake Alarm switches. Unlike the other switches, this is opt-in: omit it (or leave its fields unset) and no wake alarm switches are exposed. | N/A |
 
 ###### RelaxBreathe Schema
 
@@ -138,6 +139,16 @@ Before installing this plugin, you should install Homebridge using the [official
 | **colorScheme** | No | string | What color pattern should play during the Sunset Program.<br /><br />Possible values:<ul><li>Sunny Day = `'0'`</li><li>Island Red = `'1'`</li><li>Nordic White = `'2'`</li><li>Carribean Red = `'3'`</li></ul> | `'0'` (Sunny Day) |
 | **ambientSounds** | No | string | What sounds should play during the Sunset Program.<br /><br />Possible values:<ul><li>Soft Rain = `'1'`</li><li>Ocean Waves = `'2'`</li><li>Under Water = `'3'`</li><li>Summer Lake = `'4'`</li><li>No Sound = `'0'`</li></ul> | `'1'` (Soft Rain) |
 | **volume** | No | number | How loud the Sunset Program should be at the start. The value is a percentage that will be converted to a number between `1 and 25`. | `48` (48% converted to the the Philips API value 12) |
+
+###### WakeAlarm Schema
+
+The Somneo device only exposes one *currently scheduled* wake alarm through its API — there's no way to trigger a wake-up on demand or create a new alarm schedule. These switches let you enable/disable, snooze, or dismiss whatever alarm is already scheduled on the device (e.g. through the SleepMapper app).
+
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose a switch that enables/disables the currently scheduled wake alarm. | `false` |
+| **showSnoozeSwitch** | No | boolean | Determines whether or not to expose a momentary switch that snoozes an active wake alarm. | `false` |
+| **showDismissSwitch** | No | boolean | Determines whether or not to expose a momentary switch that dismisses an active wake alarm. | `false` |
 
 ##### Audio Schema
 
@@ -225,6 +236,11 @@ This configuration will expose all items with default values, but is very verbos
           "colorScheme": 0,
           "ambientSounds": "1",
           "volume": 48
+        },
+        "wakeAlarm": {
+          "isEnabled": true,
+          "showSnoozeSwitch": true,
+          "showDismissSwitch": true
         }
       },
       "audio": {

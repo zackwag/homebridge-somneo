@@ -993,6 +993,35 @@
                       }
                     }
                   }
+                },
+                "wakeAlarm": {
+                  "type": "object",
+                  "properties": {
+                    "isEnabled": {
+                      "title": "Enable Wake Alarm Switch",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Adds a switch to enable/disable the Somneo's currently scheduled wake alarm."
+                    },
+                    "showSnoozeSwitch": {
+                      "title": "Show Snooze Switch",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Adds a momentary switch that snoozes an active wake alarm.",
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.wakeAlarm.isEnabled === true;"
+                      }
+                    },
+                    "showDismissSwitch": {
+                      "title": "Show Dismiss Switch",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Adds a momentary switch that dismisses an active wake alarm.",
+                      "condition": {
+                        "functionBody": "return model.somneos[arrayIndices[0]].switches.wakeAlarm.isEnabled === true;"
+                      }
+                    }
+                  }
                 }
               }
             },
@@ -1101,6 +1130,9 @@
             "somneos[].switches.relaxBreathe.guidanceType",
             "somneos[].switches.relaxBreathe.lightIntensity",
             "somneos[].switches.relaxBreathe.volume",
+            "somneos[].switches.wakeAlarm.isEnabled",
+            "somneos[].switches.wakeAlarm.showSnoozeSwitch",
+            "somneos[].switches.wakeAlarm.showDismissSwitch",
             "somneos[].audio.isEnabled",
             "somneos[].audio.favoriteInput"
           ]
