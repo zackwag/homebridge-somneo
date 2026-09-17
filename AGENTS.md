@@ -37,6 +37,6 @@ npm run lint   # eslint src/**.ts --max-warnings=0
 ## Commit and PR conventions
 
 - Commit messages and PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `ci:`, `build:`, `perf:`, `style:`, `revert:`), optionally with a scope, e.g. `fix(api): handle null response`.
-- This repo squash-merges pull requests only; the PR title becomes the final commit message on `master`.
+- This repo squash-merges pull requests only; the PR title becomes the final commit message on `main`.
 - A "Conventional Commits" CI check enforces this on both PR titles and direct-push commit messages.
-- Branch protection on `master`: no force-pushes, no branch deletion, required status checks must pass.
+- Branch protection on `main`: no force-pushes, no branch deletion, required status checks must pass.
