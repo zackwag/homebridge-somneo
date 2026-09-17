@@ -1,5 +1,10 @@
 # homebridge-somneo
 
+> [!IMPORTANT]
+> **This project is in maintenance mode.** I've moved my own home automation setup over to [Home Assistant](https://www.home-assistant.io/) and don't expect to build new features here going forward. I'll still try to review pull requests, keep dependencies patched, and fix genuine bugs when I have time, but active development on my end has slowed to a stop.
+>
+> If you're just getting into IoT and home automation, Home Assistant is what I'd recommend today. Contributions to this plugin are still welcome — feel free to open a PR.
+
 ## What This Plugin Is
 This is a plugin for [homebridge](https://github.com/homebridge/homebridge). It allows for management of the [Philips Somneo HF3670/60](https://www.usa.philips.com/c-p/HF3670_60/smartsleep-connected-sleep-and-wake-up-light). Additionally, it provides sensor data from the clock.
 
@@ -254,9 +259,9 @@ This configuration will expose all items with default values, but is very verbos
 }
 ```
 
-## Future Plans
-- No support for sound sensor. HomeKit does not have a sound level sensor. I thought about having an motion sensor, but would need to know what sound level motion detected/not should be considered.
-- Better error handling. I am a Java developer by trade and am still learning Typescript :).
+## Known Limitations
+- No sound sensor support. HomeKit doesn't have a sound level sensor, and mapping sound level to a motion sensor's on/off state would need a threshold that's more guesswork than measurement.
+- No way to create a new wake alarm or trigger one on demand — the Somneo API only exposes whatever alarm is already scheduled through the SleepMapper app. See the Wake Alarm switches above for what's actually controllable.
 
 ## Recognition
 Thanks to:
