@@ -1,6 +1,6 @@
 import { Logger } from 'homebridge';
 import { RequestedAccessory } from './requestedAccessory';
-import { SomneoConfig } from './somneoConfigDataTypes';
+import { SomneoConfig, SwitchesConfig } from './somneoConfigDataTypes';
 import { SomneoConstants } from './somneoConstants';
 import { SomneoService } from './somneoService';
 
@@ -93,7 +93,33 @@ export class SomneoClock {
     return [
       this.buildRequestedAccessory(config.switches.sunset, RequestedAccessory.SWITCH_SUNSET),
       this.buildRequestedAccessory(config.switches.relaxBreathe, RequestedAccessory.SWITCH_RELAXBREATHE),
-    ].filter((accessory): accessory is RequestedAccessory => accessory !== undefined);
+    ].filter((accessory): accessory is RequestedAccessory => accessory !== undefined)
+      .concat(this.buildRequestedWakeAlarmAccessories(config.switches));
+  }
+
+  private static buildRequestedWakeAlarmAccessories(switchesConfig: SwitchesConfig): RequestedAccessory[] {
+
+    // Wake alarm control writes directly to the device's alarm profile, so unlike
+    // the other switches it's opt-in only: every flag must be explicitly true.
+    if (switchesConfig.wakeAlarm === undefined) {
+      return [];
+    }
+
+    const requestedAccessories: RequestedAccessory[] = [];
+
+    if (switchesConfig.wakeAlarm.isEnabled === true) {
+      requestedAccessories.push(RequestedAccessory.SWITCH_WAKE_ALARM);
+    }
+
+    if (switchesConfig.wakeAlarm.showSnoozeSwitch === true) {
+      requestedAccessories.push(RequestedAccessory.SWITCH_WAKE_ALARM_SNOOZE);
+    }
+
+    if (switchesConfig.wakeAlarm.showDismissSwitch === true) {
+      requestedAccessories.push(RequestedAccessory.SWITCH_WAKE_ALARM_DISMISS);
+    }
+
+    return requestedAccessories;
   }
 
   private static buildRequestedLightAccessories(config: SomneoConfig): RequestedAccessory[] {

@@ -37,3 +37,14 @@ export interface SunsetProgramSettings {
   snddv?: string;
   sndlv?: number;
 }
+
+export interface WakeAlarmSettings {
+  prfnr?: number;
+  prfen?: boolean;
+  prfvs?: boolean;
+}
+
+export interface WakeAlarmControl {
+  tapsz?: boolean;
+  disms?: boolean;
+}

@@ -21,6 +21,7 @@ export interface LightsConfig {
 export interface SwitchesConfig {
   relaxBreathe?: RelaxBreatheConfig;
   sunset?: SunsetConfig;
+  wakeAlarm?: WakeAlarmConfig;
 }
 
 export interface HumidityOrLuxOrTemperatureOrMainLightOrNightLight {
@@ -48,4 +49,10 @@ export interface RelaxBreatheConfig {
 export interface AudioConfig {
   isEnabled?: boolean;
   favoriteInput?: number;
+}
+
+export interface WakeAlarmConfig {
+  isEnabled?: boolean;
+  showSnoozeSwitch?: boolean;
+  showDismissSwitch?: boolean;
 }

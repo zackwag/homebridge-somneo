@@ -4,7 +4,7 @@ import { retryAsync } from 'ts-retry';
 import { RelaxeBreatheProgramPreferences, SunsetProgramPreferences } from './somneoClock';
 import { SomneoConstants } from './somneoConstants';
 // eslint-disable-next-line max-len
-import { AudioDeviceSettings, LightSettings, RelaxBreatheProgramSettings, SensorReadings, SunsetProgramSettings } from './somneoServiceDataTypes';
+import { AudioDeviceSettings, LightSettings, RelaxBreatheProgramSettings, SensorReadings, SunsetProgramSettings, WakeAlarmControl, WakeAlarmSettings } from './somneoServiceDataTypes';
 
 export class SomneoService {
 
@@ -37,6 +37,10 @@ export class SomneoService {
 
   async getSunsetProgram(): Promise<SunsetProgramSettings> {
     return this.getData<SunsetProgramSettings>(SomneoConstants.URI_SUNSET_ENDPOINT, SomneoConstants.TYPE_SUNSET_PROGRAM_SETTINGS);
+  }
+
+  async getWakeAlarmSettings(): Promise<WakeAlarmSettings> {
+    return this.getData<WakeAlarmSettings>(SomneoConstants.URI_WAKE_ALARM_ENDPOINT, SomneoConstants.TYPE_WAKE_ALARM_SETTINGS);
   }
 
   async turnOffAudioDevice(): Promise<void> {
@@ -156,6 +160,24 @@ export class SomneoService {
     };
 
     return this.putData(SomneoConstants.URI_SUNSET_ENDPOINT, data, SomneoConstants.TYPE_SUNSET_PROGRAM_SETTINGS);
+  }
+
+  async updateWakeAlarmEnabled(profileNumber: number, isEnabled: boolean): Promise<void> {
+
+    const data: WakeAlarmSettings = { prfnr: profileNumber, prfen: isEnabled, prfvs: true };
+    return this.putData<WakeAlarmSettings>(SomneoConstants.URI_WAKE_ALARM_ENDPOINT, data, SomneoConstants.TYPE_WAKE_ALARM_SETTINGS);
+  }
+
+  async snoozeWakeAlarm(): Promise<void> {
+
+    const data: WakeAlarmControl = { tapsz: true };
+    return this.putData<WakeAlarmControl>(SomneoConstants.URI_WAKE_ALARM_CONTROL_ENDPOINT, data, SomneoConstants.TYPE_WAKE_ALARM_CONTROL);
+  }
+
+  async dismissWakeAlarm(): Promise<void> {
+
+    const data: WakeAlarmControl = { disms: true };
+    return this.putData<WakeAlarmControl>(SomneoConstants.URI_WAKE_ALARM_CONTROL_ENDPOINT, data, SomneoConstants.TYPE_WAKE_ALARM_CONTROL);
   }
 
   private async getData<T>(uri: string, type: string): Promise<T> {

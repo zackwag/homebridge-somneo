@@ -8,6 +8,9 @@ import { SomneoNightLightAccessory } from './lib/somneoNightLightAccessory';
 import { SomneoRelaxBreatheSwitchAccessory } from './lib/somneoRelaxBreatheSwitchAccessory';
 import { SomneoSensorAccessory } from './lib/somneoSensorAccessory';
 import { SomneoSunsetSwitchAccessory } from './lib/somneoSunsetSwitchAccessory';
+import { SomneoWakeAlarmDismissSwitchAccessory } from './lib/somneoWakeAlarmDismissSwitchAccessory';
+import { SomneoWakeAlarmSnoozeSwitchAccessory } from './lib/somneoWakeAlarmSnoozeSwitchAccessory';
+import { SomneoWakeAlarmSwitchAccessory } from './lib/somneoWakeAlarmSwitchAccessory';
 import { UserSettings } from './lib/userSettings';
 import { PLUGIN_NAME } from './settings';
 
@@ -92,6 +95,30 @@ export class SomneoPlatform implements StaticPlatformPlugin {
 
         this.HostSunsetSwitchMap.set(somneoClock.SomneoService.Host, sunsetSwitch);
         this.SomneoAccessories.push(sunsetSwitch);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SWITCH_WAKE_ALARM)) {
+        const wakeAlarmSwitch = new SomneoWakeAlarmSwitchAccessory(this, somneoClock);
+
+        this.log.debug(`Included -> accessory=${wakeAlarmSwitch.name}`);
+
+        this.SomneoAccessories.push(wakeAlarmSwitch);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SWITCH_WAKE_ALARM_SNOOZE)) {
+        const wakeAlarmSnoozeSwitch = new SomneoWakeAlarmSnoozeSwitchAccessory(this, somneoClock);
+
+        this.log.debug(`Included -> accessory=${wakeAlarmSnoozeSwitch.name}`);
+
+        this.SomneoAccessories.push(wakeAlarmSnoozeSwitch);
+      }
+
+      if (somneoClock.RequestedAccessories.includes(RequestedAccessory.SWITCH_WAKE_ALARM_DISMISS)) {
+        const wakeAlarmDismissSwitch = new SomneoWakeAlarmDismissSwitchAccessory(this, somneoClock);
+
+        this.log.debug(`Included -> accessory=${wakeAlarmDismissSwitch.name}`);
+
+        this.SomneoAccessories.push(wakeAlarmDismissSwitch);
       }
 
       if (somneoClock.RequestedAccessories.includes(RequestedAccessory.AUDIO)) {
