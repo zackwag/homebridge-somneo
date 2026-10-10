@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/zackwag/homebridge-somneo/compare/v1.8.0...v1.8.1) (2026-10-10)
+
+
+### Miscellaneous Chores
+
+* drop package name prefix from release tags/titles ([#69](https://github.com/zackwag/homebridge-somneo/issues/69)) ([1bf714c](https://github.com/zackwag/homebridge-somneo/commit/1bf714cdd9f5047e4ed56d452ba05c1c2ed5ce26))
+
 ## [1.8.0](https://github.com/zackwag/homebridge-somneo/compare/homebridge-somneo-v1.7.0...homebridge-somneo-v1.8.0) (2026-09-17)
 
 
