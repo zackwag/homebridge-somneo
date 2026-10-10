@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.2](https://github.com/zackwag/homebridge-somneo/compare/v1.8.1...v1.8.2) (2026-10-10)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump handlebars from 4.7.9 to 4.7.10 ([#73](https://github.com/zackwag/homebridge-somneo/issues/73)) ([a7a97b2](https://github.com/zackwag/homebridge-somneo/commit/a7a97b2f5625f99ec9d317b84579db5a49c83cfb))
+
 ## [1.8.1](https://github.com/zackwag/homebridge-somneo/compare/v1.8.0...v1.8.1) (2026-10-10)
 
 
