@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.3](https://github.com/zackwag/homebridge-somneo/compare/v1.8.2...v1.8.3) (2026-10-20)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump follow-redirects from 1.16.0 to 1.16.1 ([#75](https://github.com/zackwag/homebridge-somneo/issues/75)) ([224d0cf](https://github.com/zackwag/homebridge-somneo/commit/224d0cf2000572e357d6aa1f6d9ec4dc9ab1f298))
+
 ## [1.8.2](https://github.com/zackwag/homebridge-somneo/compare/v1.8.1...v1.8.2) (2026-10-10)
 
 
